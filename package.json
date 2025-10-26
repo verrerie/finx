@@ -15,7 +15,6 @@
         "test:coverage": "vitest run --coverage",
         "test:market-data": "tsx test-market-data.ts",
         "test:portfolio": "tsx test-portfolio.ts",
-        "test:portfolio-learning": "tsx test-portfolio-learning.ts",
         "test:e2e": "tsx test-e2e.ts",
         "lint": "pnpm --recursive lint",
         "clean": "pnpm --recursive exec rm -rf dist node_modules",
