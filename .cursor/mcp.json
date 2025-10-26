@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "finx-market-data": {
+            "command": "npx",
+            "args": [
+                "tsx",
+                "/Users/verrerie/git/finx/mcp-market-data/src/index.ts"
+            ]
+        }
+    }
+}
