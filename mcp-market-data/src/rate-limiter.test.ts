@@ -58,18 +58,18 @@ describe('RateLimiter', () => {
         rateLimiter = new RateLimiter(5, 25);
         const mockFn = vi.fn().mockRejectedValue(new Error('test error'));
 
+        // Attach error handler immediately to prevent unhandled rejection
         const promise = rateLimiter.execute(mockFn);
+        const errorPromise = promise.catch(err => err);
 
-        // Need to await the promise rejection before running timers
-        try {
-            await vi.runAllTimersAsync();
-            await promise;
-            // Should not reach here
-            expect(true).toBe(false);
-        } catch (error) {
-            expect(error).toBeInstanceOf(Error);
-            expect((error as Error).message).toBe('test error');
-        }
+        // Run timers to execute the function
+        await vi.runAllTimersAsync();
+        
+        // Now await the error
+        const error = await errorPromise;
+        
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('test error');
 
         const stats = rateLimiter.getStats();
         expect(stats.callsLastMinute).toBe(1);
