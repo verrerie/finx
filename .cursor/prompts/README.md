@@ -2,7 +2,9 @@
 
 This directory contains structured prompts to help you learn investment concepts through hands-on exploration with real market data.
 
-## Available Prompts (Phase 1a)
+## Available Prompts
+
+### Market Data Analysis (Phase 1a)
 
 ### 1. `learn-concept.md` - Deep Dive into Financial Metrics
 
@@ -123,15 +125,26 @@ This directory contains structured prompts to help you learn investment concepts
 
 ## Integration with MCP Tools
 
-These prompts work seamlessly with your Market Data MCP Server:
+These prompts work seamlessly with your MCP Servers:
 
-**Available tools:**
+### Market Data MCP Server
+**Market research and analysis tools:**
 - `get_quote` - Get current price and metrics
 - `get_historical_data` - See price history
 - `search_symbol` - Find ticker symbols
 - `get_company_info` - Get comprehensive financial data
 - `explain_fundamental` - Learn about specific metrics
 - `compare_peers` - Side-by-side company comparisons
+
+### Portfolio MCP Server
+**Portfolio management tools:**
+- `create_portfolio` - Start tracking investments
+- `get_holdings` - View all positions
+- `add_transaction` - Record buy/sell transactions
+- `calculate_performance` - Analyze returns
+- `add_to_watchlist` - Track stocks for research
+- `create_thesis` - Document investment rationale
+- `analyze_what_if` - Model transaction scenarios
 
 **The AI will automatically use these tools** when you use the prompts!
 
@@ -193,12 +206,81 @@ Each prompt includes templates for documenting your learning:
 **Prompts**: All three prompts in this directory
 **Goal**: Read financial data and understand what it means
 
-### Phase 1b (Next): Portfolio Management
-**New prompts** (coming soon):
-- `analyze-portfolio.md` - Review your overall portfolio
-- `what-if-scenario.md` - Explore scenarios and learn from them
-
+### Phase 1b (Current): Portfolio Management
+**Focus**: Managing and analyzing your investment portfolio
+**Prompts**: Portfolio analysis and transaction planning
 **Goal**: Make informed decisions about your actual portfolio
+
+#### Portfolio Analysis Prompts
+
+**4. `analyze-portfolio.md` - Comprehensive Portfolio Review**
+
+**Use when**: You want to review your entire portfolio's performance and composition
+
+**What you'll learn:**
+- Portfolio performance and return metrics
+- Position-level analysis (winners/losers)
+- Sector allocation and diversification
+- Concentration risk assessment
+- Rebalancing opportunities
+- Tax-loss harvesting possibilities
+
+**Typical session:**
+```
+"Analyze my portfolio performance and composition"
+→ Review all holdings and performance
+→ Identify overconcentration risks
+→ Assess diversification
+→ Find rebalancing opportunities
+→ Document in knowledge/journal/YYYY-MM-DD-portfolio-review.md
+→ Time: 45-90 minutes
+```
+
+**5. `evaluate-position.md` - Deep Dive on a Single Position**
+
+**Use when**: You want to decide whether to hold, buy more, or sell a position
+
+**What you'll learn:**
+- Thesis validation (is it still valid?)
+- Performance vs expectations
+- Position sizing appropriateness
+- Bull case vs bear case reassessment
+- What-if scenarios for adjustments
+
+**Typical session:**
+```
+"Evaluate my AAPL position"
+→ Review original thesis
+→ Assess current fundamentals
+→ Model what-if scenarios
+→ Decide: hold / buy / sell
+→ Document in knowledge/journal/YYYY-MM-DD-AAPL-evaluation.md
+→ Time: 30-60 minutes
+```
+
+**6. `plan-transaction.md` - Systematic Transaction Planning**
+
+**Use when**: Before buying or selling any stock
+
+**What you'll learn:**
+- Systematic decision-making process
+- Pre-trade checklist (don't skip steps!)
+- What-if analysis before execution
+- Risk assessment and mitigation
+- Tax implications and timing
+- Emotional vs rational decision-making
+
+**Typical session:**
+```
+"I'm thinking about buying Tesla"
+→ Define transaction (quantity, price)
+→ Document investment thesis
+→ Model portfolio impact
+→ Consider risks and alternatives
+→ Make go/no-go decision
+→ Document in knowledge/journal/YYYY-MM-DD-transaction-TSLA-BUY.md
+→ Time: 30-60 minutes
+```
 
 ### Future Phases
 **Phase 2**: Financial statement deep dives and valuation

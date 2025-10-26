@@ -5,7 +5,7 @@
  * Tests watchlist, investment thesis, and what-if analysis tools
  */
 
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
 interface MCPMessage {
     jsonrpc: string;
@@ -25,7 +25,7 @@ class MessageBuffer {
     append(chunk: string): MCPMessage[] {
         this.buffer += chunk;
         const messages: MCPMessage[] = [];
-        
+
         let startIdx = 0;
         while (startIdx < this.buffer.length) {
             try {
@@ -36,7 +36,7 @@ class MessageBuffer {
             } catch {
                 const nextBrace = this.buffer.indexOf('}{', startIdx);
                 if (nextBrace === -1) break;
-                
+
                 try {
                     const message = this.buffer.slice(startIdx, nextBrace + 1);
                     const parsed = JSON.parse(message);
@@ -47,11 +47,11 @@ class MessageBuffer {
                 }
             }
         }
-        
+
         if (startIdx > 0) {
             this.buffer = this.buffer.slice(startIdx);
         }
-        
+
         return messages;
     }
 
