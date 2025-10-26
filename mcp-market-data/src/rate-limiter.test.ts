@@ -64,10 +64,10 @@ describe('RateLimiter', () => {
 
         // Run timers to execute the function
         await vi.runAllTimersAsync();
-        
+
         // Now await the error
         const error = await errorPromise;
-        
+
         expect(error).toBeInstanceOf(Error);
         expect((error as Error).message).toBe('test error');
 
