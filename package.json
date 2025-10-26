@@ -6,6 +6,9 @@
     "scripts": {
         "dev:market-data": "tsx watch mcp-market-data/src/index.ts",
         "build:market-data": "tsc -p mcp-market-data/tsconfig.json",
+        "dev:portfolio": "tsx watch mcp-portfolio/src/index.ts",
+        "build:portfolio": "tsc -p mcp-portfolio/tsconfig.json",
+        "build": "pnpm build:market-data && pnpm build:portfolio",
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
         "test:market-data": "tsx test-market-data.ts",
@@ -32,6 +35,7 @@
         "@modelcontextprotocol/sdk": "^1.0.0",
         "alphavantage": "^2.5.0",
         "dotenv": "^17.2.3",
+        "mariadb": "^3.4.5",
         "yahoo-finance2": "^3.10.0"
     },
     "engines": {
