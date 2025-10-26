@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Cache } from './cache.js';
 
 describe('Cache', () => {
@@ -22,11 +22,11 @@ describe('Cache', () => {
 
     it('should expire values after TTL', () => {
         cache.set('test-key', { data: 'test-value' }, 1000);
-        
+
         // Advance time by 500ms - should still be cached
         vi.advanceTimersByTime(500);
         expect(cache.get('test-key')).toEqual({ data: 'test-value' });
-        
+
         // Advance time by another 600ms - should be expired
         vi.advanceTimersByTime(600);
         expect(cache.get('test-key')).toBeNull();
@@ -41,9 +41,9 @@ describe('Cache', () => {
     it('should handle multiple keys independently', () => {
         cache.set('key1', { data: 'value1' }, 1000);
         cache.set('key2', { data: 'value2' }, 2000);
-        
+
         vi.advanceTimersByTime(1500);
-        
+
         expect(cache.get('key1')).toBeNull();
         expect(cache.get('key2')).toEqual({ data: 'value2' });
     });
@@ -51,9 +51,9 @@ describe('Cache', () => {
     it('should clear cache', () => {
         cache.set('key1', { data: 'value1' }, 1000);
         cache.set('key2', { data: 'value2' }, 1000);
-        
+
         cache.clear();
-        
+
         expect(cache.get('key1')).toBeNull();
         expect(cache.get('key2')).toBeNull();
     });
