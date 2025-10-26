@@ -7,7 +7,9 @@
         "dev:market-data": "tsx watch mcp-market-data/src/index.ts",
         "build:market-data": "tsc -p mcp-market-data/tsconfig.json",
         "test": "vitest",
-        "test:market-data": "tsx test-market-data.ts"
+        "test:coverage": "vitest run --coverage",
+        "test:market-data": "tsx test-market-data.ts",
+        "lint": "tsc --noEmit"
     },
     "keywords": [
         "finance",
@@ -21,6 +23,7 @@
     "license": "MIT",
     "devDependencies": {
         "@types/node": "^22.0.0",
+        "@vitest/coverage-v8": "^2.1.0",
         "tsx": "^4.19.0",
         "typescript": "^5.7.0",
         "vitest": "^2.1.0"

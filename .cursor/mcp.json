@@ -6,6 +6,16 @@
                 "tsx",
                 "/Users/verrerie/git/finx/mcp-market-data/src/index.ts"
             ]
+        },
+        "awesome-copilot": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "ghcr.io/microsoft/mcp-dotnet-samples/awesome-copilot:latest"
+            ]
         }
     }
 }
