@@ -21,6 +21,7 @@ export const DB_CONFIG = {
   acquireTimeout: 30000,
   connectTimeout: 10000,
   charset: 'utf8mb4',
+  bigIntAsNumber: true, // Convert BigInt to Number for JSON serialization
 } as const;
 
 /**

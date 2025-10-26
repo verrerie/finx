@@ -12,6 +12,7 @@
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
         "test:market-data": "tsx test-market-data.ts",
+        "test:portfolio": "tsx test-portfolio.ts",
         "lint": "tsc --noEmit"
     },
     "keywords": [

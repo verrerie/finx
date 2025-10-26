@@ -120,16 +120,16 @@ export class HoldingRepository {
     notes?: string
   ): Promise<Holding> {
     const sql = `
-      INSERT INTO holdings (portfolio_id, symbol, quantity, average_cost, currency, notes)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO holdings (id, portfolio_id, symbol, quantity, average_cost, currency, notes)
+      VALUES (UUID(), ?, ?, ?, ?, ?, ?)
     `;
     
     const params = [portfolioId, symbol, quantity, averageCost, currency, notes || null];
     
-    const result = await query(sql, params);
-    const insertId = (result as any).insertId;
+    await query(sql, params);
     
-    const holding = await this.findById(insertId);
+    // Fetch the created holding
+    const holding = await this.findBySymbol(portfolioId, symbol);
     if (!holding) {
       throw new Error('Failed to create holding');
     }

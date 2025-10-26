@@ -19,9 +19,10 @@ export class PortfolioRepository {
    * Create a new portfolio
    */
   async create(input: CreatePortfolioInput): Promise<Portfolio> {
+    // Generate UUID manually (MariaDB's UUID() is not compatible with insertId)
     const sql = `
-      INSERT INTO portfolios (name, description, currency)
-      VALUES (?, ?, ?)
+      INSERT INTO portfolios (id, name, description, currency)
+      VALUES (UUID(), ?, ?, ?)
     `;
     
     const params = [
@@ -30,16 +31,29 @@ export class PortfolioRepository {
       input.currency || 'USD',
     ];
     
-    const result = await query(sql, params);
-    const insertId = (result as any).insertId;
+    await query(sql, params);
     
-    // Fetch and return the created portfolio
-    const portfolio = await this.findById(insertId);
-    if (!portfolio) {
+    // Find the just-created portfolio by name (unique enough for recent insertion)
+    const findSql = `
+      SELECT id, name, description, currency, created_at, updated_at
+      FROM portfolios
+      WHERE name = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    
+    const results = await query<Portfolio>(findSql, [input.name]);
+    
+    if (results.length === 0) {
       throw new Error('Failed to create portfolio');
     }
     
-    return portfolio;
+    const row = results[0];
+    return {
+      ...row,
+      created_at: parseDate(row.created_at) as Date,
+      updated_at: parseDate(row.updated_at) as Date,
+    };
   }
 
   /**
