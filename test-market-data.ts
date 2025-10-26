@@ -37,7 +37,7 @@ class MCPClient {
         });
 
         // Handle responses
-        this.process.stdout.on('data', (chunk) => {
+        this.process.stdout?.on('data', (chunk) => {
             this.buffer += chunk.toString();
 
             // Process complete JSON messages
@@ -77,7 +77,7 @@ class MCPClient {
                 params,
             };
 
-            this.process.stdin.write(JSON.stringify(request) + '\n');
+            this.process.stdin?.write(JSON.stringify(request) + '\n');
 
             // Timeout after 30 seconds
             setTimeout(() => {
