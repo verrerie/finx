@@ -52,7 +52,7 @@ docker compose exec mariadb healthcheck.sh --connect
 ### 4. Access Database
 
 ```bash
-docker compose exec mariadb mysql -u finx_user -p finx
+docker compose exec mariadb mariadb -u finx_user -p finx
 ```
 
 ---
@@ -171,16 +171,16 @@ holdings (*) --> (*) tags (through holding_tags)
 
 ```bash
 # Backup all data
-docker compose exec mariadb mysqldump -u root -p finx > backup_$(date +%Y%m%d).sql
+docker compose exec mariadb mariadb-dump -u root -p finx > backup_$(date +%Y%m%d).sql
 
 # Backup schema only
-docker compose exec mariadb mysqldump -u root -p --no-data finx > schema_$(date +%Y%m%d).sql
+docker compose exec mariadb mariadb-dump -u root -p --no-data finx > schema_$(date +%Y%m%d).sql
 ```
 
 ### Restore Database
 
 ```bash
-docker compose exec -T mariadb mysql -u root -p finx < backup_20250126.sql
+docker compose exec -T mariadb mariadb -u root -p finx < backup_20250126.sql
 ```
 
 ### Reset Database
@@ -243,7 +243,7 @@ VALUES ('20250126120000', 'Add watchlist price alerts');
 2. Apply migration:
 
 ```bash
-docker compose exec -T mariadb mysql -u root -p finx < database/migrations/20250126120000_add_watchlist_alerts.sql
+docker compose exec -T mariadb mariadb -u root -p finx < database/migrations/20250126120000_add_watchlist_alerts.sql
 ```
 
 ### Migration Best Practices
@@ -275,10 +275,10 @@ LOAD_SEED_DATA=false
 
 ```bash
 # As finx_user
-docker compose exec mariadb mysql -u finx_user -p finx
+docker compose exec mariadb mariadb -u finx_user -p finx
 
 # As root
-docker compose exec mariadb mysql -u root -p finx
+docker compose exec mariadb mariadb -u root -p finx
 ```
 
 ### Useful Queries
@@ -387,7 +387,7 @@ cat .env | grep DB_
 
 ```bash
 # Reset user permissions
-docker compose exec mariadb mysql -u root -p
+docker compose exec mariadb mariadb -u root -p
 
 GRANT ALL PRIVILEGES ON finx.* TO 'finx_user'@'%';
 FLUSH PRIVILEGES;
@@ -397,7 +397,7 @@ FLUSH PRIVILEGES;
 
 ```bash
 # Enable slow query log
-docker compose exec mariadb mysql -u root -p
+docker compose exec mariadb mariadb -u root -p
 
 SET GLOBAL slow_query_log = 'ON';
 SET GLOBAL long_query_time = 2;
@@ -410,7 +410,7 @@ SET GLOBAL long_query_time = 2;
 docker system df -v
 
 # Clean up old data
-docker compose exec mariadb mysql -u root -p finx
+docker compose exec mariadb mariadb -u root -p finx
 
 # Example: Remove old snapshots
 DELETE FROM portfolio_snapshots

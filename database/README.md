@@ -76,10 +76,10 @@ VALUES ('20250127093000', 'Add portfolio notes field');
 
 ```bash
 # Apply a specific migration
-docker compose exec -T mariadb mysql -u root -p finx < database/migrations/20250127093000_add_portfolio_notes.sql
+docker compose exec -T mariadb mariadb -u root -p finx < database/migrations/20250127093000_add_portfolio_notes.sql
 
 # Or connect and run manually
-docker compose exec mariadb mysql -u root -p finx
+docker compose exec mariadb mariadb -u root -p finx
 source /migrations/20250127093000_add_portfolio_notes.sql;
 ```
 
@@ -103,7 +103,7 @@ The `docker-compose.yml` mounts these directories:
 
 3. Verify:
    ```bash
-   docker compose exec mariadb mysql -u finx_user -p finx -e "SHOW TABLES;"
+   docker compose exec mariadb mariadb -u finx_user -p finx -e "SHOW TABLES;"
    ```
 
 ### Reset Database
@@ -126,7 +126,7 @@ To start with empty tables, comment out or delete `02-seed-data.sql`.
 2. **Use migrations for schema changes** after initial setup
 3. **Test on backup first** before applying to production
 4. **Document rollback procedures** in migration comments
-5. **Backup before migrations**: `docker compose exec mariadb mysqldump -u root -p finx > backup.sql`
+5. **Backup before migrations**: `docker compose exec mariadb mariadb-dump -u root -p finx > backup.sql`
 
 ## See Also
 
