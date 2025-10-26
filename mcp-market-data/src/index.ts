@@ -20,18 +20,18 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { Cache } from './cache.js';
+import {
+    findSectorFromSymbol,
+    formatMetricExplanation,
+    getMetricExplanation,
+    getPeersBySector,
+    listAvailableMetrics,
+    listAvailableSectors
+} from './educational.js';
 import { AlphaVantageProvider } from './providers/alpha-vantage.js';
 import { YahooFinanceProvider } from './providers/yahoo-finance.js';
 import { RateLimiter } from './rate-limiter.js';
 import { Period } from './types.js';
-import { 
-    getMetricExplanation, 
-    formatMetricExplanation, 
-    listAvailableMetrics,
-    getPeersBySector,
-    findSectorFromSymbol,
-    listAvailableSectors
-} from './educational.js';
 
 // Environment configuration
 const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY || '';
@@ -356,7 +356,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
             case 'explain_fundamental': {
                 const { metric, symbol } = args as { metric: string; symbol?: string };
-                
+
                 const explanation = getMetricExplanation(metric);
                 if (!explanation) {
                     const availableMetrics = listAvailableMetrics();
@@ -371,7 +371,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 }
 
                 const formattedExplanation = formatMetricExplanation(explanation, symbol);
-                
+
                 // If symbol is provided, also try to fetch actual data for context
                 let contextData = '';
                 if (symbol) {
@@ -397,14 +397,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             }
 
             case 'compare_peers': {
-                const { symbol, sector, metrics } = args as { 
-                    symbol: string; 
-                    sector?: string; 
+                const { symbol, sector, metrics } = args as {
+                    symbol: string;
+                    sector?: string;
                     metrics?: string[];
                 };
-                
+
                 const upperSymbol = symbol.toUpperCase();
-                
+
                 // Determine sector
                 let targetSector: string | undefined = sector;
                 if (!targetSector) {
@@ -438,12 +438,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
                 // Fetch data for target company and peers (limit to 5 peers for reasonable response size)
                 const symbolsToCompare = [upperSymbol, ...peers.filter(p => p !== upperSymbol).slice(0, 5)];
-                
+
                 let comparisonText = `# Peer Comparison: ${upperSymbol}\n\n`;
                 comparisonText += `**Sector:** ${targetSector}\n`;
                 comparisonText += `**Comparing against:** ${symbolsToCompare.slice(1).join(', ')}\n\n`;
                 comparisonText += `---\n\n`;
-                
+
                 // Fetch company info for each symbol
                 const companyDataPromises = symbolsToCompare.map(async (sym) => {
                     try {
@@ -463,12 +463,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 });
 
                 const results = await Promise.all(companyDataPromises);
-                
+
                 // Build comparison table
                 comparisonText += `## Key Metrics Comparison\n\n`;
                 comparisonText += `| Company | Market Cap | P/E Ratio | Revenue Growth | Profit Margin |\n`;
                 comparisonText += `|---------|------------|-----------|----------------|---------------|\n`;
-                
+
                 for (const result of results) {
                     if (result.data) {
                         const d: any = result.data;
@@ -476,16 +476,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                         const pe = d.trailingPE ? d.trailingPE.toFixed(1) : 'N/A';
                         const revenue = d.revenueGrowth ? `${(d.revenueGrowth * 100).toFixed(1)}%` : 'N/A';
                         const margin = d.profitMargin ? `${(d.profitMargin * 100).toFixed(1)}%` : 'N/A';
-                        
+
                         const highlight = result.symbol === upperSymbol ? '**' : '';
                         comparisonText += `| ${highlight}${result.symbol}${highlight} | ${marketCap} | ${pe} | ${revenue} | ${margin} |\n`;
                     } else {
                         comparisonText += `| ${result.symbol} | Error | Error | Error | Error |\n`;
                     }
                 }
-                
+
                 comparisonText += `\n*Target company (${upperSymbol}) shown in bold*\n\n`;
-                
+
                 // Add learning insights
                 comparisonText += `---\n\n## 💡 Learning Points\n\n`;
                 comparisonText += `1. **Compare Valuations**: How does ${upperSymbol}'s P/E compare to peers? Higher P/E suggests market expects stronger growth.\n\n`;
