@@ -41,13 +41,23 @@ See [docs/MONOREPO.md](./docs/MONOREPO.md) for detailed workspace documentation.
 - [x] Testing, validation, and SOLID refactoring
 - [x] CI/CD with automated testing and releases
 
-**Phase 1b: Portfolio Management** ⚙️ In Progress
+**Phase 1b: Portfolio Management** ✅ Complete
 
 - [x] Database infrastructure (Docker Compose + MariaDB 11.8)
-- [ ] Portfolio MCP Server core tools
-- [ ] Portfolio learning features
-- [ ] End-to-end testing
-- [ ] Complete documentation
+- [x] Portfolio MCP Server core tools (8 tools)
+- [x] Portfolio learning features (10 additional tools)
+- [x] Portfolio analysis prompts for Cursor
+- [x] End-to-end testing (3 complete workflows)
+- [x] Complete documentation
+
+**Implemented Features:**
+- Create and manage investment portfolios
+- Record buy/sell transactions with automatic cost basis
+- Calculate portfolio and position-level performance
+- Research watchlist management
+- Investment thesis tracking (bull/bear cases)
+- What-if scenario analysis (buy/sell impact modeling)
+- Comprehensive learning prompts and knowledge base
 
 ## 🚀 Quick Start
 
@@ -95,7 +105,17 @@ docker compose ps
 
 See [docs/DATABASE.md](./docs/DATABASE.md) for detailed database documentation.
 
-4. **Configure MCP in Cursor:**
+4. **Build all servers:**
+
+```bash
+pnpm build
+```
+
+This builds:
+- Market Data MCP Server (`mcp-market-data/dist/`)
+- Portfolio MCP Server (`mcp-portfolio/dist/`)
+
+5. **Configure MCP in Cursor:**
 
 Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
 
@@ -105,51 +125,121 @@ Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
     "finx-market-data": {
       "command": "node",
       "args": [
-        "/Users/verrerie/git/finx/dist/mcp-market-data/src/index.js"
+        "/absolute/path/to/finx/mcp-market-data/dist/index.js"
       ],
       "env": {
         "ALPHA_VANTAGE_API_KEY": "your_key_here"
+      }
+    },
+    "finx-portfolio": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/finx/mcp-portfolio/dist/index.js"
+      ],
+      "env": {
+        "DB_HOST": "localhost",
+        "DB_PORT": "3306",
+        "DB_NAME": "finx",
+        "DB_USER": "finx_user",
+        "DB_PASSWORD": "finx_password"
       }
     }
   }
 }
 ```
 
-*(Update the path to match your installation location)*
+**⚠️ Important:** Replace `/absolute/path/to/finx` with your actual installation path.
 
-5. **Build and start the server:**
+6. **Restart Cursor** to load the MCP servers
+
+## 🎮 Testing & Development
+
+### Run Tests
 
 ```bash
-# Development mode (auto-reload)
-pnpm dev:market-data
+# All unit tests
+pnpm test
 
-# Production build
-pnpm build:market-data
+# Watch mode for development  
+pnpm test:watch
+
+# With coverage
+pnpm test:coverage
+
+# Integration tests
+pnpm test:market-data    # Market Data server
+pnpm test:portfolio      # Portfolio server core
+pnpm test:portfolio-learning  # Learning features
+pnpm test:e2e            # End-to-end workflows
+```
+
+### Development Mode
+
+```bash
+# Run MCP servers in watch mode
+pnpm dev:market-data     # Auto-reload Market Data server
+pnpm dev:portfolio       # Auto-reload Portfolio server
 ```
 
 ## 📚 Learning Path
 
-### Phase 1: Market Data & Fundamentals
-**Learn:** Stock quotes, historical data, company fundamentals, financial metrics
+### Phase 1a: Market Data & Fundamentals ✅
+
+**What You Learn:**
+- Reading stock quotes and understanding market data
+- Company fundamentals and financial metrics
+- Sector comparisons and peer analysis
+- Key financial ratios (P/E, ROE, profit margins, etc.)
+
+**Available Tools:**
+- `get_quote` - Current price and metrics
+- `get_historical_data` - Price history
+- `get_company_info` - Comprehensive fundamentals
+- `search_symbol` - Find ticker symbols
+- `explain_fundamental` - Learn about specific metrics
+- `compare_peers` - Side-by-side company comparisons
+
+**Learning Prompts:**
+- `learn-concept.md` - Deep dive into financial metrics
+- `decode-financials.md` - Understand a company
+- `compare-stocks.md` - Learn by comparison
+
+### Phase 1b: Portfolio Management ✅
+
+**What You Learn:**
+- Building and tracking investment portfolios
+- Recording transactions and cost basis
+- Calculating returns and performance
+- Investment thesis development
+- What-if scenario analysis
+- Portfolio rebalancing strategies
+
+**Available Tools:**
+- `create_portfolio` - Start tracking investments
+- `add_transaction` - Record buy/sell transactions
+- `get_holdings` - View all positions
+- `calculate_performance` - Analyze returns
+- `add_to_watchlist` - Track research candidates
+- `create_thesis` - Document investment rationale
+- `analyze_what_if` - Model transaction scenarios
+- Plus 11 more portfolio management tools
+
+**Learning Prompts:**
+- `analyze-portfolio.md` - Comprehensive portfolio review
+- `evaluate-position.md` - Deep dive on individual holdings
+- `plan-transaction.md` - Systematic transaction planning
+
+### Phase 2: Financial Statement Analysis (Future)
+**Learn:** Balance sheet, income statement, cash flow analysis, valuation models
+
+### Phase 3: Risk & Portfolio Theory (Future)
+**Learn:** Diversification, correlation, risk-adjusted returns, modern portfolio theory
 
 **Recommended Reading:**
 - "The Intelligent Investor" by Benjamin Graham
 - "A Random Walk Down Wall Street" by Burton Malkiel
-
-**Practice:**
-- Research different stocks
-- Compare companies in the same sector
-- Understand key financial ratios (P/E, P/B, ROE, etc.)
-- Document concepts in your knowledge base
-
-### Phase 2: Portfolio Management
-**Learn:** Position sizing, cost basis, returns calculation, asset allocation
-
-### Phase 3: Fundamental Analysis
-**Learn:** Financial statement analysis, valuation models, ratio interpretation
-
-### Phase 4: Risk & Portfolio Theory
-**Learn:** Diversification, correlation, risk-adjusted returns, modern portfolio theory
+- "Common Stocks and Uncommon Profits" by Philip Fisher
+- "One Up On Wall Street" by Peter Lynch
 
 ## 🛠️ Technology Stack
 
@@ -162,13 +252,22 @@ pnpm build:market-data
 
 ## 📖 Documentation
 
-- [MONOREPO.md](./docs/MONOREPO.md) - **Monorepo structure and workspace management**
-- [LEARNING.md](./docs/LEARNING.md) - How to use this system for financial education
-- [QUICKSTART.md](./docs/QUICKSTART.md) - Interactive guide to explore Market Data tools
-- [USAGE.md](./docs/USAGE.md) - Detailed usage guide and workflows
-- [DATABASE.md](./docs/DATABASE.md) - Database setup, schema, and management
-- [TEST_FEATURES.md](./docs/TEST_FEATURES.md) - Comprehensive testing guide for learning features
-- [.cursor/knowledge/](./cursor/knowledge/) - Your personal financial knowledge base
+### Quick Start Guides
+- **[USAGE.md](./docs/USAGE.md)** - Complete usage guide with real-world examples
+- **[LEARNING.md](./docs/LEARNING.md)** - How to use this system for financial education
+- **[QUICKSTART.md](./docs/QUICKSTART.md)** - Interactive guide to explore tools
+
+### Technical Documentation
+- **[MONOREPO.md](./docs/MONOREPO.md)** - Monorepo structure and workspace management
+- **[DATABASE.md](./docs/DATABASE.md)** - Database setup, schema, and management
+- **[.cursorrules](./.cursorrules)** - AI behavior guidelines for learning
+- **[.cursor/prompts/](./cursor/prompts/)** - Structured learning prompts
+
+### Knowledge Base
+- **[.cursor/knowledge/](./cursor/knowledge/)** - Your personal financial knowledge base
+- **[concepts/](./cursor/knowledge/concepts/)** - Financial concept documentation
+- **[journal/](./cursor/knowledge/journal/)** - Investment decision log
+- **[frameworks/](./cursor/knowledge/frameworks/)** - Investment frameworks
 
 ## 🤝 Contributing
 
