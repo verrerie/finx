@@ -5,7 +5,7 @@
  * Simulates complete user workflows combining market data research and portfolio management
  */
 
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 
 interface MCPMessage {
     jsonrpc: string;
@@ -22,7 +22,7 @@ class MessageBuffer {
     append(chunk: string): MCPMessage[] {
         this.buffer += chunk;
         const messages: MCPMessage[] = [];
-        
+
         let startIdx = 0;
         while (startIdx < this.buffer.length) {
             try {
@@ -33,7 +33,7 @@ class MessageBuffer {
             } catch {
                 const nextBrace = this.buffer.indexOf('}{', startIdx);
                 if (nextBrace === -1) break;
-                
+
                 try {
                     const message = this.buffer.slice(startIdx, nextBrace + 1);
                     const parsed = JSON.parse(message);
@@ -44,11 +44,11 @@ class MessageBuffer {
                 }
             }
         }
-        
+
         if (startIdx > 0) {
             this.buffer = this.buffer.slice(startIdx);
         }
-        
+
         return messages;
     }
 }
@@ -99,7 +99,7 @@ class MCPClient {
                 clearTimeout(timeout);
                 resolve(response);
             });
-            
+
             this.process.stdin?.write(JSON.stringify(request) + '\n');
         });
     }
@@ -189,7 +189,7 @@ class E2ETestRunner {
                     priority: 'HIGH',
                 },
             });
-            
+
             const watchResult = JSON.parse(watchlist.result.content[0].text);
             if (watchResult.success) {
                 console.log(`      ✓ Added to watchlist with $${watchResult.watchlist_item.target_price} target`);
@@ -208,7 +208,7 @@ class E2ETestRunner {
                     target_allocation: 10,
                 },
             });
-            
+
             const thesisResult = JSON.parse(thesis.result.content[0].text);
             if (thesisResult.success) {
                 console.log(`      ✓ Investment thesis documented (${thesisResult.thesis.target_allocation}% target)`);
@@ -227,7 +227,7 @@ class E2ETestRunner {
                     current_prices: { NVDA: 480.00 },
                 },
             });
-            
+
             const whatIfResult = JSON.parse(whatIf.result.content[0].text);
             if (whatIfResult.success) {
                 console.log(`      ✓ Analyzed impact: ${whatIfResult.analysis.portfolio_impact.position_weight_after.toFixed(2)}% portfolio weight`);
@@ -249,7 +249,7 @@ class E2ETestRunner {
                     notes: 'Initial position based on AI growth thesis',
                 },
             });
-            
+
             const txResult = JSON.parse(transaction.result.content[0].text);
             if (txResult.success) {
                 console.log(`      ✓ Transaction recorded: 10 shares @ $${txResult.transaction.price}`);
@@ -278,7 +278,7 @@ class E2ETestRunner {
                 name: 'get_holdings',
                 arguments: { portfolio_id: this.portfolioId },
             });
-            
+
             const holdingsResult = JSON.parse(holdings.result.content[0].text);
             if (holdingsResult.success) {
                 console.log(`      ✓ Portfolio has ${holdingsResult.holdings.length} position(s)`);
@@ -299,7 +299,7 @@ class E2ETestRunner {
                     },
                 },
             });
-            
+
             const perfResult = JSON.parse(performance.result.content[0].text);
             if (perfResult.success && perfResult.performance) {
                 const perf = perfResult.performance;
@@ -315,7 +315,7 @@ class E2ETestRunner {
                 name: 'get_theses',
                 arguments: { portfolio_id: this.portfolioId },
             });
-            
+
             const thesesResult = JSON.parse(theses.result.content[0].text);
             if (thesesResult.success) {
                 console.log(`      ✓ Active theses: ${thesesResult.count}`);
@@ -330,7 +330,7 @@ class E2ETestRunner {
                 name: 'get_watchlist',
                 arguments: { portfolio_id: this.portfolioId },
             });
-            
+
             const watchResult = JSON.parse(watchlist.result.content[0].text);
             if (watchResult.success) {
                 console.log(`      ✓ Watching ${watchResult.count} stock(s)`);
@@ -366,7 +366,7 @@ class E2ETestRunner {
                     symbol: 'NVDA',
                 },
             });
-            
+
             const thesisResult = JSON.parse(thesis.result.content[0].text);
             if (thesisResult.success && thesisResult.thesis) {
                 console.log(`      ✓ Thesis status: ${thesisResult.thesis.status}`);
@@ -386,7 +386,7 @@ class E2ETestRunner {
                     current_prices: { NVDA: 485.00 },
                 },
             });
-            
+
             const sellResult = JSON.parse(whatIfSell.result.content[0].text);
             if (sellResult.success) {
                 console.log(`      ✓ Realized gain if sold: $${sellResult.analysis.after_sale.realized_gain_loss.toFixed(2)}`);
@@ -403,7 +403,7 @@ class E2ETestRunner {
                     limit: 5,
                 },
             });
-            
+
             const txResult = JSON.parse(transactions.result.content[0].text);
             if (txResult.success) {
                 console.log(`      ✓ Last ${txResult.transactions.length} transaction(s) reviewed`);
