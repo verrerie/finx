@@ -1,0 +1,39 @@
+{
+    "name": "finx",
+    "version": "0.1.0",
+    "description": "Learning-focused Financial AI Agent with MCP servers for market data and portfolio management",
+    "type": "module",
+    "scripts": {
+        "dev:market-data": "tsx watch mcp-market-data/src/index.ts",
+        "build:market-data": "tsc -p mcp-market-data/tsconfig.json",
+        "test": "vitest",
+        "test:market-data": "tsx test-market-data.ts"
+    },
+    "keywords": [
+        "finance",
+        "investment",
+        "mcp",
+        "portfolio",
+        "market-data",
+        "learning"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "tsx": "^4.19.0",
+        "typescript": "^5.7.0",
+        "vitest": "^2.1.0"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.0",
+        "alphavantage": "^2.5.0",
+        "dotenv": "^17.2.3",
+        "yahoo-finance2": "^3.10.0"
+    },
+    "engines": {
+        "node": ">=22.0.0",
+        "pnpm": ">=9.0.0"
+    },
+    "packageManager": "pnpm@9.0.0"
+}
