@@ -5,7 +5,7 @@
  * Refactored following SOLID principles
  */
 
-import { spawn, ChildProcess } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import { resolve } from 'path';
 
 // ============================================================================
@@ -39,7 +39,7 @@ interface MCPClientConfig {
 }
 
 // ============================================================================
-// Single Responsibility: Message Buffer Management
+// Message Buffer Management
 // ============================================================================
 
 class MessageBuffer {
@@ -58,7 +58,7 @@ class MessageBuffer {
 }
 
 // ============================================================================
-// Single Responsibility: MCP Communication Protocol
+// MCP Communication Protocol
 // ============================================================================
 
 class MCPClient {
@@ -141,7 +141,7 @@ class MCPClient {
 }
 
 // ============================================================================
-// Single Responsibility: Test Output Formatting
+// Test Output Formatting
 // ============================================================================
 
 class TestReporter {
@@ -168,7 +168,7 @@ class TestReporter {
     printSummary(results: TestResult[]): void {
         const passed = results.filter(r => r.passed).length;
         const total = results.length;
-        
+
         console.log(`\n${TestReporter.SEPARATOR}`);
         if (passed === total) {
             console.log('✅ All tests passed successfully!');
@@ -194,25 +194,25 @@ class TestReporter {
 }
 
 // ============================================================================
-// Single Responsibility: Individual Test Cases
+// Individual Test Cases
 // ============================================================================
 
 class MarketDataTests {
     constructor(
         private client: MCPClient,
         private reporter: TestReporter
-    ) {}
+    ) { }
 
     async testListTools(): Promise<TestResult> {
         this.reporter.printTestStart('📋 Test 1: List Available Tools');
-        
+
         try {
             const tools = await this.client.listTools();
             this.reporter.printSuccess(`Found ${tools.tools.length} tools:`);
             tools.tools.forEach((tool: any) => {
                 console.log(`  - ${tool.name}: ${tool.description.substring(0, 60)}...`);
             });
-            
+
             return {
                 passed: true,
                 name: 'List Tools',
@@ -231,23 +231,23 @@ class MarketDataTests {
 
     async testGetQuote(): Promise<TestResult> {
         this.reporter.printTestStart('💰 Test 2: Get Quote (AAPL)');
-        
+
         try {
             const quote = await this.client.callTool('get_quote', { symbol: 'AAPL' });
             const quoteData = JSON.parse(quote.content[0].text.split('\n\n')[0]);
-            
+
             this.reporter.printSuccess(`Symbol: ${quoteData.symbol}`);
             this.reporter.printSuccess(`Price: $${quoteData.price.toFixed(2)}`);
             this.reporter.printSuccess(`Change: ${quoteData.change >= 0 ? '+' : ''}${quoteData.change.toFixed(2)} (${quoteData.changePercent.toFixed(2)}%)`);
             this.reporter.printSuccess(`Volume: ${quoteData.volume.toLocaleString()}`);
-            
+
             if (quoteData.marketCap) {
                 this.reporter.printSuccess(`Market Cap: $${(quoteData.marketCap / 1e9).toFixed(2)}B`);
             }
             if (quoteData.peRatio) {
                 this.reporter.printSuccess(`P/E Ratio: ${quoteData.peRatio.toFixed(2)}`);
             }
-            
+
             return {
                 passed: true,
                 name: 'Get Quote',
@@ -266,16 +266,16 @@ class MarketDataTests {
 
     async testGetCompanyInfo(): Promise<TestResult> {
         this.reporter.printTestStart('🏢 Test 3: Get Company Info (MSFT)');
-        
+
         try {
             const companyInfo = await this.client.callTool('get_company_info', { symbol: 'MSFT' });
             const companyData = JSON.parse(companyInfo.content[0].text.split('\n\n')[0]);
-            
+
             this.reporter.printSuccess(`Name: ${companyData.name}`);
             this.reporter.printSuccess(`Sector: ${companyData.sector}`);
             this.reporter.printSuccess(`Industry: ${companyData.industry}`);
             this.reporter.printSuccess(`Description: ${companyData.description.substring(0, 100)}...`);
-            
+
             if (companyData.peRatio) {
                 this.reporter.printSuccess(`P/E Ratio: ${companyData.peRatio.toFixed(2)}`);
             }
@@ -285,7 +285,7 @@ class MarketDataTests {
             if (companyData.debtToEquity) {
                 this.reporter.printSuccess(`Debt/Equity: ${companyData.debtToEquity.toFixed(2)}`);
             }
-            
+
             return {
                 passed: true,
                 name: 'Get Company Info',
@@ -304,16 +304,16 @@ class MarketDataTests {
 
     async testGetHistoricalData(): Promise<TestResult> {
         this.reporter.printTestStart('📈 Test 4: Get Historical Data (GOOGL, 1 month)');
-        
+
         try {
             const historical = await this.client.callTool('get_historical_data', {
                 symbol: 'GOOGL',
                 period: '1mo'
             });
             const histData = JSON.parse(historical.content[0].text.split('\n\n')[0]);
-            
+
             this.reporter.printSuccess(`Retrieved ${histData.length} data points`);
-            
+
             if (histData.length > 0) {
                 const latest = histData[histData.length - 1];
                 const oldest = histData[0];
@@ -321,7 +321,7 @@ class MarketDataTests {
                 this.reporter.printSuccess(`Latest Close: $${latest.close.toFixed(2)}`);
                 this.reporter.printSuccess(`Latest Volume: ${latest.volume.toLocaleString()}`);
             }
-            
+
             return {
                 passed: true,
                 name: 'Get Historical Data',
@@ -340,16 +340,16 @@ class MarketDataTests {
 
     async testSearchSymbol(): Promise<TestResult> {
         this.reporter.printTestStart('🔍 Test 5: Search Symbol (Tesla)');
-        
+
         try {
             const search = await this.client.callTool('search_symbol', { query: 'Tesla' });
             const searchData = JSON.parse(search.content[0].text.split('\n\n')[0]);
-            
+
             this.reporter.printSuccess(`Found ${searchData.length} matches:`);
             searchData.slice(0, 3).forEach((result: any) => {
                 console.log(`  - ${result.symbol}: ${result.name} (${result.exchange})`);
             });
-            
+
             return {
                 passed: true,
                 name: 'Search Symbol',
@@ -368,16 +368,16 @@ class MarketDataTests {
 
     async testExplainFundamental(): Promise<TestResult> {
         this.reporter.printTestStart('📘 Test 6: Explain Fundamental (P/E Ratio)');
-        
+
         try {
             const explainResult = await this.client.callTool('explain_fundamental', {
                 metric: 'pe_ratio',
                 symbol: 'AAPL'
             });
             const explanationText = explainResult.content[0].text;
-            
+
             console.log(explanationText.substring(0, 300) + '...\n(truncated)');
-            
+
             if (explanationText.includes('Price-to-Earnings')) {
                 this.reporter.printSuccess('Educational explanation includes P/E ratio definition');
             }
@@ -387,7 +387,7 @@ class MarketDataTests {
             if (explanationText.includes('What It Means')) {
                 this.reporter.printSuccess('Includes interpretation guidance');
             }
-            
+
             return {
                 passed: true,
                 name: 'Explain Fundamental',
@@ -406,15 +406,15 @@ class MarketDataTests {
 
     async testComparePeers(): Promise<TestResult> {
         this.reporter.printTestStart('📊 Test 7: Compare Peers (Technology Sector)');
-        
+
         try {
             const compareResult = await this.client.callTool('compare_peers', {
                 symbol: 'AAPL'
             });
             const comparisonText = compareResult.content[0].text;
-            
+
             console.log(comparisonText.substring(0, 500) + '...\n(truncated)');
-            
+
             if (comparisonText.includes('Technology')) {
                 this.reporter.printSuccess('Identified Technology sector');
             }
@@ -427,7 +427,7 @@ class MarketDataTests {
             if (comparisonText.includes('Learning Points')) {
                 this.reporter.printSuccess('Includes educational learning points');
             }
-            
+
             return {
                 passed: true,
                 name: 'Compare Peers',
