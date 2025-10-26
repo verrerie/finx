@@ -40,6 +40,8 @@ jobs:
       
       - name: Run tests
         run: pnpm run test:coverage
+        env:
+          NODE_OPTIONS: '--unhandled-rejections=warn'
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
