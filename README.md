@@ -125,8 +125,10 @@ pnpm build:market-data
 
 ## 📖 Documentation
 
-- [LEARNING.md](./LEARNING.md) - How to use this system for financial education
-- [USAGE.md](./USAGE.md) - Detailed usage guide and workflows
+- [LEARNING.md](./docs/LEARNING.md) - How to use this system for financial education
+- [QUICKSTART.md](./docs/QUICKSTART.md) - Interactive guide to explore Market Data tools
+- [TEST_FEATURES.md](./docs/TEST_FEATURES.md) - Comprehensive testing guide for learning features
+- [USAGE.md](./docs/USAGE.md) - Detailed usage guide and workflows
 - [.cursor/knowledge/](./cursor/knowledge/) - Your personal financial knowledge base
 
 ## 🤝 Contributing
