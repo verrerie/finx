@@ -1,0 +1,4 @@
+# This directory contains database schema migrations
+# Migrations are applied after initial database setup
+# See database/README.md for details
+
