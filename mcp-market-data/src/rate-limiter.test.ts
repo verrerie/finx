@@ -12,7 +12,7 @@ describe('RateLimiter', () => {
     it('should create a rate limiter with default limits', () => {
         rateLimiter = new RateLimiter();
         const stats = rateLimiter.getStats();
-        
+
         expect(stats.callsLastMinute).toBe(0);
         expect(stats.callsLastDay).toBe(0);
     });
@@ -27,7 +27,7 @@ describe('RateLimiter', () => {
 
         expect(result).toBe('result');
         expect(mockFn).toHaveBeenCalledTimes(1);
-        
+
         const stats = rateLimiter.getStats();
         expect(stats.callsLastMinute).toBe(1);
         expect(stats.callsLastDay).toBe(1);
@@ -48,7 +48,7 @@ describe('RateLimiter', () => {
 
         expect(results).toEqual(['result', 'result', 'result']);
         expect(mockFn).toHaveBeenCalledTimes(3);
-        
+
         const stats = rateLimiter.getStats();
         expect(stats.callsLastMinute).toBe(3);
         expect(stats.callsLastDay).toBe(3);
@@ -59,7 +59,7 @@ describe('RateLimiter', () => {
         const mockFn = vi.fn().mockRejectedValue(new Error('test error'));
 
         const promise = rateLimiter.execute(mockFn);
-        
+
         // Need to await the promise rejection before running timers
         try {
             await vi.runAllTimersAsync();
@@ -70,7 +70,7 @@ describe('RateLimiter', () => {
             expect(error).toBeInstanceOf(Error);
             expect((error as Error).message).toBe('test error');
         }
-        
+
         const stats = rateLimiter.getStats();
         expect(stats.callsLastMinute).toBe(1);
         expect(stats.callsLastDay).toBe(1);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { IMarketDataProvider, supportsHistoricalData, supportsSymbolSearch } from './market-data-provider.interface.js';
 import { HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
+import { IMarketDataProvider, supportsHistoricalData, supportsSymbolSearch } from './market-data-provider.interface.js';
 
 describe('Market Data Provider Interface', () => {
     describe('supportsHistoricalData', () => {
