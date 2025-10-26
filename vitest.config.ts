@@ -16,6 +16,7 @@ export default defineConfig({
                 '**/test-*.ts',
                 '.cursor/**',
                 '.github/**',
+                'mcp-portfolio/**', // Portfolio server has integration tests
             ],
             all: true,
             thresholds: {
