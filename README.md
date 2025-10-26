@@ -22,16 +22,23 @@ A learning-focused financial AI agent system built with MCP (Model Context Proto
 
 ## 📋 Current Status
 
-**Phase 1a: Market Data Foundation** ⚙️ In Progress
+**Phase 1a: Market Data Foundation** ✅ Complete
 
 - [x] Project structure initialized
-- [ ] Market Data MCP Server core tools
-- [ ] Market Data learning features
-- [ ] Cursor integration
-- [ ] Knowledge base setup
-- [ ] Testing and validation
+- [x] Market Data MCP Server core tools (quote, historical, search, company info)
+- [x] Market Data learning features (explain fundamentals, compare peers)
+- [x] Cursor integration with learning prompts
+- [x] Knowledge base setup with concepts and journal templates
+- [x] Testing, validation, and SOLID refactoring
+- [x] CI/CD with automated testing and releases
 
-**Phase 1b: Portfolio Management** 🔜 Upcoming
+**Phase 1b: Portfolio Management** ⚙️ In Progress
+
+- [x] Database infrastructure (Docker Compose + MariaDB 11.8)
+- [ ] Portfolio MCP Server core tools
+- [ ] Portfolio learning features
+- [ ] End-to-end testing
+- [ ] Complete documentation
 
 ## 🚀 Quick Start
 
@@ -39,6 +46,7 @@ A learning-focused financial AI agent system built with MCP (Model Context Proto
 
 - Node.js 22.x LTS or higher
 - pnpm 9.x or higher
+- Docker and Docker Compose (for database)
 - Alpha Vantage API key (free tier: [Get one here](https://www.alphavantage.co/support/#api-key))
 - Cursor IDE (for MCP integration)
 
@@ -54,11 +62,26 @@ pnpm install
 2. **Configure environment:**
 
 ```bash
-cp .env.example .env
-# Edit .env and add your Alpha Vantage API key
+cp env.example .env
+# Edit .env and add:
+# - Your Alpha Vantage API key
+# - Database credentials (if changing defaults)
 ```
 
-3. **Configure MCP in Cursor:**
+3. **Start the database:**
+
+```bash
+docker compose up -d mariadb
+```
+
+Verify it's running:
+```bash
+docker compose ps
+```
+
+See [docs/DATABASE.md](./docs/DATABASE.md) for detailed database documentation.
+
+4. **Configure MCP in Cursor:**
 
 Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
 
@@ -80,7 +103,7 @@ Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
 
 *(Update the path to match your installation location)*
 
-4. **Build and start the server:**
+5. **Build and start the server:**
 
 ```bash
 # Development mode (auto-reload)
@@ -127,8 +150,9 @@ pnpm build:market-data
 
 - [LEARNING.md](./docs/LEARNING.md) - How to use this system for financial education
 - [QUICKSTART.md](./docs/QUICKSTART.md) - Interactive guide to explore Market Data tools
-- [TEST_FEATURES.md](./docs/TEST_FEATURES.md) - Comprehensive testing guide for learning features
 - [USAGE.md](./docs/USAGE.md) - Detailed usage guide and workflows
+- [DATABASE.md](./docs/DATABASE.md) - Database setup, schema, and management
+- [TEST_FEATURES.md](./docs/TEST_FEATURES.md) - Comprehensive testing guide for learning features
 - [.cursor/knowledge/](./cursor/knowledge/) - Your personal financial knowledge base
 
 ## 🤝 Contributing
