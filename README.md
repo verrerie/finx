@@ -14,11 +14,20 @@ A learning-focused financial AI agent system built with MCP (Model Context Proto
 
 ## 🏗️ Architecture
 
-- **Market Data MCP Server** - Real-time quotes, historical data, and company fundamentals with educational explanations
-- **Portfolio Manager MCP Server** - Track holdings, transactions, and performance with learning features (Phase 1b)
-- **MariaDB Database** - Local storage for portfolio data and learning journal (Phase 1b)
+**Monorepo Structure** - pnpm workspaces with independently versioned packages
+
+### MCP Servers (Workspace Packages)
+
+- **@finx/mcp-market-data** - Real-time quotes, historical data, and company fundamentals with educational explanations
+- **@finx/mcp-portfolio** - Track holdings, transactions, and performance with learning features
+
+### Infrastructure
+
+- **MariaDB 11.8** - Local storage for portfolio data and learning journal
 - **Knowledge Base** - Document financial concepts as you learn them
 - **Cursor Integration** - Learning-oriented instructions and prompts
+
+See [docs/MONOREPO.md](./docs/MONOREPO.md) for detailed workspace documentation.
 
 ## 📋 Current Status
 
@@ -56,8 +65,13 @@ A learning-focused financial AI agent system built with MCP (Model Context Proto
 
 ```bash
 cd finx
-pnpm install
+pnpm install  # Installs all workspace packages
 ```
+
+This installs:
+- Root dev dependencies (TypeScript, Vitest, etc.)
+- Market Data server dependencies
+- Portfolio server dependencies
 
 2. **Configure environment:**
 
@@ -148,6 +162,7 @@ pnpm build:market-data
 
 ## 📖 Documentation
 
+- [MONOREPO.md](./docs/MONOREPO.md) - **Monorepo structure and workspace management**
 - [LEARNING.md](./docs/LEARNING.md) - How to use this system for financial education
 - [QUICKSTART.md](./docs/QUICKSTART.md) - Interactive guide to explore Market Data tools
 - [USAGE.md](./docs/USAGE.md) - Detailed usage guide and workflows

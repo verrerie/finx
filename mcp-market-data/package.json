@@ -1,0 +1,42 @@
+{
+    "name": "@finx/mcp-market-data",
+    "version": "0.1.0",
+    "description": "Market Data MCP Server for FinX",
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsx watch src/index.ts",
+        "start": "node dist/index.js",
+        "test": "vitest",
+        "test:watch": "vitest watch",
+        "test:coverage": "vitest run --coverage",
+        "lint": "tsc --noEmit"
+    },
+    "keywords": [
+        "mcp",
+        "model-context-protocol",
+        "market-data",
+        "finance",
+        "stocks"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.5",
+        "alphavantage": "^2.5.0",
+        "dotenv": "^16.4.7",
+        "yahoo-finance2": "^3.10.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.5",
+        "@vitest/coverage-v8": "^2.1.8",
+        "tsx": "^4.19.2",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8"
+    },
+    "engines": {
+        "node": ">=22.0.0"
+    }
+}

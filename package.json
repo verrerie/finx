@@ -2,14 +2,21 @@
     "name": "finx",
     "version": "0.1.0",
     "description": "Learning-focused Financial AI Agent with MCP servers for market data and portfolio management",
+    "private": true,
     "type": "module",
     "scripts": {
-        "dev:market-data": "tsx watch mcp-market-data/src/index.ts",
-        "build:market-data": "tsc -p mcp-market-data/tsconfig.json",
+        "dev:market-data": "pnpm --filter @finx/mcp-market-data dev",
+        "build:market-data": "pnpm --filter @finx/mcp-market-data build",
+        "dev:portfolio": "pnpm --filter @finx/mcp-portfolio dev",
+        "build:portfolio": "pnpm --filter @finx/mcp-portfolio build",
+        "build": "pnpm --recursive build",
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
         "test:market-data": "tsx test-market-data.ts",
-        "lint": "tsc --noEmit"
+        "test:portfolio": "tsx test-portfolio.ts",
+        "lint": "pnpm --recursive lint",
+        "clean": "pnpm --recursive exec rm -rf dist node_modules",
+        "install:all": "pnpm install"
     },
     "keywords": [
         "finance",
@@ -17,22 +24,17 @@
         "mcp",
         "portfolio",
         "market-data",
-        "learning"
+        "learning",
+        "monorepo"
     ],
     "author": "",
     "license": "MIT",
     "devDependencies": {
-        "@types/node": "^22.0.0",
-        "@vitest/coverage-v8": "^2.1.0",
-        "tsx": "^4.19.0",
-        "typescript": "^5.7.0",
-        "vitest": "^2.1.0"
-    },
-    "dependencies": {
-        "@modelcontextprotocol/sdk": "^1.0.0",
-        "alphavantage": "^2.5.0",
-        "dotenv": "^17.2.3",
-        "yahoo-finance2": "^3.10.0"
+        "@types/node": "^22.10.5",
+        "@vitest/coverage-v8": "^2.1.8",
+        "tsx": "^4.19.2",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8"
     },
     "engines": {
         "node": ">=22.0.0",

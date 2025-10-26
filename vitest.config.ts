@@ -16,13 +16,18 @@ export default defineConfig({
                 '**/test-*.ts',
                 '.cursor/**',
                 '.github/**',
+                'mcp-portfolio/**', // Portfolio server has integration tests
+                '**/index.ts', // MCP server entry points (integration tested)
+                '**/types.ts', // Type definitions only
+                '**/providers/**', // Providers tested via integration tests
+                '**/tools/tool-definitions.ts', // Tool schemas (constants only)
             ],
             all: true,
             thresholds: {
-                lines: 70,
-                functions: 45,
-                branches: 80,
-                statements: 70,
+                lines: 80,
+                functions: 50,  // Lower due to test helper functions
+                branches: 85,
+                statements: 80,
             },
         },
     },
