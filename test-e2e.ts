@@ -5,7 +5,7 @@
  * Simulates complete user workflows combining market data research and portfolio management
  */
 
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 
 interface MCPMessage {
     jsonrpc: string;
@@ -54,7 +54,7 @@ class MessageBuffer {
 }
 
 class MCPClient {
-    private process: ChildProcessWithoutNullStreams;
+    private process: ChildProcess;
     private messageBuffer = new MessageBuffer();
     private messageId = 1;
     private responses = new Map<number, (response: MCPMessage) => void>();
