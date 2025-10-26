@@ -1,144 +1,69 @@
 # Financial Glossary
 
-Quick reference for financial terms. Add definitions in your own words as you learn.
+Quick reference for financial terms. Add terms as you encounter them.
 
-## A
+## Format
 
-**Asset** - 
-
-**Asset Allocation** - 
-
-## B
-
-**Balance Sheet** - 
-
-**Beta** - 
-
-**Bull Market** / **Bear Market** - 
-
-## C
-
-**Capital** - 
-
-**Cash Flow** - 
-
-**Cost Basis** - 
-
-## D
-
-**Diversification** - 
-
-**Dividend** - 
-
-**Debt-to-Equity Ratio** - 
-
-## E
-
-**Earnings** - 
-
-**Earnings Per Share (EPS)** - 
-
-**EBITDA** - 
-
-**Equity** - 
-
-## F
-
-**Fundamental Analysis** - 
-
-**Free Cash Flow** - 
-
-## G
-
-**Gross Margin** - 
-
-**Growth Stock** - 
-
-## I
-
-**Income Statement** - 
-
-**Intrinsic Value** - 
-
-## L
-
-**Leverage** - 
-
-**Liquidity** - 
-
-## M
-
-**Market Capitalization (Market Cap)** - 
-
-**Margin of Safety** - 
-
-**Moat** - 
-
-## N
-
-**Net Income** - 
-
-**Net Profit Margin** - 
-
-## O
-
-**Operating Income** - 
-
-**Operating Margin** - 
-
-## P
-
-**P/E Ratio (Price-to-Earnings)** - 
-
-**P/B Ratio (Price-to-Book)** - 
-
-**Portfolio** - 
-
-## R
-
-**Return on Equity (ROE)** - 
-
-**Return on Assets (ROA)** - 
-
-**Revenue** - 
-
-**Risk Tolerance** - 
-
-## S
-
-**Sector** - 
-
-**Stock** - 
-
-**Sharpe Ratio** - 
-
-## T
-
-**Technical Analysis** - 
-
-**Ticker Symbol** - 
-
-## V
-
-**Valuation** - 
-
-**Value Stock** - 
-
-**Volatility** - 
-
-## Y
-
-**Yield** - 
+**Term**: Definition in your own words. [Related: other terms]
 
 ---
 
-## How to Use This Glossary
+## Valuation Metrics
 
-1. **Define in your own words** - Not copy-paste from internet
-2. **Add examples** - Makes it memorable
-3. **Update as understanding deepens** - It's okay to revise
-4. **Link to concept docs** - Reference your detailed notes
-5. **Keep it simple** - Quick reference, not textbook
+**P/E Ratio (Price-to-Earnings)**: Stock price divided by earnings per share. Shows how much investors pay per dollar of earnings. [Related: PEG Ratio, Earnings Yield]
 
-Start filling this in as you encounter new terms!
+**PEG Ratio**: P/E Ratio divided by earnings growth rate. Helps determine if high P/E is justified by growth. [Related: P/E Ratio]
 
+**Market Cap**: Total value of all company shares. Company size indicator. [Related: Enterprise Value]
+
+**Book Value**: Company's net asset value from balance sheet. Assets minus liabilities. [Related: P/B Ratio]
+
+## Profitability Metrics
+
+**Profit Margin**: Net income as percentage of revenue. Shows how much of each sale becomes profit. [Related: Operating Margin, Gross Margin]
+
+**ROE (Return on Equity)**: Net income divided by shareholder equity. Measures efficiency of generating profit from equity. [Related: ROA, ROIC]
+
+**Earnings Per Share (EPS)**: Company profit divided by number of shares. Per-share profit measurement. [Related: P/E Ratio]
+
+## Growth Metrics
+
+**Revenue Growth**: Percentage increase in sales over time. Top-line growth indicator. [Related: EPS Growth]
+
+**Dividend Yield**: Annual dividend as percentage of stock price. Income return from dividends. [Related: Payout Ratio]
+
+## Financial Health
+
+**Debt-to-Equity**: Total debt divided by shareholder equity. Financial leverage indicator. [Related: Interest Coverage]
+
+**Current Ratio**: Current assets divided by current liabilities. Short-term liquidity measure. [Related: Quick Ratio]
+
+## Investment Terms
+
+**Bull Market**: Period of rising stock prices. Optimistic market. [Related: Bear Market]
+
+**Bear Market**: Period of falling stock prices (20%+ decline). Pessimistic market. [Related: Bull Market]
+
+**Diversification**: Spreading investments across different assets to reduce risk. [Related: Asset Allocation]
+
+**Asset Allocation**: Distribution of portfolio across asset classes (stocks, bonds, cash). [Related: Diversification]
+
+## Trading Terms
+
+**Market Order**: Buy/sell at current market price. Executes immediately. [Related: Limit Order]
+
+**Limit Order**: Buy/sell only at specified price or better. May not execute. [Related: Market Order]
+
+**Bid-Ask Spread**: Difference between highest buy price and lowest sell price. Liquidity indicator. [Related: Volume]
+
+---
+
+## How to Use
+
+1. **Look up terms** quickly during analysis
+2. **Add new terms** as you learn them
+3. **Write definitions** in your own words
+4. **Link related terms** for deeper understanding
+5. **Expand entries** as you learn more
+
+Keep it simple - this is your quick reference!

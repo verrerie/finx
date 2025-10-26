@@ -1,74 +1,75 @@
-# Investment Research Journal
+# Investment Journal
 
-This is where you document your research, thoughts, and investment theses.
+Document your stock analyses, investment decisions, and track outcomes to learn over time.
 
-## Why Keep a Journal?
+## Naming Convention
 
-1. **Track Your Reasoning** - Remember why you made decisions
-2. **Learn from Outcomes** - Compare predictions to reality
-3. **Spot Patterns** - Identify what works for you
-4. **Build Discipline** - Writing forces clear thinking
-5. **Measure Growth** - See how your analysis improves over time
+- **Company Analysis**: `YYYY-MM-DD-[company]-analysis.md`
+- **Comparison**: `YYYY-MM-DD-[co1]-vs-[co2].md`
+- **Reflection**: `YYYY-MM-DD-[topic]-reflection.md`
 
-## Journal Entry Template
-
-Use this template for research sessions:
+## Company Analysis Template
 
 ```markdown
-# [Company Name] ([TICKER]) - [Date]
+# [Company Name] Analysis - [Date]
 
-## Initial Thesis
-Why this company caught your attention
+## Quick Summary
+- **Ticker**: [SYMBOL]
+- **Price**: $[X]
+- **Initial Impression**: [One sentence]
+
+## Business
+[What they do and how they make money]
 
 ## Key Metrics
-List important metrics you discovered
+| Metric | Value | Assessment |
+|--------|-------|------------|
+| P/E Ratio | [X] | [Good/Bad/Fair] |
+| Market Cap | $[X]B | [Context] |
+| Revenue Growth | [X]% | [Context] |
+| Profit Margin | [X]% | [Context] |
+| ROE | [X]% | [Context] |
 
-## Business Understanding
-What does the company do? How does it make money?
+## Strengths
+1. [Strength with evidence]
+2. [Strength with evidence]
 
-## Competitive Position
-What's its moat? Who are the competitors?
+## Concerns
+1. [Concern with evidence]
+2. [Concern with evidence]
 
-## Financial Health
-Assessment of balance sheet, debt, profitability
+## Investment Thesis
 
-## Valuation
-Is it cheap, fair, or expensive? Why?
+### Bull Case
+- [Why it could go up]
 
-## Risks & Concerns
-What could go wrong?
+### Bear Case
+- [Why it could go down]
 
 ## Decision
-- [ ] Buy
-- [ ] Watch
-- [ ] Pass
-- [ ] Need more research
+**Action**: [Buy / Pass / Watch / Sell]  
+**Reasoning**: [Why]
 
-## Reasoning
-Explain your decision
+## Follow-Up
+- [ ] [Next research step]
+- [ ] Review on: [Date]
 
-## Follow-up Actions
-What else do you need to learn?
-
-## Review Date
-When will you revisit this analysis?
+## Updates
+[Add as situation changes]
 ```
 
-## Best Practices
+## Tips
 
-1. **Date Everything** - Track when you learned what
-2. **Be Honest** - Document concerns, not just bullish points
-3. **Note Questions** - What you don't understand is as important as what you do
-4. **Update Regularly** - Come back and add new insights
-5. **Review Outcomes** - Did your thesis play out? Why or why not?
+- **Document BEFORE buying** - Capture your reasoning
+- **Be honest** - Especially about concerns
+- **Review periodically** - Learn from outcomes
+- **Note emotions** - Helps identify biases
+- **Update with news** - Track thesis evolution
 
-## Example Naming Convention
+## Review Schedule
 
-- `2025-10-26-apple-initial-research.md`
-- `2025-11-15-apple-earnings-review.md`
-- `2025-12-01-apple-decision-to-invest.md`
+- **Weekly**: Recent analyses
+- **Monthly**: Open positions
+- **Quarterly**: All decisions (hits and misses)
 
-This creates a chronological record of your learning journey.
-
-Start documenting! 📝
-
+Learning comes from reflection!
