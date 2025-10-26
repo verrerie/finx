@@ -21,9 +21,9 @@ export interface ProviderConfig {
  */
 export function createProviders(alphaVantageApiKey?: string): ProviderConfig {
     const fallback = new YahooFinanceProvider();
-    
+
     let primary: IMarketDataProvider | null = null;
-    
+
     if (alphaVantageApiKey) {
         try {
             primary = new AlphaVantageProvider(alphaVantageApiKey);
@@ -34,9 +34,9 @@ export function createProviders(alphaVantageApiKey?: string): ProviderConfig {
     } else {
         console.error('ℹ Alpha Vantage API key not set, using Yahoo Finance only');
     }
-    
+
     console.error(`✓ Fallback provider: ${fallback.name}`);
-    
+
     return { primary, fallback };
 }
 
