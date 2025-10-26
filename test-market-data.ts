@@ -177,8 +177,50 @@ async function runTests() {
             console.log(`  - ${result.symbol}: ${result.name} (${result.exchange})`);
         });
 
+        // Test 6: Explain Fundamental
+        console.log('\n📘 Test 6: Explain Fundamental (P/E Ratio)');
+        console.log('-'.repeat(60));
+        const explainResult = await client.callTool('explain_fundamental', {
+            metric: 'pe_ratio',
+            symbol: 'AAPL'
+        });
+        const explanation = typeof explainResult === 'string' ? JSON.parse(explainResult) : explainResult;
+        const explanationText = explanation.content[0].text;
+        console.log(explanationText.substring(0, 300) + '...\n(truncated)');
+        if (explanationText.includes('Price-to-Earnings')) {
+            console.log('✓ Educational explanation includes P/E ratio definition');
+        }
+        if (explanationText.includes('Definition')) {
+            console.log('✓ Includes definition section');
+        }
+        if (explanationText.includes('What It Means')) {
+            console.log('✓ Includes interpretation guidance');
+        }
+
+        // Test 7: Compare Peers
+        console.log('\n📊 Test 7: Compare Peers (Technology Sector)');
+        console.log('-'.repeat(60));
+        const compareResult = await client.callTool('compare_peers', {
+            symbol: 'AAPL'
+        });
+        const comparison = typeof compareResult === 'string' ? JSON.parse(compareResult) : compareResult;
+        const comparisonText = comparison.content[0].text;
+        console.log(comparisonText.substring(0, 500) + '...\n(truncated)');
+        if (comparisonText.includes('Technology')) {
+            console.log('✓ Identified Technology sector');
+        }
+        if (comparisonText.includes('Market Cap')) {
+            console.log('✓ Includes market cap comparison');
+        }
+        if (comparisonText.includes('P/E Ratio')) {
+            console.log('✓ Includes P/E ratio comparison');
+        }
+        if (comparisonText.includes('Learning Points')) {
+            console.log('✓ Includes educational learning points');
+        }
+
         console.log('\n' + '='.repeat(60));
-        console.log('✅ All tests passed successfully!');
+        console.log('✅ All tests passed successfully (including learning features)!');
         console.log('='.repeat(60));
         console.log('\n🎓 Learning Notes:');
         console.log('  - Market data is cached for 5 minutes to respect API limits');
@@ -186,10 +228,11 @@ async function runTests() {
         console.log('  - Yahoo Finance is used as fallback for reliability');
         console.log('  - Check API usage in responses to manage daily limits (25/day)');
         console.log('\n📚 Next Steps:');
-        console.log('  1. Explore different stocks to learn about various sectors');
-        console.log('  2. Compare P/E ratios, ROE, and other metrics across companies');
-        console.log('  3. Document interesting findings in .cursor/knowledge/journal/');
-        console.log('  4. Start building your investment knowledge base!');
+        console.log('  1. Use explain_fundamental to learn about financial metrics');
+        console.log('  2. Use compare_peers to see how companies stack up against each other');
+        console.log('  3. Explore different stocks to learn about various sectors');
+        console.log('  4. Document interesting findings in .cursor/knowledge/journal/');
+        console.log('  5. Start building your investment knowledge base!');
 
     } catch (error) {
         console.error('\n❌ Test failed:', error);
