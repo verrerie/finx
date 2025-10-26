@@ -1,58 +1,60 @@
 # Investment Frameworks
 
-Document investment frameworks, strategies, and methodologies here.
+Document investment strategies and decision frameworks you're developing or following.
 
-## What Are Frameworks?
+## Template
 
-Frameworks are structured approaches to analyzing investments and making decisions. They help you think systematically about opportunities.
+Create a new file: `framework-name.md`
 
-## Popular Frameworks to Explore
+```markdown
+# [Framework Name]
 
-### Value Investing
-- Focus on undervalued stocks trading below intrinsic value
-- Key metrics: P/E, P/B, P/S ratios
-- Popularized by Benjamin Graham and Warren Buffett
+## Overview
+[Brief description of this approach]
 
-### Growth Investing
-- Focus on companies with strong growth potential
-- Key metrics: Revenue growth, earnings growth, market opportunity
-- Accept higher valuations for future growth
+## Key Principles
+1. [Principle 1]
+2. [Principle 2]
+3. [Principle 3]
 
-### Dividend Investing
-- Focus on companies paying steady, growing dividends
-- Key metrics: Dividend yield, payout ratio, dividend growth rate
-- Emphasis on income generation
+## Screening Criteria
+[What you look for in stocks using this framework]
 
-### Momentum Investing
-- Follow price trends and market psychology
-- Technical analysis combined with fundamentals
-- Ride winners, cut losers quickly
+### Must Have
+- [Criterion 1]
+- [Criterion 2]
 
-### Quality Investing
-- Focus on high-quality businesses regardless of price
-- Key metrics: ROE, ROIC, low debt, consistent earnings
-- Emphasis on business moats and competitive advantages
+### Prefer
+- [Criterion 3]
+- [Criterion 4]
 
-## How to Document
+### Avoid
+- [Red flag 1]
+- [Red flag 2]
 
-Create a file for each framework you study:
+## Example Companies
+- **[Company]**: [Why it fits/doesn't fit]
+- **[Company]**: [Why it fits/doesn't fit]
 
-**Example:** `value-investing.md`
+## When to Use
+[Market conditions or goals where this works best]
 
-Include:
-- Core principles
-- Key metrics to watch
-- How to identify opportunities
-- Common pitfalls
-- Famous practitioners
-- Your own insights and adaptations
+## Limitations
+[What this framework doesn't cover]
 
-## Your Journey
+## Resources
+- [Book, investor, or article]
 
-As you learn, you'll likely develop your own hybrid approach. Document it here!
+## My Adaptations
+[How you've personalized this]
+```
 
-Example:
-- **My Investment Philosophy** - Your personal framework
-- **Sector-Specific Approaches** - Different strategies for tech vs utilities
-- **Market Condition Strategies** - Bull market vs bear market approaches
+## Common Frameworks
 
+- **Value Investing** - Buy undervalued companies
+- **Growth Investing** - Focus on revenue/earnings growth
+- **Dividend Investing** - Prioritize income generation
+- **Quality Investing** - Strong businesses, fair prices
+- **Index Investing** - Diversified, low-cost approach
+
+Start by documenting frameworks you're curious about or currently using.

@@ -1,70 +1,55 @@
 # Financial Concepts
 
-Document individual financial concepts here as you learn them.
-
-## Suggested Topics to Explore
-
-### Valuation Metrics
-- [ ] Price-to-Earnings (P/E) Ratio
-- [ ] Price-to-Book (P/B) Ratio
-- [ ] Price-to-Sales (P/S) Ratio
-- [ ] PEG Ratio
-- [ ] Enterprise Value / EBITDA
-
-### Profitability Metrics
-- [ ] Return on Equity (ROE)
-- [ ] Return on Assets (ROA)
-- [ ] Gross Margin
-- [ ] Operating Margin
-- [ ] Net Profit Margin
-
-### Financial Health
-- [ ] Debt-to-Equity Ratio
-- [ ] Current Ratio
-- [ ] Quick Ratio
-- [ ] Interest Coverage Ratio
-
-### Growth Metrics
-- [ ] Revenue Growth
-- [ ] Earnings Growth
-- [ ] Free Cash Flow Growth
-
-### Market Metrics
-- [ ] Market Capitalization
-- [ ] Trading Volume
-- [ ] 52-Week High/Low
-- [ ] Beta
+Document financial concepts you learn in your own words with real examples.
 
 ## Template
 
-Use this template for new concepts:
+Create a new file: `concept-name.md`
 
 ```markdown
 # [Concept Name]
 
-## What It Is
-Brief explanation of the concept
+## Definition
+[What it is in your own words]
 
 ## Formula
-How it's calculated
+[If applicable]
 
-## What It Means
-- Interpretation guidelines
-- What's considered good/bad/neutral
-- Industry context
+## Why It Matters
+[Why investors care]
 
-## Example
-Real example from a company you researched
+## How to Interpret
+- Good: [description]
+- Bad: [description]
+- Context: [industry/sector differences]
 
-## When I Learned This
-Date and context of learning
+## Examples
+
+### [Company Name]
+- Value: [number]
+- Analysis: [what it tells you]
+
+### [Company Name]
+- Value: [number]
+- Analysis: [what it tells you]
 
 ## Related Concepts
-Links to other concept files
+- [Concept 1] - [how related]
+- [Concept 2] - [how related]
 
-## Questions / Further Research
-Things you want to explore more
+## Resources
+- [Link or book reference]
+
+## My Notes
+[Personal insights, questions, observations]
 ```
 
-Start exploring and documenting!
+## Getting Started
 
+Start with concepts from your first stock analyses:
+1. **P/E Ratio** - Valuation metric
+2. **Market Cap** - Company size
+3. **Revenue Growth** - Business growth
+4. **Profit Margin** - Profitability
+
+Use the learning prompts to explore concepts deeply, then document here.

@@ -1,57 +1,50 @@
 # Financial Knowledge Base
 
-This is your personal financial education repository. As you learn concepts through using FinX, document them here.
+Your personal repository for financial concepts, insights, and learning journey.
 
 ## Structure
 
-- **concepts/** - Individual financial concepts and metrics
-- **frameworks/** - Investment frameworks and strategies
-- **journal/** - Your investment research journal
-- **glossary.md** - Quick reference for financial terms
+### 📚 `/concepts/`
+Financial concepts you've learned with your own notes and examples.
+
+**Example concepts to document:**
+- P/E Ratio, PEG Ratio, Market Cap
+- ROE, ROA, Debt-to-Equity
+- Dividend Yield, Payout Ratio
+- Profit Margins, Revenue Growth
+
+### 🎯 `/frameworks/`
+Investment frameworks and decision-making approaches you're exploring.
+
+**Example frameworks:**
+- Value investing principles
+- Growth stock criteria
+- Dividend investing strategy
+- Quality business checklist
+
+### 📝 `/journal/`
+Investment analysis and decision journal. Track your reasoning and learn from outcomes.
+
+**Format:** `YYYY-MM-DD-topic.md`
+
+### 📖 `glossary.md`
+Quick reference for financial terms and definitions.
 
 ## How to Use
 
-### Document New Concepts
-
-When you learn something new, create a markdown file:
-
-**Example:** `concepts/price-to-earnings-ratio.md`
-
-Include:
-- What it is
-- Formula/calculation
-- What it means
-- Real examples
-- When you learned it
-- Related concepts
-
-### Keep a Research Journal
-
-For each stock or topic you research, create a journal entry:
-
-**Example:** `journal/2025-10-26-apple-research.md`
-
-Include:
-- Date
-- Your thesis/hypothesis
-- Key metrics
-- Questions raised
-- Decision made
-- Follow-up items
-
-### Build Your Glossary
-
-Add terms to `glossary.md` as you encounter them. Keep it simple and in your own words.
+1. **After learning a concept** → Document in `/concepts/[concept-name].md`
+2. **After analyzing a stock** → Record in `/journal/YYYY-MM-DD-[company]-analysis.md`
+3. **When developing strategy** → Create framework in `/frameworks/[strategy-name].md`
+4. **Encounter new term** → Add to `glossary.md`
 
 ## Tips
 
-1. **Write in your own words** - Paraphrasing helps learning
-2. **Include examples** - Real companies make concepts concrete
-3. **Link concepts** - Note related ideas
-4. **Update as you learn** - Come back and refine as understanding deepens
-5. **Date everything** - Track your learning journey
+- **Write in your own words** - Understanding > memorization
+- **Use real examples** - Companies you've analyzed
+- **Link concepts** - Reference related concepts
+- **Review regularly** - Update as you learn more
+- **Be honest** - Document mistakes and what you learned
 
-## Started
+---
 
-Empty knowledge base ready to grow with your learning!
-
+*This knowledge base grows with you. Start small, build over time.*
