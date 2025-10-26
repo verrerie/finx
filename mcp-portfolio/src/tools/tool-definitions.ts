@@ -166,5 +166,269 @@ export const PORTFOLIO_TOOLS = [
             required: ['portfolio_id'],
         },
     },
+    // Learning & Research Tools
+    {
+        name: 'add_to_watchlist',
+        description: 'Add a stock to your watchlist for research and monitoring. Track stocks you\'re considering buying.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'Stock symbol (e.g., AAPL, MSFT)',
+                },
+                notes: {
+                    type: 'string',
+                    description: 'Research notes or reasons for watching (optional)',
+                },
+                target_price: {
+                    type: 'number',
+                    description: 'Your target buy price (optional)',
+                },
+                priority: {
+                    type: 'string',
+                    description: 'Priority level (optional, default: MEDIUM)',
+                    enum: ['LOW', 'MEDIUM', 'HIGH'],
+                },
+            },
+            required: ['portfolio_id', 'symbol'],
+        },
+    },
+    {
+        name: 'get_watchlist',
+        description: 'Get your watchlist of stocks you\'re researching or monitoring.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+            },
+            required: ['portfolio_id'],
+        },
+    },
+    {
+        name: 'update_watchlist_item',
+        description: 'Update notes, target price, or priority for a watchlist item.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'Stock symbol',
+                },
+                notes: {
+                    type: 'string',
+                    description: 'Updated research notes (optional)',
+                },
+                target_price: {
+                    type: 'number',
+                    description: 'Updated target price (optional)',
+                },
+                priority: {
+                    type: 'string',
+                    description: 'Updated priority level (optional)',
+                    enum: ['LOW', 'MEDIUM', 'HIGH'],
+                },
+            },
+            required: ['portfolio_id', 'symbol'],
+        },
+    },
+    {
+        name: 'remove_from_watchlist',
+        description: 'Remove a stock from your watchlist.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'Stock symbol',
+                },
+            },
+            required: ['portfolio_id', 'symbol'],
+        },
+    },
+    {
+        name: 'create_thesis',
+        description: 'Document your investment thesis for a stock. Record bull case, bear case, and target allocation.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'Stock symbol',
+                },
+                thesis: {
+                    type: 'string',
+                    description: 'Your investment thesis (why you own or want to own this)',
+                },
+                bull_case: {
+                    type: 'string',
+                    description: 'Bull case - reasons for price appreciation (optional)',
+                },
+                bear_case: {
+                    type: 'string',
+                    description: 'Bear case - risks and concerns (optional)',
+                },
+                target_allocation: {
+                    type: 'number',
+                    description: 'Target % of portfolio (optional)',
+                },
+                review_date: {
+                    type: 'string',
+                    description: 'Date to review thesis (YYYY-MM-DD, optional)',
+                },
+            },
+            required: ['portfolio_id', 'symbol', 'thesis'],
+        },
+    },
+    {
+        name: 'get_theses',
+        description: 'Get all investment theses for your portfolio.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+            },
+            required: ['portfolio_id'],
+        },
+    },
+    {
+        name: 'get_thesis',
+        description: 'Get investment thesis for a specific stock.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'Stock symbol',
+                },
+            },
+            required: ['portfolio_id', 'symbol'],
+        },
+    },
+    {
+        name: 'update_thesis',
+        description: 'Update your investment thesis as you learn more or market conditions change.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'Stock symbol',
+                },
+                thesis: {
+                    type: 'string',
+                    description: 'Updated investment thesis (optional)',
+                },
+                bull_case: {
+                    type: 'string',
+                    description: 'Updated bull case (optional)',
+                },
+                bear_case: {
+                    type: 'string',
+                    description: 'Updated bear case (optional)',
+                },
+                target_allocation: {
+                    type: 'number',
+                    description: 'Updated target % of portfolio (optional)',
+                },
+                review_date: {
+                    type: 'string',
+                    description: 'Updated review date (YYYY-MM-DD, optional)',
+                },
+                status: {
+                    type: 'string',
+                    description: 'Updated status (optional)',
+                    enum: ['ACTIVE', 'MONITORING', 'EXITED', 'INVALIDATED'],
+                },
+            },
+            required: ['portfolio_id', 'symbol'],
+        },
+    },
+    {
+        name: 'delete_thesis',
+        description: 'Delete an investment thesis.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'Stock symbol',
+                },
+            },
+            required: ['portfolio_id', 'symbol'],
+        },
+    },
+    {
+        name: 'analyze_what_if',
+        description: 'Analyze "what if" scenarios - see how buying or selling would impact your portfolio before making a decision.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                portfolio_id: {
+                    type: 'string',
+                    description: 'Portfolio ID (UUID)',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'Stock symbol',
+                },
+                action: {
+                    type: 'string',
+                    description: 'What action to analyze',
+                    enum: ['BUY', 'SELL'],
+                },
+                quantity: {
+                    type: 'number',
+                    description: 'Quantity to buy or sell',
+                },
+                price: {
+                    type: 'number',
+                    description: 'Price per share for the transaction',
+                },
+                current_prices: {
+                    type: 'object',
+                    description: 'Map of symbol to current price for all positions (e.g., {"AAPL": 150.25, "MSFT": 380.50})',
+                    additionalProperties: {
+                        type: 'number',
+                    },
+                },
+            },
+            required: ['portfolio_id', 'symbol', 'action', 'quantity', 'price', 'current_prices'],
+        },
+    },
 ] as const;
 

@@ -16,7 +16,10 @@ import { SERVER_INFO } from './config.js';
 import { closePool, testConnection } from './database/connection.js';
 import { HoldingRepository } from './database/repositories/holding.repository.js';
 import { PortfolioRepository } from './database/repositories/portfolio.repository.js';
+import { ThesisRepository } from './database/repositories/thesis.repository.js';
 import { TransactionRepository } from './database/repositories/transaction.repository.js';
+import { WatchlistRepository } from './database/repositories/watchlist.repository.js';
+import { LearningService } from './services/learning.service.js';
 import { PortfolioService } from './services/portfolio.service.js';
 import { PORTFOLIO_TOOLS } from './tools/tool-definitions.js';
 import type { AddTransactionInput } from './types.js';
@@ -27,7 +30,10 @@ import type { AddTransactionInput } from './types.js';
 const portfolioRepo = new PortfolioRepository();
 const holdingRepo = new HoldingRepository();
 const transactionRepo = new TransactionRepository();
+const watchlistRepo = new WatchlistRepository();
+const thesisRepo = new ThesisRepository();
 const portfolioService = new PortfolioService(portfolioRepo, holdingRepo, transactionRepo);
+const learningService = new LearningService(watchlistRepo, thesisRepo, holdingRepo);
 
 /**
  * Create MCP server
@@ -251,6 +257,246 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                                 message: deleted
                                     ? 'Portfolio deleted successfully'
                                     : 'Portfolio not found',
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            // Learning & Research Tools
+            case 'add_to_watchlist': {
+                const watchlistItem = await learningService.addToWatchlist({
+                    portfolio_id: args.portfolio_id as string,
+                    symbol: args.symbol as string,
+                    notes: args.notes as string | undefined,
+                    target_price: args.target_price as number | undefined,
+                    priority: args.priority as 'LOW' | 'MEDIUM' | 'HIGH' | undefined,
+                });
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: true,
+                                watchlist_item: watchlistItem,
+                                message: `${watchlistItem.symbol} added to watchlist`,
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'get_watchlist': {
+                const watchlist = await learningService.getWatchlist(args.portfolio_id as string);
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: true,
+                                watchlist,
+                                count: watchlist.length,
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'update_watchlist_item': {
+                const updates: any = {};
+                if (args.notes !== undefined) updates.notes = args.notes as string;
+                if (args.target_price !== undefined) updates.target_price = args.target_price as number;
+                if (args.priority !== undefined) updates.priority = args.priority as 'LOW' | 'MEDIUM' | 'HIGH';
+
+                const updatedItem = await learningService.updateWatchlistItem(
+                    args.portfolio_id as string,
+                    args.symbol as string,
+                    updates
+                );
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: true,
+                                watchlist_item: updatedItem,
+                                message: 'Watchlist item updated',
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'remove_from_watchlist': {
+                const removed = await learningService.removeFromWatchlist(
+                    args.portfolio_id as string,
+                    args.symbol as string
+                );
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: removed,
+                                message: removed
+                                    ? 'Item removed from watchlist'
+                                    : 'Item not found in watchlist',
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'create_thesis': {
+                const thesis = await learningService.createThesis({
+                    portfolio_id: args.portfolio_id as string,
+                    symbol: args.symbol as string,
+                    thesis: args.thesis as string,
+                    bull_case: args.bull_case as string | undefined,
+                    bear_case: args.bear_case as string | undefined,
+                    target_allocation: args.target_allocation as number | undefined,
+                    review_date: args.review_date ? new Date(args.review_date as string) : undefined,
+                });
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: true,
+                                thesis,
+                                message: `Investment thesis for ${thesis.symbol} created`,
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'get_theses': {
+                const theses = await learningService.getTheses(args.portfolio_id as string);
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: true,
+                                theses,
+                                count: theses.length,
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'get_thesis': {
+                const thesis = await learningService.getThesis(
+                    args.portfolio_id as string,
+                    args.symbol as string
+                );
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: true,
+                                thesis,
+                                message: thesis ? 'Thesis found' : 'No thesis found for this symbol',
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'update_thesis': {
+                const updates: any = {};
+                if (args.thesis !== undefined) updates.thesis = args.thesis as string;
+                if (args.bull_case !== undefined) updates.bull_case = args.bull_case as string;
+                if (args.bear_case !== undefined) updates.bear_case = args.bear_case as string;
+                if (args.target_allocation !== undefined) updates.target_allocation = args.target_allocation as number;
+                if (args.review_date !== undefined) {
+                    updates.review_date = new Date(args.review_date as string);
+                }
+                if (args.status !== undefined) {
+                    updates.status = args.status as 'ACTIVE' | 'MONITORING' | 'EXITED' | 'INVALIDATED';
+                }
+
+                const updatedThesis = await learningService.updateThesis(
+                    args.portfolio_id as string,
+                    args.symbol as string,
+                    updates
+                );
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: true,
+                                thesis: updatedThesis,
+                                message: 'Thesis updated',
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'delete_thesis': {
+                const deleted = await learningService.deleteThesis(
+                    args.portfolio_id as string,
+                    args.symbol as string
+                );
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: deleted,
+                                message: deleted ? 'Thesis deleted' : 'Thesis not found',
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
+
+            case 'analyze_what_if': {
+                const action = args.action as string;
+                const currentPrices = args.current_prices as Record<string, number>;
+
+                let analysis;
+                if (action === 'SELL') {
+                    analysis = await learningService.analyzeWhatIfSell(
+                        args.portfolio_id as string,
+                        args.symbol as string,
+                        args.price as number,
+                        currentPrices
+                    );
+                } else if (action === 'BUY') {
+                    analysis = await learningService.analyzeWhatIfBuy(
+                        args.portfolio_id as string,
+                        args.symbol as string,
+                        args.quantity as number,
+                        args.price as number,
+                        currentPrices
+                    );
+                } else {
+                    throw new Error(`Invalid action: ${action}. Must be "BUY" or "SELL"`);
+                }
+
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                success: true,
+                                analysis,
+                                message: `What-if analysis complete for ${action} ${args.symbol}`,
                             }, null, 2),
                         },
                     ],
