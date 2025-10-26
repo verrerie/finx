@@ -1,5 +1,11 @@
 # FinX - Financial AI Agent System
 
+![CI](https://github.com/verrerie/finx/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/verrerie/finx/branch/main/graph/badge.svg)](https://codecov.io/gh/verrerie/finx)
+![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)
+![pnpm Version](https://img.shields.io/badge/pnpm-%3E%3D9.0.0-orange)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A learning-focused financial AI agent system built with MCP (Model Context Protocol) servers. Designed to help you learn investment concepts through hands-on portfolio management and market analysis.
 
 ## 🎯 Philosophy
