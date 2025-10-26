@@ -3,9 +3,11 @@
  */
 
 import YahooFinance from 'yahoo-finance2';
+import { IMarketDataProvider } from '../interfaces/market-data-provider.interface.js';
 import { CompanyInfo, HistoricalDataPoint, Period, StockQuote } from '../types.js';
 
-export class YahooFinanceProvider {
+export class YahooFinanceProvider implements IMarketDataProvider {
+    readonly name = 'Yahoo Finance';
     private yf: InstanceType<typeof YahooFinance>;
 
     constructor() {

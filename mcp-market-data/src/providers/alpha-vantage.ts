@@ -3,9 +3,11 @@
  */
 
 import AlphaVantage from 'alphavantage';
+import { IMarketDataProvider } from '../interfaces/market-data-provider.interface.js';
 import { CompanyInfo, StockQuote, SymbolSearchResult } from '../types.js';
 
-export class AlphaVantageProvider {
+export class AlphaVantageProvider implements IMarketDataProvider {
+    readonly name = 'Alpha Vantage';
     private client: any;
 
     constructor(apiKey: string) {
