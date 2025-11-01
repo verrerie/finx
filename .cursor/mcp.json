@@ -7,6 +7,19 @@
                 "/Users/verrerie/git/finx/mcp-market-data/src/index.ts"
             ]
         },
+        "finx-portfolio": {
+            "command": "node",
+            "args": [
+                "/Users/verrerie/git/finx/mcp-portfolio/dist/index.js"
+            ],
+            "env": {
+                "DB_HOST": "localhost",
+                "DB_PORT": "3306",
+                "DB_NAME": "finx",
+                "DB_USER": "finx_user",
+                "DB_PASSWORD": "finx_password"
+            }
+        },
         "awesome-copilot": {
             "type": "stdio",
             "command": "docker",
