@@ -12,52 +12,24 @@ A learning-focused financial AI agent system built with MCP (Model Context Proto
 
 **Learn by Doing** - This is not just an investment tool; it's an educational platform that helps you understand financial concepts by applying them to real data and your actual portfolio.
 
-## 🏗️ Architecture
+## ✨ What You Can Do
 
-**Monorepo Structure** - pnpm workspaces with independently versioned packages
+FinX provides two powerful MCP servers that integrate seamlessly with Cursor to help you learn investing:
 
-### MCP Servers (Workspace Packages)
+### 📊 Market Data Server
+- **Get real-time quotes** - Current prices, market metrics, and daily performance
+- **Explore historical data** - Analyze price trends and volatility over any time period
+- **Research companies** - Comprehensive fundamentals, financial ratios, and business insights
+- **Learn financial concepts** - Educational explanations of metrics like P/E ratio, ROE, profit margins
+- **Compare companies** - Side-by-side analysis of peers in the same sector
 
-- **@finx/mcp-market-data** - Real-time quotes, historical data, and company fundamentals with educational explanations
-- **@finx/mcp-portfolio** - Track holdings, transactions, and performance with learning features
-
-### Infrastructure
-
-- **MariaDB 11.8** - Local storage for portfolio data and learning journal
-- **Knowledge Base** - Document financial concepts as you learn them
-- **Cursor Integration** - Learning-oriented instructions and prompts
-
-See [docs/MONOREPO.md](./docs/MONOREPO.md) for detailed workspace documentation.
-
-## 📋 Current Status
-
-**Phase 1a: Market Data Foundation** ✅ Complete
-
-- [x] Project structure initialized
-- [x] Market Data MCP Server core tools (quote, historical, search, company info)
-- [x] Market Data learning features (explain fundamentals, compare peers)
-- [x] Cursor integration with learning prompts
-- [x] Knowledge base setup with concepts and journal templates
-- [x] Testing, validation, and SOLID refactoring
-- [x] CI/CD with automated testing and releases
-
-**Phase 1b: Portfolio Management** ✅ Complete
-
-- [x] Database infrastructure (Docker Compose + MariaDB 11.8)
-- [x] Portfolio MCP Server core tools (8 tools)
-- [x] Portfolio learning features (10 additional tools)
-- [x] Portfolio analysis prompts for Cursor
-- [x] End-to-end testing (3 complete workflows)
-- [x] Complete documentation
-
-**Implemented Features:**
-- Create and manage investment portfolios
-- Record buy/sell transactions with automatic cost basis
-- Calculate portfolio and position-level performance
-- Research watchlist management
-- Investment thesis tracking (bull/bear cases)
-- What-if scenario analysis (buy/sell impact modeling)
-- Comprehensive learning prompts and knowledge base
+### 💼 Portfolio Management Server
+- **Track your investments** - Create portfolios and record buy/sell transactions
+- **Calculate performance** - See returns, gains/losses, and position-level analytics
+- **Manage watchlists** - Track companies you're researching before investing
+- **Document your thesis** - Record bull and bear cases for each investment decision
+- **Run what-if scenarios** - Model how transactions would impact your portfolio
+- **Analyze holdings** - Deep dive into individual positions and overall portfolio health
 
 ## 🚀 Quick Start
 
@@ -75,13 +47,8 @@ See [docs/MONOREPO.md](./docs/MONOREPO.md) for detailed workspace documentation.
 
 ```bash
 cd finx
-pnpm install  # Installs all workspace packages
+pnpm install
 ```
-
-This installs:
-- Root dev dependencies (TypeScript, Vitest, etc.)
-- Market Data server dependencies
-- Portfolio server dependencies
 
 2. **Configure environment:**
 
@@ -110,10 +77,6 @@ See [docs/DATABASE.md](./docs/DATABASE.md) for detailed database documentation.
 ```bash
 pnpm build
 ```
-
-This builds:
-- Market Data MCP Server (`mcp-market-data/dist/`)
-- Portfolio MCP Server (`mcp-portfolio/dist/`)
 
 5. **Configure MCP in Cursor:**
 
@@ -152,38 +115,12 @@ Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
 
 6. **Restart Cursor** to load the MCP servers
 
-## 🎮 Testing & Development
-
-### Run Tests
-
-```bash
-# All unit tests
-pnpm test
-
-# Watch mode for development  
-pnpm test:watch
-
-# With coverage
-pnpm test:coverage
-
-# Integration tests
-pnpm test:market-data    # Market Data server
-pnpm test:portfolio      # Portfolio server core
-pnpm test:portfolio-learning  # Learning features
-pnpm test:e2e            # End-to-end workflows
-```
-
-### Development Mode
-
-```bash
-# Run MCP servers in watch mode
-pnpm dev:market-data     # Auto-reload Market Data server
-pnpm dev:portfolio       # Auto-reload Portfolio server
-```
 
 ## 📚 Learning Path
 
-### Phase 1a: Market Data & Fundamentals ✅
+FinX guides you through investment concepts progressively, from basics to advanced analysis.
+
+### Stage 1: Market Data & Fundamentals
 
 **What You Learn:**
 - Reading stock quotes and understanding market data
@@ -204,7 +141,7 @@ pnpm dev:portfolio       # Auto-reload Portfolio server
 - `decode-financials.md` - Understand a company
 - `compare-stocks.md` - Learn by comparison
 
-### Phase 1b: Portfolio Management ✅
+### Stage 2: Portfolio Management
 
 **What You Learn:**
 - Building and tracking investment portfolios
@@ -229,11 +166,28 @@ pnpm dev:portfolio       # Auto-reload Portfolio server
 - `evaluate-position.md` - Deep dive on individual holdings
 - `plan-transaction.md` - Systematic transaction planning
 
-### Phase 2: Financial Statement Analysis (Future)
-**Learn:** Balance sheet, income statement, cash flow analysis, valuation models
+### Stage 3: Financial Statement Analysis
 
-### Phase 3: Risk & Portfolio Theory (Future)
-**Learn:** Diversification, correlation, risk-adjusted returns, modern portfolio theory
+**What You Learn:**
+- Balance sheet analysis
+- Income statement interpretation
+- Cash flow analysis
+- Valuation models and methodologies
+- Ratio calculations with educational context
+- Industry and sector analysis frameworks
+
+**Learning Prompts:**
+- Advanced financial statement analysis prompts
+- Valuation model guides
+- Sector-specific analysis frameworks
+
+### Future Features: Risk & Portfolio Theory
+
+**Coming Soon:**
+- Diversification metrics and optimization
+- Correlation analysis
+- Risk-adjusted returns (Sharpe, Sortino ratios)
+- Modern portfolio theory concepts
 
 **Recommended Reading:**
 - "The Intelligent Investor" by Benjamin Graham
@@ -244,11 +198,9 @@ pnpm dev:portfolio       # Auto-reload Portfolio server
 ## 🛠️ Technology Stack
 
 - **Runtime:** Node.js 22.x LTS
-- **Language:** TypeScript 5.7.x
 - **Package Manager:** pnpm 9.x
-- **MCP SDK:** @modelcontextprotocol/sdk
 - **Market Data:** Alpha Vantage + Yahoo Finance (fallback)
-- **Database:** MariaDB 11.8 (Phase 1b)
+- **Database:** MariaDB 11.8 (for portfolio data)
 
 ## 📖 Documentation
 
@@ -258,7 +210,7 @@ pnpm dev:portfolio       # Auto-reload Portfolio server
 - **[QUICKSTART.md](./docs/QUICKSTART.md)** - Interactive guide to explore tools
 
 ### Technical Documentation
-- **[MONOREPO.md](./docs/MONOREPO.md)** - Monorepo structure and workspace management
+- **[MONOREPO.md](./docs/MONOREPO.md)** - Monorepo structure and workspace management (for developers)
 - **[DATABASE.md](./docs/DATABASE.md)** - Database setup, schema, and management
 - **[.cursorrules](./.cursorrules)** - AI behavior guidelines for learning
 - **[.cursor/prompts/](./cursor/prompts/)** - Structured learning prompts
@@ -268,6 +220,24 @@ pnpm dev:portfolio       # Auto-reload Portfolio server
 - **[concepts/](./cursor/knowledge/concepts/)** - Financial concept documentation
 - **[journal/](./cursor/knowledge/journal/)** - Investment decision log
 - **[frameworks/](./cursor/knowledge/frameworks/)** - Investment frameworks
+
+## 🎮 For Developers
+
+### Testing
+
+```bash
+pnpm test              # Run all tests
+pnpm test:watch        # Watch mode
+pnpm test:coverage     # With coverage
+pnpm test:e2e          # End-to-end workflows
+```
+
+### Development
+
+```bash
+pnpm dev:market-data   # Watch mode for Market Data server
+pnpm dev:portfolio     # Watch mode for Portfolio server
+```
 
 ## 🤝 Contributing
 
