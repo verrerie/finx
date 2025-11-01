@@ -26,20 +26,12 @@ See main [README.md](../README.md) for installation and configuration instructio
 ## Development
 
 ```bash
-# Watch mode with auto-reload
-pnpm dev:market-data
-
-# Build for production
-pnpm build:market-data
+pnpm dev:market-data   # Watch mode with auto-reload
+pnpm build:market-data # Build for production
 ```
 
 ## Rate Limits
 
 - Alpha Vantage Free: 25 requests/day, 5 requests/minute
-- Implements caching and fallback to manage limits
-- Yahoo Finance fallback has no documented limits
-
-## Status
-
-**Phase 1a** - In Development
+- System implements caching and automatic fallback to Yahoo Finance
 
