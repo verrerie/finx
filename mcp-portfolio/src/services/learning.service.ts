@@ -7,6 +7,7 @@
 import { WatchlistRepository } from '../database/repositories/watchlist.repository.js';
 import { ThesisRepository } from '../database/repositories/thesis.repository.js';
 import { HoldingRepository } from '../database/repositories/holding.repository.js';
+import { AssetService } from './asset.service.js';
 import type {
   WatchlistItem,
   InvestmentThesis,
@@ -23,11 +24,12 @@ export class LearningService {
   constructor(
     private readonly watchlistRepo: WatchlistRepository,
     private readonly thesisRepo: ThesisRepository,
-    private readonly holdingRepo: HoldingRepository
+    private readonly holdingRepo: HoldingRepository,
+    private readonly assetService: AssetService,
   ) {}
 
   /**
-   * Add symbol to watchlist
+   * Add asset to watchlist
    */
   async addToWatchlist(input: AddWatchlistInput): Promise<WatchlistItem> {
     return await this.watchlistRepo.create(input);
@@ -45,17 +47,17 @@ export class LearningService {
    */
   async updateWatchlistItem(
     portfolioId: string,
-    symbol: string,
+    assetId: string,
     updates: Partial<Pick<WatchlistItem, 'notes' | 'target_price' | 'priority'>>
   ): Promise<WatchlistItem | null> {
-    return await this.watchlistRepo.update(portfolioId, symbol, updates);
+    return await this.watchlistRepo.update(portfolioId, assetId, updates);
   }
 
   /**
    * Remove from watchlist
    */
-  async removeFromWatchlist(portfolioId: string, symbol: string): Promise<boolean> {
-    return await this.watchlistRepo.delete(portfolioId, symbol);
+  async removeFromWatchlist(portfolioId: string, assetId: string): Promise<boolean> {
+    return await this.watchlistRepo.delete(portfolioId, assetId);
   }
 
   /**
@@ -73,10 +75,10 @@ export class LearningService {
   }
 
   /**
-   * Get thesis for a specific symbol
+   * Get thesis for a specific asset
    */
-  async getThesis(portfolioId: string, symbol: string): Promise<InvestmentThesis | null> {
-    return await this.thesisRepo.findBySymbol(portfolioId, symbol);
+  async getThesis(portfolioId: string, assetId: string): Promise<InvestmentThesis | null> {
+    return await this.thesisRepo.findByAsset(portfolioId, assetId);
   }
 
   /**
@@ -84,17 +86,17 @@ export class LearningService {
    */
   async updateThesis(
     portfolioId: string,
-    symbol: string,
-    updates: Partial<Omit<InvestmentThesis, 'id' | 'portfolio_id' | 'symbol' | 'created_at' | 'updated_at'>>
+    assetId: string,
+    updates: Partial<Omit<InvestmentThesis, 'id' | 'portfolio_id' | 'asset_id' | 'created_at' | 'updated_at'>>
   ): Promise<InvestmentThesis | null> {
-    return await this.thesisRepo.update(portfolioId, symbol, updates);
+    return await this.thesisRepo.update(portfolioId, assetId, updates);
   }
 
   /**
    * Delete investment thesis
    */
-  async deleteThesis(portfolioId: string, symbol: string): Promise<boolean> {
-    return await this.thesisRepo.delete(portfolioId, symbol);
+  async deleteThesis(portfolioId: string, assetId: string): Promise<boolean> {
+    return await this.thesisRepo.delete(portfolioId, assetId);
   }
 
   /**
@@ -108,18 +110,18 @@ export class LearningService {
    * Analyze what-if scenario: What if I sell a position?
    * 
    * @param portfolioId Portfolio ID
-   * @param symbol Symbol to sell
+   * @param assetId Asset ID to sell
    * @param sellPrice Price to sell at
    * @param currentPrices Current prices for all positions
    * @returns Analysis of portfolio impact
    */
   async analyzeWhatIfSell(
     portfolioId: string,
-    symbol: string,
+    assetId: string,
     sellPrice: number,
     currentPrices: Record<string, number>
   ): Promise<{
-    symbol: string;
+    asset_id: string;
     action: 'SELL';
     current_position: {
       quantity: number;
@@ -144,13 +146,13 @@ export class LearningService {
     };
   }> {
     // Get current holding
-    const holding = await this.holdingRepo.findBySymbol(portfolioId, symbol);
+    const holding = await this.holdingRepo.findByAsset(portfolioId, assetId);
     if (!holding) {
-      throw new Error(`No holding found for ${symbol}`);
+      throw new Error(`No holding found for asset ${assetId}`);
     }
 
     // Calculate current position metrics
-    const currentPrice = currentPrices[symbol] || holding.average_cost;
+    const currentPrice = currentPrices[assetId] || holding.average_cost;
     const currentValue = holding.quantity * currentPrice;
     const totalCost = holding.quantity * holding.average_cost;
     const unrealizedGainLoss = currentValue - totalCost;
@@ -166,7 +168,7 @@ export class LearningService {
     const allHoldings = await this.holdingRepo.findByPortfolio(portfolioId);
     let currentTotalValue = 0;
     for (const h of allHoldings) {
-      const price = currentPrices[h.symbol] || h.average_cost;
+      const price = currentPrices[h.asset_id] || h.average_cost;
       currentTotalValue += h.quantity * price;
     }
 
@@ -175,7 +177,7 @@ export class LearningService {
     const positionWeightAfter = 0; // Position is fully sold
 
     return {
-      symbol,
+      asset_id: assetId,
       action: 'SELL',
       current_position: {
         quantity: holding.quantity,
@@ -205,7 +207,7 @@ export class LearningService {
    * Analyze what-if scenario: What if I buy more of a position?
    * 
    * @param portfolioId Portfolio ID
-   * @param symbol Symbol to buy
+   * @param assetId Asset ID to buy
    * @param quantity Quantity to buy
    * @param buyPrice Price to buy at
    * @param currentPrices Current prices for all positions
@@ -213,12 +215,12 @@ export class LearningService {
    */
   async analyzeWhatIfBuy(
     portfolioId: string,
-    symbol: string,
+    assetId: string,
     quantity: number,
     buyPrice: number,
     currentPrices: Record<string, number>
   ): Promise<{
-    symbol: string;
+    asset_id: string;
     action: 'BUY';
     current_position: {
       quantity: number;
@@ -240,7 +242,7 @@ export class LearningService {
     };
   }> {
     // Get current holding (may not exist)
-    const holding = await this.holdingRepo.findBySymbol(portfolioId, symbol);
+    const holding = await this.holdingRepo.findByAsset(portfolioId, assetId);
 
     const currentQuantity = holding?.quantity || 0;
     const currentAverageCost = holding?.average_cost || 0;
@@ -258,10 +260,10 @@ export class LearningService {
     let currentPositionValue = 0;
 
     for (const h of allHoldings) {
-      const price = currentPrices[h.symbol] || h.average_cost;
+      const price = currentPrices[h.asset_id] || h.average_cost;
       const value = h.quantity * price;
       currentTotalValue += value;
-      if (h.symbol === symbol) {
+      if (h.asset_id === assetId) {
         currentPositionValue = value;
       }
     }
@@ -270,12 +272,12 @@ export class LearningService {
       ? (currentPositionValue / currentTotalValue) * 100 
       : 0;
 
-    const newPositionValue = newQuantity * (currentPrices[symbol] || buyPrice);
+    const newPositionValue = newQuantity * (currentPrices[assetId] || buyPrice);
     const newTotalValue = currentTotalValue + additionalInvestment;
     const positionWeightAfter = (newPositionValue / newTotalValue) * 100;
 
     return {
-      symbol,
+      asset_id: assetId,
       action: 'BUY',
       current_position: holding ? {
         quantity: currentQuantity,

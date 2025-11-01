@@ -17,7 +17,7 @@ export class TransactionRepository {
   async create(input: AddTransactionInput): Promise<Transaction> {
     const sql = `
       INSERT INTO transactions (
-        id, portfolio_id, symbol, type, quantity, price, fees, 
+        id, portfolio_id, asset_id, type, quantity, price, fees, 
         currency, transaction_date, notes
       )
       VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -25,7 +25,7 @@ export class TransactionRepository {
     
     const params = [
       input.portfolio_id,
-      input.symbol,
+      input.asset_id,
       input.type,
       input.quantity,
       input.price,
@@ -37,17 +37,17 @@ export class TransactionRepository {
     
     await query(sql, params);
     
-    // Find the just-created transaction (most recent for this portfolio and symbol)
+    // Find the just-created transaction (most recent for this portfolio and asset)
     const findSql = `
-      SELECT id, portfolio_id, symbol, type, quantity, price, fees,
+      SELECT id, portfolio_id, asset_id, type, quantity, price, fees,
         currency, transaction_date, notes, created_at, updated_at
       FROM transactions
-      WHERE portfolio_id = ? AND symbol = ? AND type = ?
+      WHERE portfolio_id = ? AND asset_id = ? AND type = ?
       ORDER BY created_at DESC
       LIMIT 1
     `;
     
-    const results = await query<Transaction>(findSql, [input.portfolio_id, input.symbol, input.type]);
+    const results = await query<Transaction>(findSql, [input.portfolio_id, input.asset_id, input.type]);
     
     if (results.length === 0) {
       throw new Error('Failed to create transaction');
@@ -68,7 +68,7 @@ export class TransactionRepository {
     async findById(id: string): Promise<Transaction | null> {
         const sql = `
       SELECT 
-        id, portfolio_id, symbol, type, quantity, price, fees,
+        id, portfolio_id, asset_id, type, quantity, price, fees,
         currency, transaction_date, notes, created_at, updated_at
       FROM transactions
       WHERE id = ?
@@ -101,9 +101,9 @@ export class TransactionRepository {
             params.push(filters.portfolio_id);
         }
 
-        if (filters.symbol) {
-            conditions.push('symbol = ?');
-            params.push(filters.symbol);
+        if (filters.asset_id) {
+            conditions.push('asset_id = ?');
+            params.push(filters.asset_id);
         }
 
         if (filters.type) {
@@ -125,7 +125,7 @@ export class TransactionRepository {
 
         let sql = `
       SELECT 
-        id, portfolio_id, symbol, type, quantity, price, fees,
+        id, portfolio_id, asset_id, type, quantity, price, fees,
         currency, transaction_date, notes, created_at, updated_at
       FROM transactions
       ${whereClause}
@@ -157,10 +157,10 @@ export class TransactionRepository {
     }
 
     /**
-     * Find all transactions for a symbol within a portfolio
+     * Find all transactions for an asset within a portfolio
      */
-    async findBySymbol(portfolioId: string, symbol: string): Promise<Transaction[]> {
-        return this.find({ portfolio_id: portfolioId, symbol });
+    async findByAsset(portfolioId: string, assetId: string): Promise<Transaction[]> {
+        return this.find({ portfolio_id: portfolioId, asset_id: assetId });
     }
 
     /**

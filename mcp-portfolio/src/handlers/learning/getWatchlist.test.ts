@@ -14,7 +14,7 @@ describe('getWatchlist Handler', () => {
   });
 
   it('should get watchlist successfully', async () => {
-    const watchlist = [mockWatchlistItem, { ...mockWatchlistItem, symbol: 'GOOGL' }];
+    const watchlist = [mockWatchlistItem, { ...mockWatchlistItem, asset_id: 'a2' }];
     mockService.getWatchlist.mockResolvedValue(watchlist);
     const ctx = createMockContext({ learningService: mockService });
 
@@ -26,8 +26,8 @@ describe('getWatchlist Handler', () => {
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
     expect(parsed.watchlist).toHaveLength(2);
-    expect(parsed.watchlist[0].symbol).toBe('MSFT');
-    expect(parsed.watchlist[1].symbol).toBe('GOOGL');
+    expect(parsed.watchlist[0].asset_id).toBe(mockWatchlistItem.asset_id);
+    expect(parsed.watchlist[1].asset_id).toBe('a2');
   });
 
   it('should return empty array when watchlist is empty', async () => {

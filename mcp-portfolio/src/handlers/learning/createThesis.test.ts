@@ -20,7 +20,7 @@ describe('createThesis Handler', () => {
     const result = await createThesis(
       {
         portfolio_id: mockThesis.portfolio_id,
-        symbol: mockThesis.symbol,
+        asset_id: mockThesis.asset_id,
         thesis: mockThesis.thesis,
         bull_case: mockThesis.bull_case,
         bear_case: mockThesis.bear_case,
@@ -31,7 +31,7 @@ describe('createThesis Handler', () => {
 
     expect(mockService.createThesis).toHaveBeenCalledWith({
       portfolio_id: mockThesis.portfolio_id,
-      symbol: mockThesis.symbol,
+      asset_id: mockThesis.asset_id,
       thesis: mockThesis.thesis,
       bull_case: mockThesis.bull_case,
       bear_case: mockThesis.bear_case,
@@ -42,9 +42,9 @@ describe('createThesis Handler', () => {
     expect(result.isError).toBeUndefined();
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
-    expect(parsed.thesis.symbol).toBe(mockThesis.symbol);
+    expect(parsed.thesis.asset_id).toBe(mockThesis.asset_id);
     expect(parsed.thesis.thesis).toBe(mockThesis.thesis);
-    expect(parsed.message).toContain(mockThesis.symbol);
+    expect(parsed.message).toContain(mockThesis.asset_id);
   });
 
   it('should create thesis with minimal arguments', async () => {
@@ -54,7 +54,7 @@ describe('createThesis Handler', () => {
     const result = await createThesis(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
         thesis: 'Good company',
       },
       ctx
@@ -62,7 +62,7 @@ describe('createThesis Handler', () => {
 
     expect(mockService.createThesis).toHaveBeenCalledWith({
       portfolio_id: 'test-id',
-      symbol: 'AAPL',
+      asset_id: 'a1',
       thesis: 'Good company',
       bull_case: undefined,
       bear_case: undefined,
@@ -76,7 +76,7 @@ describe('createThesis Handler', () => {
   it('should return error when portfolio_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
-    const result = await createThesis({ symbol: 'AAPL', thesis: 'test' }, ctx);
+    const result = await createThesis({ asset_id: 'a1', thesis: 'test' }, ctx);
 
     expect(mockService.createThesis).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
@@ -85,7 +85,7 @@ describe('createThesis Handler', () => {
     expect(parsed.error).toContain('Missing arguments');
   });
 
-  it('should return error when symbol is missing', async () => {
+  it('should return error when asset_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
     const result = await createThesis({ portfolio_id: 'test-id', thesis: 'test' }, ctx);
@@ -97,7 +97,7 @@ describe('createThesis Handler', () => {
   it('should return error when thesis is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
-    const result = await createThesis({ portfolio_id: 'test-id', symbol: 'AAPL' }, ctx);
+    const result = await createThesis({ portfolio_id: 'test-id', asset_id: 'a1' }, ctx);
 
     expect(mockService.createThesis).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
@@ -117,7 +117,7 @@ describe('createThesis Handler', () => {
     const ctx = createMockContext({ learningService: mockService });
 
     await expect(
-      createThesis({ portfolio_id: 'test-id', symbol: 'AAPL', thesis: 'test' }, ctx)
+      createThesis({ portfolio_id: 'test-id', asset_id: 'a1', thesis: 'test' }, ctx)
     ).rejects.toThrow('Duplicate thesis');
   });
 });

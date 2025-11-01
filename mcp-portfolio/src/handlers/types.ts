@@ -1,9 +1,11 @@
 import type { PortfolioService } from '../services/portfolio.service.js';
 import type { LearningService } from '../services/learning.service.js';
+import type { AssetService } from '../services/asset.service.js';
 
 export type HandlerContext = {
   portfolioService: PortfolioService;
   learningService: LearningService;
+  assetService: AssetService;
 };
 
 export type ToolArguments = Record<string, unknown> | undefined | null;

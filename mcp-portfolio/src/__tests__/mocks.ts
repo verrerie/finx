@@ -1,10 +1,7 @@
-/**
- * Mock services and repositories for testing
- */
-
 import { vi } from 'vitest';
 import type { LearningService } from '../services/learning.service.js';
 import type { PortfolioService } from '../services/portfolio.service.js';
+import type { AssetService } from '../services/asset.service.js';
 import type {
     AddTransactionInput,
     AddWatchlistInput,
@@ -39,10 +36,9 @@ export const mockPortfolioSummary: PortfolioSummary = {
 export const mockHolding: Holding = {
     id: '123e4567-e89b-12d3-a456-426614174001',
     portfolio_id: mockPortfolio.id,
-    symbol: 'AAPL',
+    asset_id: 'a1',
     quantity: 10,
     average_cost: 150.00,
-    currency: 'USD',
     notes: null,
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
@@ -51,6 +47,10 @@ export const mockHolding: Holding = {
 export const mockHoldingDetail: HoldingDetail = {
     ...mockHolding,
     portfolio_name: 'Test Portfolio',
+    asset_name: 'Apple Inc.',
+    asset_type: 'STOCK',
+    symbol: 'AAPL',
+    currency: 'USD',
     total_cost: 1500.00,
     current_price: 170.00,
     current_value: 1700.00,
@@ -61,7 +61,7 @@ export const mockHoldingDetail: HoldingDetail = {
 export const mockTransaction: Transaction = {
     id: '123e4567-e89b-12d3-a456-426614174002',
     portfolio_id: mockPortfolio.id,
-    symbol: 'AAPL',
+    asset_id: 'a1',
     type: 'BUY',
     quantity: 10,
     price: 150.00,
@@ -76,7 +76,7 @@ export const mockTransaction: Transaction = {
 export const mockWatchlistItem: WatchlistItem = {
     id: '123e4567-e89b-12d3-a456-426614174003',
     portfolio_id: mockPortfolio.id,
-    symbol: 'MSFT',
+    asset_id: 'a2',
     notes: 'Interesting company',
     target_price: 350.00,
     priority: 'HIGH',
@@ -87,7 +87,7 @@ export const mockWatchlistItem: WatchlistItem = {
 export const mockThesis: InvestmentThesis = {
     id: '123e4567-e89b-12d3-a456-426614174004',
     portfolio_id: mockPortfolio.id,
-    symbol: 'GOOGL',
+    asset_id: 'a3',
     thesis: 'Strong moat in search',
     bull_case: 'AI integration',
     bear_case: 'Regulatory risks',
@@ -130,16 +130,22 @@ export class MockPortfolioService implements Partial<PortfolioService> {
 export class MockLearningService implements Partial<LearningService> {
     addToWatchlist = vi.fn<(input: AddWatchlistInput) => Promise<WatchlistItem>>();
     getWatchlist = vi.fn<(portfolioId: string) => Promise<WatchlistItem[]>>();
-    updateWatchlistItem = vi.fn<(portfolioId: string, symbol: string, updates: Partial<AddWatchlistInput>) => Promise<WatchlistItem | null>>();
-    removeFromWatchlist = vi.fn<(portfolioId: string, symbol: string) => Promise<boolean>>();
+    updateWatchlistItem = vi.fn<(portfolioId: string, assetId: string, updates: Partial<AddWatchlistInput>) => Promise<WatchlistItem | null>>();
+    removeFromWatchlist = vi.fn<(portfolioId: string, assetId: string) => Promise<boolean>>();
     createThesis = vi.fn<(input: CreateThesisInput) => Promise<InvestmentThesis>>();
     getTheses = vi.fn<(portfolioId: string) => Promise<InvestmentThesis[]>>();
-    getThesis = vi.fn<(portfolioId: string, symbol: string) => Promise<InvestmentThesis | null>>();
-    updateThesis = vi.fn<(portfolioId: string, symbol: string, updates: Partial<Omit<InvestmentThesis, 'id' | 'portfolio_id' | 'symbol' | 'created_at' | 'updated_at'>>) => Promise<InvestmentThesis | null>>();
-    deleteThesis = vi.fn<(portfolioId: string, symbol: string) => Promise<boolean>>();
-    analyzeWhatIf = vi.fn<(portfolioId: string, scenario: any) => Promise<any>>();
-    analyzeWhatIfBuy = vi.fn<(portfolioId: string, symbol: string, quantity: number, price: number, currentPrices: Record<string, number>) => Promise<any>>();
-    analyzeWhatIfSell = vi.fn<(portfolioId: string, symbol: string, price: number, currentPrices: Record<string, number>) => Promise<any>>();
+    getThesis = vi.fn<(portfolioId: string, assetId: string) => Promise<InvestmentThesis | null>>();
+    updateThesis = vi.fn<(portfolioId: string, assetId: string, updates: Partial<Omit<InvestmentThesis, 'id' | 'portfolio_id' | 'asset_id' | 'created_at' | 'updated_at'>>) => Promise<InvestmentThesis | null>>();
+    deleteThesis = vi.fn<(portfolioId: string, assetId: string) => Promise<boolean>>();
+    analyzeWhatIfBuy = vi.fn<(portfolioId: string, assetId: string, quantity: number, price: number, currentPrices: Record<string, number>) => Promise<any>>();
+    analyzeWhatIfSell = vi.fn<(portfolioId: string, assetId: string, price: number, currentPrices: Record<string, number>) => Promise<any>>();
+}
+
+// Mock AssetService
+export class MockAssetService implements Partial<AssetService> {
+  createAsset = vi.fn();
+  findAssetById = vi.fn();
+  findAssets = vi.fn();
 }
 
 /**
@@ -148,10 +154,12 @@ export class MockLearningService implements Partial<LearningService> {
 export function createMockContext(overrides: {
     portfolioService?: Partial<PortfolioService>;
     learningService?: Partial<LearningService>;
+    assetService?: Partial<AssetService>;
 } = {}) {
     return {
         portfolioService: (overrides.portfolioService || new MockPortfolioService()) as PortfolioService,
         learningService: (overrides.learningService || new MockLearningService()) as LearningService,
+        assetService: (overrides.assetService || new MockAssetService()) as AssetService,
     };
 }
 

@@ -20,17 +20,17 @@ describe('getThesis Handler', () => {
     const result = await getThesis(
       {
         portfolio_id: mockThesis.portfolio_id,
-        symbol: mockThesis.symbol,
+        asset_id: mockThesis.asset_id,
       },
       ctx
     );
 
-    expect(mockService.getThesis).toHaveBeenCalledWith(mockThesis.portfolio_id, mockThesis.symbol);
+    expect(mockService.getThesis).toHaveBeenCalledWith(mockThesis.portfolio_id, mockThesis.asset_id);
     expect(result.isError).toBeUndefined();
 
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
-    expect(parsed.thesis.symbol).toBe(mockThesis.symbol);
+    expect(parsed.thesis.asset_id).toBe(mockThesis.asset_id);
     expect(parsed.thesis.thesis).toBe(mockThesis.thesis);
   });
 
@@ -41,7 +41,7 @@ describe('getThesis Handler', () => {
     const result = await getThesis(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
       },
       ctx
     );
@@ -55,7 +55,7 @@ describe('getThesis Handler', () => {
   it('should return error when portfolio_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
-    const result = await getThesis({ symbol: 'AAPL' }, ctx);
+    const result = await getThesis({ asset_id: 'a1' }, ctx);
 
     expect(mockService.getThesis).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
@@ -64,7 +64,7 @@ describe('getThesis Handler', () => {
     expect(parsed.error).toContain('Missing arguments');
   });
 
-  it('should return error when symbol is missing', async () => {
+  it('should return error when asset_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
     const result = await getThesis({ portfolio_id: 'test-id' }, ctx);
@@ -87,7 +87,7 @@ describe('getThesis Handler', () => {
     const ctx = createMockContext({ learningService: mockService });
 
     await expect(
-      getThesis({ portfolio_id: 'test-id', symbol: 'AAPL' }, ctx)
+      getThesis({ portfolio_id: 'test-id', asset_id: 'a1' }, ctx)
     ).rejects.toThrow('Database error');
   });
 });

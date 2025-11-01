@@ -20,12 +20,12 @@ describe('deleteThesis Handler', () => {
     const result = await deleteThesis(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
       },
       ctx
     );
 
-    expect(mockService.deleteThesis).toHaveBeenCalledWith('test-id', 'AAPL');
+    expect(mockService.deleteThesis).toHaveBeenCalledWith('test-id', 'a1');
     expect(result.isError).toBeUndefined();
 
     const parsed = JSON.parse(result.content[0].text);
@@ -35,7 +35,7 @@ describe('deleteThesis Handler', () => {
   it('should return error when portfolio_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
-    const result = await deleteThesis({ symbol: 'AAPL' }, ctx);
+    const result = await deleteThesis({ asset_id: 'a1' }, ctx);
 
     expect(mockService.deleteThesis).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
@@ -44,7 +44,7 @@ describe('deleteThesis Handler', () => {
     expect(parsed.error).toContain('Missing arguments');
   });
 
-  it('should return error when symbol is missing', async () => {
+  it('should return error when asset_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
     const result = await deleteThesis({ portfolio_id: 'test-id' }, ctx);
@@ -67,7 +67,7 @@ describe('deleteThesis Handler', () => {
     const ctx = createMockContext({ learningService: mockService });
 
     await expect(
-      deleteThesis({ portfolio_id: 'test-id', symbol: 'AAPL' }, ctx)
+      deleteThesis({ portfolio_id: 'test-id', asset_id: 'a1' }, ctx)
     ).rejects.toThrow('Thesis not found');
   });
 });

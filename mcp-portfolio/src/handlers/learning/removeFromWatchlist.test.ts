@@ -20,12 +20,12 @@ describe('removeFromWatchlist Handler', () => {
     const result = await removeFromWatchlist(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
       },
       ctx
     );
 
-    expect(mockService.removeFromWatchlist).toHaveBeenCalledWith('test-id', 'AAPL');
+    expect(mockService.removeFromWatchlist).toHaveBeenCalledWith('test-id', 'a1');
     expect(result.isError).toBeUndefined();
 
     const parsed = JSON.parse(result.content[0].text);
@@ -35,7 +35,7 @@ describe('removeFromWatchlist Handler', () => {
   it('should return error when portfolio_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
-    const result = await removeFromWatchlist({ symbol: 'AAPL' }, ctx);
+    const result = await removeFromWatchlist({ asset_id: 'a1' }, ctx);
 
     expect(mockService.removeFromWatchlist).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
@@ -44,7 +44,7 @@ describe('removeFromWatchlist Handler', () => {
     expect(parsed.error).toContain('Missing arguments');
   });
 
-  it('should return error when symbol is missing', async () => {
+  it('should return error when asset_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
     const result = await removeFromWatchlist({ portfolio_id: 'test-id' }, ctx);
@@ -67,7 +67,7 @@ describe('removeFromWatchlist Handler', () => {
     const ctx = createMockContext({ learningService: mockService });
 
     await expect(
-      removeFromWatchlist({ portfolio_id: 'test-id', symbol: 'AAPL' }, ctx)
+      removeFromWatchlist({ portfolio_id: 'test-id', asset_id: 'a1' }, ctx)
     ).rejects.toThrow('Item not found');
   });
 });

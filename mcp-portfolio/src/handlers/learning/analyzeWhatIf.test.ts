@@ -25,21 +25,21 @@ describe('analyzeWhatIf Handler', () => {
     const result = await analyzeWhatIf(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
         action: 'BUY',
         quantity: 10,
         price: 150,
-        current_prices: { AAPL: 150 },
+        current_prices: { a1: 150 },
       },
       ctx
     );
 
     expect(mockService.analyzeWhatIfBuy).toHaveBeenCalledWith(
       'test-id',
-      'AAPL',
+      'a1',
       10,
       150,
-      { AAPL: 150 }
+      { a1: 150 }
     );
 
     expect(result.isError).toBeUndefined();
@@ -60,19 +60,19 @@ describe('analyzeWhatIf Handler', () => {
     const result = await analyzeWhatIf(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
         action: 'SELL',
         price: 150,
-        current_prices: { AAPL: 150 },
+        current_prices: { a1: 150 },
       },
       ctx
     );
 
     expect(mockService.analyzeWhatIfSell).toHaveBeenCalledWith(
       'test-id',
-      'AAPL',
+      'a1',
       150,
-      { AAPL: 150 }
+      { a1: 150 }
     );
 
     expect(result.isError).toBeUndefined();
@@ -86,7 +86,7 @@ describe('analyzeWhatIf Handler', () => {
 
     const result = await analyzeWhatIf(
       {
-        symbol: 'AAPL',
+        asset_id: 'a1',
         action: 'BUY',
         quantity: 10,
         price: 150,
@@ -95,7 +95,7 @@ describe('analyzeWhatIf Handler', () => {
       ctx
     );
 
-    expect(mockService.analyzeWhatIf).not.toHaveBeenCalled();
+    expect(mockService.analyzeWhatIfBuy).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(false);
@@ -107,7 +107,7 @@ describe('analyzeWhatIf Handler', () => {
 
     const result = await analyzeWhatIf({ portfolio_id: 'test-id' }, ctx);
 
-    expect(mockService.analyzeWhatIf).not.toHaveBeenCalled();
+    expect(mockService.analyzeWhatIfBuy).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
   });
 
@@ -116,7 +116,7 @@ describe('analyzeWhatIf Handler', () => {
 
     const result = await analyzeWhatIf(null, ctx);
 
-    expect(mockService.analyzeWhatIf).not.toHaveBeenCalled();
+    expect(mockService.analyzeWhatIfBuy).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
   });
 
@@ -126,7 +126,7 @@ describe('analyzeWhatIf Handler', () => {
     const result = await analyzeWhatIf(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
         action: 'INVALID',
         quantity: 10,
         price: 150,
@@ -149,7 +149,7 @@ describe('analyzeWhatIf Handler', () => {
       analyzeWhatIf(
         {
           portfolio_id: 'test-id',
-          symbol: 'AAPL',
+          asset_id: 'a1',
           action: 'BUY',
           quantity: 10,
           price: 150,

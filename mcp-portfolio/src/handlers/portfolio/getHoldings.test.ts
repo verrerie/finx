@@ -14,8 +14,8 @@ describe('getHoldings Handler', () => {
   });
 
   it('should get holdings successfully', async () => {
-    const holdings = [mockHolding, { ...mockHolding, symbol: 'MSFT' }];
-    mockService.getHoldings.mockResolvedValue(holdings);
+    const holdings = [mockHolding, { ...mockHolding, asset_id: 'a2', symbol: 'MSFT' }];
+    mockService.getHoldings.mockResolvedValue(holdings as any);
     const ctx = createMockContext({ portfolioService: mockService });
 
     const result = await getHoldings({ portfolio_id: mockHolding.portfolio_id }, ctx);
@@ -26,8 +26,8 @@ describe('getHoldings Handler', () => {
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
     expect(parsed.holdings).toHaveLength(2);
-    expect(parsed.holdings[0].symbol).toBe('AAPL');
-    expect(parsed.holdings[1].symbol).toBe('MSFT');
+    expect(parsed.holdings[0].asset_id).toBe(mockHolding.asset_id);
+    expect(parsed.holdings[1].asset_id).toBe('a2');
   });
 
   it('should return empty array when no holdings exist', async () => {

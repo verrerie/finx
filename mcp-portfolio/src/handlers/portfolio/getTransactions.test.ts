@@ -26,7 +26,7 @@ describe('getTransactions Handler', () => {
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
     expect(parsed.transactions).toHaveLength(2);
-    expect(parsed.transactions[0].symbol).toBe('AAPL');
+    expect(parsed.transactions[0].asset_id).toBe(mockTransaction.asset_id);
   });
 
   it('should get transactions with limit', async () => {

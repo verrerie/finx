@@ -68,7 +68,7 @@ export const PORTFOLIO_TOOLS = [
     },
     {
         name: 'add_transaction',
-        description: 'Add a buy/sell transaction. This automatically updates holdings and calculates average cost basis.',
+        description: 'Add a transaction for an asset. This automatically updates holdings and calculates average cost basis.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -76,22 +76,22 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol (e.g., AAPL, MSFT)',
+                    description: 'Asset ID (UUID)',
                 },
                 type: {
                     type: 'string',
                     description: 'Transaction type',
-                    enum: ['BUY', 'SELL', 'DIVIDEND', 'SPLIT', 'TRANSFER_IN', 'TRANSFER_OUT'],
+                    enum: ['BUY', 'SELL', 'DIVIDEND', 'SPLIT', 'TRANSFER_IN', 'TRANSFER_OUT', 'RENTAL_INCOME', 'EXPENSE'],
                 },
                 quantity: {
                     type: 'number',
-                    description: 'Number of shares',
+                    description: 'Number of units/shares',
                 },
                 price: {
                     type: 'number',
-                    description: 'Price per share',
+                    description: 'Price per unit/share',
                 },
                 fees: {
                     type: 'number',
@@ -110,7 +110,7 @@ export const PORTFOLIO_TOOLS = [
                     description: 'Optional notes about the transaction',
                 },
             },
-            required: ['portfolio_id', 'symbol', 'type', 'quantity', 'price', 'transaction_date'],
+            required: ['portfolio_id', 'asset_id', 'type', 'quantity', 'price', 'transaction_date'],
         },
     },
     {
@@ -143,7 +143,7 @@ export const PORTFOLIO_TOOLS = [
                 },
                 current_prices: {
                     type: 'object',
-                    description: 'Map of symbol to current price (e.g., {"AAPL": 150.25, "MSFT": 380.50})',
+                    description: 'Map of asset_id to current price (e.g., {"asset-uuid-1": 150.25, "asset-uuid-2": 380.50})',
                     additionalProperties: {
                         type: 'number',
                     },
@@ -169,7 +169,7 @@ export const PORTFOLIO_TOOLS = [
     // Learning & Research Tools
     {
         name: 'add_to_watchlist',
-        description: 'Add a stock to your watchlist for research and monitoring. Track stocks you\'re considering buying.',
+        description: 'Add an asset to your watchlist for research and monitoring.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -177,9 +177,9 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol (e.g., AAPL, MSFT)',
+                    description: 'Asset ID (UUID)',
                 },
                 notes: {
                     type: 'string',
@@ -195,12 +195,12 @@ export const PORTFOLIO_TOOLS = [
                     enum: ['LOW', 'MEDIUM', 'HIGH'],
                 },
             },
-            required: ['portfolio_id', 'symbol'],
+            required: ['portfolio_id', 'asset_id'],
         },
     },
     {
         name: 'get_watchlist',
-        description: 'Get your watchlist of stocks you\'re researching or monitoring.',
+        description: 'Get your watchlist of assets you\'re researching or monitoring.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -222,9 +222,9 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol',
+                    description: 'Asset ID (UUID)',
                 },
                 notes: {
                     type: 'string',
@@ -240,12 +240,12 @@ export const PORTFOLIO_TOOLS = [
                     enum: ['LOW', 'MEDIUM', 'HIGH'],
                 },
             },
-            required: ['portfolio_id', 'symbol'],
+            required: ['portfolio_id', 'asset_id'],
         },
     },
     {
         name: 'remove_from_watchlist',
-        description: 'Remove a stock from your watchlist.',
+        description: 'Remove an asset from your watchlist.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -253,17 +253,17 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol',
+                    description: 'Asset ID (UUID)',
                 },
             },
-            required: ['portfolio_id', 'symbol'],
+            required: ['portfolio_id', 'asset_id'],
         },
     },
     {
         name: 'create_thesis',
-        description: 'Document your investment thesis for a stock. Record bull case, bear case, and target allocation.',
+        description: 'Document your investment thesis for an asset. Record bull case, bear case, and target allocation.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -271,9 +271,9 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol',
+                    description: 'Asset ID (UUID)',
                 },
                 thesis: {
                     type: 'string',
@@ -296,7 +296,7 @@ export const PORTFOLIO_TOOLS = [
                     description: 'Date to review thesis (YYYY-MM-DD, optional)',
                 },
             },
-            required: ['portfolio_id', 'symbol', 'thesis'],
+            required: ['portfolio_id', 'asset_id', 'thesis'],
         },
     },
     {
@@ -315,7 +315,7 @@ export const PORTFOLIO_TOOLS = [
     },
     {
         name: 'get_thesis',
-        description: 'Get investment thesis for a specific stock.',
+        description: 'Get investment thesis for a specific asset.',
         inputSchema: {
             type: 'object',
             properties: {
@@ -323,12 +323,12 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol',
+                    description: 'Asset ID (UUID)',
                 },
             },
-            required: ['portfolio_id', 'symbol'],
+            required: ['portfolio_id', 'asset_id'],
         },
     },
     {
@@ -341,9 +341,9 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol',
+                    description: 'Asset ID (UUID)',
                 },
                 thesis: {
                     type: 'string',
@@ -371,7 +371,7 @@ export const PORTFOLIO_TOOLS = [
                     enum: ['ACTIVE', 'MONITORING', 'EXITED', 'INVALIDATED'],
                 },
             },
-            required: ['portfolio_id', 'symbol'],
+            required: ['portfolio_id', 'asset_id'],
         },
     },
     {
@@ -384,12 +384,12 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol',
+                    description: 'Asset ID (UUID)',
                 },
             },
-            required: ['portfolio_id', 'symbol'],
+            required: ['portfolio_id', 'asset_id'],
         },
     },
     {
@@ -402,9 +402,9 @@ export const PORTFOLIO_TOOLS = [
                     type: 'string',
                     description: 'Portfolio ID (UUID)',
                 },
-                symbol: {
+                asset_id: {
                     type: 'string',
-                    description: 'Stock symbol',
+                    description: 'Asset ID (UUID)',
                 },
                 action: {
                     type: 'string',
@@ -421,13 +421,64 @@ export const PORTFOLIO_TOOLS = [
                 },
                 current_prices: {
                     type: 'object',
-                    description: 'Map of symbol to current price for all positions (e.g., {"AAPL": 150.25, "MSFT": 380.50})',
+                    description: 'Map of asset_id to current price for all positions (e.g., {"asset-uuid-1": 150.25, "asset-uuid-2": 380.50})',
                     additionalProperties: {
                         type: 'number',
                     },
                 },
             },
-            required: ['portfolio_id', 'symbol', 'action', 'quantity', 'price', 'current_prices'],
+            required: ['portfolio_id', 'asset_id', 'action', 'quantity', 'price', 'current_prices'],
+        },
+    },
+    {
+        name: 'create_asset',
+        description: 'Create a new asset to be held in a portfolio.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                asset_type: {
+                    type: 'string',
+                    description: 'The type of asset to create',
+                    enum: ['STOCK', 'REAL_ESTATE', 'INVESTMENT_ACCOUNT'],
+                },
+                name: {
+                    type: 'string',
+                    description: 'The name of the asset',
+                },
+                symbol: {
+                    type: 'string',
+                    description: 'The stock symbol (for STOCK assets)',
+                },
+                currency: {
+                    type: 'string',
+                    description: 'The currency of the asset',
+                },
+                address: {
+                    type: 'string',
+                    description: 'The address of the property (for REAL_ESTATE assets)',
+                },
+                property_type: {
+                    type: 'string',
+                    description: 'The type of property (for REAL_ESTATE assets)',
+                },
+                market_value: {
+                    type: 'number',
+                    description: 'The market value of the property (for REAL_ESTATE assets)',
+                },
+                account_type: {
+                    type: 'string',
+                    description: 'The type of investment account (for INVESTMENT_ACCOUNT assets)',
+                },
+                institution: {
+                    type: 'string',
+                    description: 'The institution where the account is held (for INVESTMENT_ACCOUNT assets)',
+                },
+                current_value: {
+                    type: 'number',
+                    description: 'The current value of the account (for INVESTMENT_ACCOUNT assets)',
+                },
+            },
+            required: ['asset_type', 'name'],
         },
     },
 ] as const;

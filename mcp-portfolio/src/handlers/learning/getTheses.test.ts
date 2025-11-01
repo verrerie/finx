@@ -14,7 +14,7 @@ describe('getTheses Handler', () => {
   });
 
   it('should get theses successfully', async () => {
-    const theses = [mockThesis, { ...mockThesis, symbol: 'MSFT' }];
+    const theses = [mockThesis, { ...mockThesis, asset_id: 'a2' }];
     mockService.getTheses.mockResolvedValue(theses);
     const ctx = createMockContext({ learningService: mockService });
 
@@ -26,8 +26,8 @@ describe('getTheses Handler', () => {
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
     expect(parsed.theses).toHaveLength(2);
-    expect(parsed.theses[0].symbol).toBe('GOOGL');
-    expect(parsed.theses[1].symbol).toBe('MSFT');
+    expect(parsed.theses[0].asset_id).toBe(mockThesis.asset_id);
+    expect(parsed.theses[1].asset_id).toBe('a2');
   });
 
   it('should return empty array when no theses exist', async () => {

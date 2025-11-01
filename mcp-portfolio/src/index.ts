@@ -21,6 +21,7 @@ import { TransactionRepository } from './database/repositories/transaction.repos
 import { WatchlistRepository } from './database/repositories/watchlist.repository.js';
 import { LearningService } from './services/learning.service.js';
 import { PortfolioService } from './services/portfolio.service.js';
+import { AssetService } from './services/asset.service.js';
 import { PORTFOLIO_TOOLS } from './tools/tool-definitions.js';
 import { handlers } from './handlers/index.js';
 import { error } from './utils/response.js';
@@ -33,8 +34,9 @@ const holdingRepo = new HoldingRepository();
 const transactionRepo = new TransactionRepository();
 const watchlistRepo = new WatchlistRepository();
 const thesisRepo = new ThesisRepository();
-const portfolioService = new PortfolioService(portfolioRepo, holdingRepo, transactionRepo);
-const learningService = new LearningService(watchlistRepo, thesisRepo, holdingRepo);
+const assetService = new AssetService();
+const portfolioService = new PortfolioService(portfolioRepo, holdingRepo, transactionRepo, assetService);
+const learningService = new LearningService(watchlistRepo, thesisRepo, holdingRepo, assetService);
 
 /**
  * Create MCP server
@@ -72,7 +74,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     try {
-        return await handler(args, { portfolioService, learningService });
+        return await handler(args, { portfolioService, learningService, assetService });
     } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         return error(message);

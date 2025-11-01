@@ -17,7 +17,7 @@ export class ThesisRepository {
   async create(input: CreateThesisInput): Promise<InvestmentThesis> {
     const sql = `
       INSERT INTO investment_theses (
-        id, portfolio_id, symbol, thesis, bull_case, bear_case,
+        id, portfolio_id, asset_id, thesis, bull_case, bear_case,
         target_allocation, review_date, status
       )
       VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, 'ACTIVE')
@@ -25,7 +25,7 @@ export class ThesisRepository {
     
     const params = [
       input.portfolio_id,
-      input.symbol,
+      input.asset_id,
       input.thesis,
       input.bull_case || null,
       input.bear_case || null,
@@ -36,7 +36,7 @@ export class ThesisRepository {
     await query(sql, params);
     
     // Fetch the created thesis
-    const thesis = await this.findBySymbol(input.portfolio_id, input.symbol);
+    const thesis = await this.findByAsset(input.portfolio_id, input.asset_id);
     if (!thesis) {
       throw new Error('Failed to create investment thesis');
     }
@@ -45,17 +45,17 @@ export class ThesisRepository {
   }
 
   /**
-   * Find thesis by portfolio and symbol
+   * Find thesis by portfolio and asset
    */
-  async findBySymbol(portfolioId: string, symbol: string): Promise<InvestmentThesis | null> {
+  async findByAsset(portfolioId: string, assetId: string): Promise<InvestmentThesis | null> {
     const sql = `
-      SELECT id, portfolio_id, symbol, thesis, bull_case, bear_case,
+      SELECT id, portfolio_id, asset_id, thesis, bull_case, bear_case,
         target_allocation, review_date, status, created_at, updated_at
       FROM investment_theses
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
-    const results = await query<InvestmentThesis>(sql, [portfolioId, symbol]);
+    const results = await query<InvestmentThesis>(sql, [portfolioId, assetId]);
     
     if (results.length === 0) {
       return null;
@@ -75,7 +75,7 @@ export class ThesisRepository {
    */
   async findByPortfolio(portfolioId: string): Promise<InvestmentThesis[]> {
     const sql = `
-      SELECT id, portfolio_id, symbol, thesis, bull_case, bear_case,
+      SELECT id, portfolio_id, asset_id, thesis, bull_case, bear_case,
         target_allocation, review_date, status, created_at, updated_at
       FROM investment_theses
       WHERE portfolio_id = ?
@@ -100,7 +100,7 @@ export class ThesisRepository {
     status: 'ACTIVE' | 'MONITORING' | 'EXITED' | 'INVALIDATED'
   ): Promise<InvestmentThesis[]> {
     const sql = `
-      SELECT id, portfolio_id, symbol, thesis, bull_case, bear_case,
+      SELECT id, portfolio_id, asset_id, thesis, bull_case, bear_case,
         target_allocation, review_date, status, created_at, updated_at
       FROM investment_theses
       WHERE portfolio_id = ? AND status = ?
@@ -122,8 +122,8 @@ export class ThesisRepository {
    */
   async update(
     portfolioId: string,
-    symbol: string,
-    updates: Partial<Omit<InvestmentThesis, 'id' | 'portfolio_id' | 'symbol' | 'created_at' | 'updated_at'>>
+    assetId: string,
+    updates: Partial<Omit<InvestmentThesis, 'id' | 'portfolio_id' | 'asset_id' | 'created_at' | 'updated_at'>>
   ): Promise<InvestmentThesis | null> {
     const fields: string[] = [];
     const params: any[] = [];
@@ -159,32 +159,32 @@ export class ThesisRepository {
     }
     
     if (fields.length === 0) {
-      return this.findBySymbol(portfolioId, symbol);
+      return this.findByAsset(portfolioId, assetId);
     }
     
-    params.push(portfolioId, symbol);
+    params.push(portfolioId, assetId);
     
     const sql = `
       UPDATE investment_theses
       SET ${fields.join(', ')}
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
     await query(sql, params);
     
-    return this.findBySymbol(portfolioId, symbol);
+    return this.findByAsset(portfolioId, assetId);
   }
 
   /**
    * Delete thesis
    */
-  async delete(portfolioId: string, symbol: string): Promise<boolean> {
+  async delete(portfolioId: string, assetId: string): Promise<boolean> {
     const sql = `
       DELETE FROM investment_theses
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
-    const result = await query(sql, [portfolioId, symbol]);
+    const result = await query(sql, [portfolioId, assetId]);
     return (result as any).affectedRows > 0;
   }
 
@@ -193,7 +193,7 @@ export class ThesisRepository {
    */
   async findNeedingReview(portfolioId: string): Promise<InvestmentThesis[]> {
     const sql = `
-      SELECT id, portfolio_id, symbol, thesis, bull_case, bear_case,
+      SELECT id, portfolio_id, asset_id, thesis, bull_case, bear_case,
         target_allocation, review_date, status, created_at, updated_at
       FROM investment_theses
       WHERE portfolio_id = ? 

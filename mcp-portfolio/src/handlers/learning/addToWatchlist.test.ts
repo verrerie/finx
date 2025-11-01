@@ -13,14 +13,14 @@ describe('addToWatchlist Handler', () => {
     mockService = new MockLearningService();
   });
 
-  it('should add a stock to watchlist successfully', async () => {
+  it('should add an asset to watchlist successfully', async () => {
     mockService.addToWatchlist.mockResolvedValue(mockWatchlistItem);
     const ctx = createMockContext({ learningService: mockService });
 
     const result = await addToWatchlist(
       {
         portfolio_id: mockWatchlistItem.portfolio_id,
-        symbol: mockWatchlistItem.symbol,
+        asset_id: mockWatchlistItem.asset_id,
         notes: mockWatchlistItem.notes,
         target_price: mockWatchlistItem.target_price,
         priority: mockWatchlistItem.priority,
@@ -30,7 +30,7 @@ describe('addToWatchlist Handler', () => {
 
     expect(mockService.addToWatchlist).toHaveBeenCalledWith({
       portfolio_id: mockWatchlistItem.portfolio_id,
-      symbol: mockWatchlistItem.symbol,
+      asset_id: mockWatchlistItem.asset_id,
       notes: mockWatchlistItem.notes,
       target_price: mockWatchlistItem.target_price,
       priority: mockWatchlistItem.priority,
@@ -39,9 +39,9 @@ describe('addToWatchlist Handler', () => {
     expect(result.isError).toBeUndefined();
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
-    expect(parsed.watchlist_item.symbol).toBe(mockWatchlistItem.symbol);
+    expect(parsed.watchlist_item.asset_id).toBe(mockWatchlistItem.asset_id);
     expect(parsed.watchlist_item.portfolio_id).toBe(mockWatchlistItem.portfolio_id);
-    expect(parsed.message).toContain(mockWatchlistItem.symbol);
+    expect(parsed.message).toContain(mockWatchlistItem.asset_id);
   });
 
   it('should add to watchlist with minimal arguments', async () => {
@@ -51,14 +51,14 @@ describe('addToWatchlist Handler', () => {
     const result = await addToWatchlist(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
       },
       ctx
     );
 
     expect(mockService.addToWatchlist).toHaveBeenCalledWith({
       portfolio_id: 'test-id',
-      symbol: 'AAPL',
+      asset_id: 'a1',
       notes: undefined,
       target_price: undefined,
       priority: undefined,
@@ -70,7 +70,7 @@ describe('addToWatchlist Handler', () => {
   it('should return error when portfolio_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
-    const result = await addToWatchlist({ symbol: 'AAPL' }, ctx);
+    const result = await addToWatchlist({ asset_id: 'a1' }, ctx);
 
     expect(mockService.addToWatchlist).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
@@ -79,7 +79,7 @@ describe('addToWatchlist Handler', () => {
     expect(parsed.error).toContain('Missing arguments');
   });
 
-  it('should return error when symbol is missing', async () => {
+  it('should return error when asset_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
     const result = await addToWatchlist({ portfolio_id: 'test-id' }, ctx);
@@ -102,7 +102,7 @@ describe('addToWatchlist Handler', () => {
     const ctx = createMockContext({ learningService: mockService });
 
     await expect(
-      addToWatchlist({ portfolio_id: 'test-id', symbol: 'AAPL' }, ctx)
+      addToWatchlist({ portfolio_id: 'test-id', asset_id: 'a1' }, ctx)
     ).rejects.toThrow('Duplicate entry');
   });
 });

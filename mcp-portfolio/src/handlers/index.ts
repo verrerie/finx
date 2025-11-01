@@ -17,6 +17,7 @@ import { getThesis } from './learning/getThesis.js';
 import { updateThesis } from './learning/updateThesis.js';
 import { deleteThesis } from './learning/deleteThesis.js';
 import { analyzeWhatIf } from './learning/analyzeWhatIf.js';
+import { createAsset } from './asset/createAsset.js';
 
 export const handlers: Record<string, ToolHandler> = {
   create_portfolio: createPortfolio,
@@ -37,6 +38,7 @@ export const handlers: Record<string, ToolHandler> = {
   update_thesis: updateThesis,
   delete_thesis: deleteThesis,
   analyze_what_if: analyzeWhatIf,
+  create_asset: createAsset,
 };
 
 
