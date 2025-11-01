@@ -10,7 +10,7 @@ export const deleteThesis: ToolHandler = async (args, { learningService }) => {
     args.symbol as string
   );
 
-  return success({ success: deleted, message: deleted ? 'Thesis deleted' : 'Thesis not found' });
+  return success({ deleted, message: deleted ? 'Thesis deleted' : 'Thesis not found' });
 };
 
 

@@ -10,7 +10,7 @@ export const removeFromWatchlist: ToolHandler = async (args, { learningService }
     args.symbol as string
   );
 
-  return success({ success: removed, message: removed ? 'Item removed from watchlist' : 'Item not found in watchlist' });
+  return success({ removed, message: removed ? 'Item removed from watchlist' : 'Item not found in watchlist' });
 };
 
 

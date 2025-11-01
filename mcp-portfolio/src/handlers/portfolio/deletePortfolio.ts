@@ -7,7 +7,7 @@ export const deletePortfolio: ToolHandler = async (args, { portfolioService }) =
   }
   const deleted = await portfolioService.deletePortfolio(args.portfolio_id as string);
   return success({
-    success: deleted,
+    deleted,
     message: deleted ? 'Portfolio deleted successfully' : 'Portfolio not found',
   });
 };

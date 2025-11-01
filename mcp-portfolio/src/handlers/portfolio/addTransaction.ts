@@ -3,7 +3,18 @@ import type { ToolHandler } from '../types.js';
 import type { AddTransactionInput } from '../../types.js';
 
 export const addTransaction: ToolHandler = async (args, { portfolioService }) => {
-  if (!args || typeof args !== 'object') return error('Missing arguments');
+  if (
+    !args ||
+    typeof args !== 'object' ||
+    !('portfolio_id' in args) ||
+    !('symbol' in args) ||
+    !('type' in args) ||
+    !('quantity' in args) ||
+    !('price' in args) ||
+    !('transaction_date' in args)
+  ) {
+    return error('Missing arguments');
+  }
 
   const input: AddTransactionInput = {
     portfolio_id: args.portfolio_id as string,
