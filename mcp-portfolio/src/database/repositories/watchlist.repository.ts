@@ -16,13 +16,13 @@ export class WatchlistRepository {
    */
   async create(input: AddWatchlistInput): Promise<WatchlistItem> {
     const sql = `
-      INSERT INTO watchlists (id, portfolio_id, symbol, notes, target_price, priority)
+      INSERT INTO watchlists (id, portfolio_id, asset_id, notes, target_price, priority)
       VALUES (UUID(), ?, ?, ?, ?, ?)
     `;
     
     const params = [
       input.portfolio_id,
-      input.symbol,
+      input.asset_id,
       input.notes || null,
       input.target_price || null,
       input.priority || 'MEDIUM',
@@ -31,7 +31,7 @@ export class WatchlistRepository {
     await query(sql, params);
     
     // Fetch the created item
-    const item = await this.findBySymbol(input.portfolio_id, input.symbol);
+    const item = await this.findByAsset(input.portfolio_id, input.asset_id);
     if (!item) {
       throw new Error('Failed to create watchlist item');
     }
@@ -44,7 +44,7 @@ export class WatchlistRepository {
    */
   async findByPortfolio(portfolioId: string): Promise<WatchlistItem[]> {
     const sql = `
-      SELECT id, portfolio_id, symbol, notes, target_price, priority,
+      SELECT id, portfolio_id, asset_id, notes, target_price, priority,
         created_at, updated_at
       FROM watchlists
       WHERE portfolio_id = ?
@@ -61,17 +61,17 @@ export class WatchlistRepository {
   }
 
   /**
-   * Find watchlist item by symbol
+   * Find watchlist item by asset
    */
-  async findBySymbol(portfolioId: string, symbol: string): Promise<WatchlistItem | null> {
+  async findByAsset(portfolioId: string, assetId: string): Promise<WatchlistItem | null> {
     const sql = `
-      SELECT id, portfolio_id, symbol, notes, target_price, priority,
+      SELECT id, portfolio_id, asset_id, notes, target_price, priority,
         created_at, updated_at
       FROM watchlists
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
-    const results = await query<WatchlistItem>(sql, [portfolioId, symbol]);
+    const results = await query<WatchlistItem>(sql, [portfolioId, assetId]);
     
     if (results.length === 0) {
       return null;
@@ -90,7 +90,7 @@ export class WatchlistRepository {
    */
   async update(
     portfolioId: string,
-    symbol: string,
+    assetId: string,
     updates: Partial<Pick<WatchlistItem, 'notes' | 'target_price' | 'priority'>>
   ): Promise<WatchlistItem | null> {
     const fields: string[] = [];
@@ -112,32 +112,32 @@ export class WatchlistRepository {
     }
     
     if (fields.length === 0) {
-      return this.findBySymbol(portfolioId, symbol);
+      return this.findByAsset(portfolioId, assetId);
     }
     
-    params.push(portfolioId, symbol);
+    params.push(portfolioId, assetId);
     
     const sql = `
       UPDATE watchlists
       SET ${fields.join(', ')}
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
     await query(sql, params);
     
-    return this.findBySymbol(portfolioId, symbol);
+    return this.findByAsset(portfolioId, assetId);
   }
 
   /**
    * Remove item from watchlist
    */
-  async delete(portfolioId: string, symbol: string): Promise<boolean> {
+  async delete(portfolioId: string, assetId: string): Promise<boolean> {
     const sql = `
       DELETE FROM watchlists
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
-    const result = await query(sql, [portfolioId, symbol]);
+    const result = await query(sql, [portfolioId, assetId]);
     return (result as any).affectedRows > 0;
   }
 
@@ -163,7 +163,7 @@ export class WatchlistRepository {
     priority: 'LOW' | 'MEDIUM' | 'HIGH'
   ): Promise<WatchlistItem[]> {
     const sql = `
-      SELECT id, portfolio_id, symbol, notes, target_price, priority,
+      SELECT id, portfolio_id, asset_id, notes, target_price, priority,
         created_at, updated_at
       FROM watchlists
       WHERE portfolio_id = ? AND priority = ?

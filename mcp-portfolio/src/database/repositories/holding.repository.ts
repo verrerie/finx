@@ -17,8 +17,8 @@ export class HoldingRepository {
   async findByPortfolio(portfolioId: string): Promise<Holding[]> {
     const sql = `
       SELECT 
-        id, portfolio_id, symbol, quantity, average_cost, 
-        currency, notes, created_at, updated_at
+        id, portfolio_id, asset_id, quantity, average_cost, 
+        notes, created_at, updated_at
       FROM holdings
       WHERE portfolio_id = ?
       ORDER BY created_at DESC
@@ -39,8 +39,8 @@ export class HoldingRepository {
   async findDetailsByPortfolio(portfolioId: string): Promise<HoldingDetail[]> {
     const sql = `
       SELECT 
-        id, portfolio_id, portfolio_name, symbol, quantity, 
-        average_cost, currency, total_cost, notes, 
+        id, portfolio_id, portfolio_name, asset_id, asset_name, symbol, asset_type,
+        quantity, average_cost, currency, total_cost, notes, 
         created_at, updated_at
       FROM holding_details
       WHERE portfolio_id = ?
@@ -57,18 +57,18 @@ export class HoldingRepository {
   }
 
   /**
-   * Find holding by portfolio and symbol
+   * Find holding by portfolio and asset
    */
-  async findBySymbol(portfolioId: string, symbol: string): Promise<Holding | null> {
+  async findByAsset(portfolioId: string, assetId: string): Promise<Holding | null> {
     const sql = `
       SELECT 
-        id, portfolio_id, symbol, quantity, average_cost, 
-        currency, notes, created_at, updated_at
+        id, portfolio_id, asset_id, quantity, average_cost, 
+        notes, created_at, updated_at
       FROM holdings
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
-    const results = await query<Holding>(sql, [portfolioId, symbol]);
+    const results = await query<Holding>(sql, [portfolioId, assetId]);
     
     if (results.length === 0) {
       return null;
@@ -88,8 +88,8 @@ export class HoldingRepository {
   async findById(id: string): Promise<Holding | null> {
     const sql = `
       SELECT 
-        id, portfolio_id, symbol, quantity, average_cost, 
-        currency, notes, created_at, updated_at
+        id, portfolio_id, asset_id, quantity, average_cost, 
+        notes, created_at, updated_at
       FROM holdings
       WHERE id = ?
     `;
@@ -113,23 +113,22 @@ export class HoldingRepository {
    */
   async create(
     portfolioId: string,
-    symbol: string,
+    assetId: string,
     quantity: number,
     averageCost: number,
-    currency: string = 'USD',
     notes?: string
   ): Promise<Holding> {
     const sql = `
-      INSERT INTO holdings (id, portfolio_id, symbol, quantity, average_cost, currency, notes)
-      VALUES (UUID(), ?, ?, ?, ?, ?, ?)
+      INSERT INTO holdings (id, portfolio_id, asset_id, quantity, average_cost, notes)
+      VALUES (UUID(), ?, ?, ?, ?, ?)
     `;
     
-    const params = [portfolioId, symbol, quantity, averageCost, currency, notes || null];
+    const params = [portfolioId, assetId, quantity, averageCost, notes || null];
     
     await query(sql, params);
     
     // Fetch the created holding
-    const holding = await this.findBySymbol(portfolioId, symbol);
+    const holding = await this.findByAsset(portfolioId, assetId);
     if (!holding) {
       throw new Error('Failed to create holding');
     }
@@ -142,29 +141,29 @@ export class HoldingRepository {
    */
   async updatePosition(
     portfolioId: string,
-    symbol: string,
+    assetId: string,
     quantity: number,
     averageCost: number
   ): Promise<void> {
     const sql = `
       UPDATE holdings
       SET quantity = ?, average_cost = ?
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
-    await query(sql, [quantity, averageCost, portfolioId, symbol]);
+    await query(sql, [quantity, averageCost, portfolioId, assetId]);
   }
 
   /**
    * Delete holding
    */
-  async delete(portfolioId: string, symbol: string): Promise<boolean> {
+  async delete(portfolioId: string, assetId: string): Promise<boolean> {
     const sql = `
       DELETE FROM holdings
-      WHERE portfolio_id = ? AND symbol = ?
+      WHERE portfolio_id = ? AND asset_id = ?
     `;
     
-    const result = await query(sql, [portfolioId, symbol]);
+    const result = await query(sql, [portfolioId, assetId]);
     return (result as any).affectedRows > 0;
   }
 

@@ -20,7 +20,7 @@ describe('addTransaction Handler', () => {
     const result = await addTransaction(
       {
         portfolio_id: mockTransaction.portfolio_id,
-        symbol: mockTransaction.symbol,
+        asset_id: mockTransaction.asset_id,
         type: mockTransaction.type,
         quantity: mockTransaction.quantity,
         price: mockTransaction.price,
@@ -33,7 +33,7 @@ describe('addTransaction Handler', () => {
 
     expect(mockService.addTransaction).toHaveBeenCalledWith({
       portfolio_id: mockTransaction.portfolio_id,
-      symbol: mockTransaction.symbol,
+      asset_id: mockTransaction.asset_id,
       type: mockTransaction.type,
       quantity: mockTransaction.quantity,
       price: mockTransaction.price,
@@ -79,7 +79,7 @@ describe('addTransaction Handler', () => {
       addTransaction(
         {
           portfolio_id: 'test-id',
-          symbol: 'AAPL',
+          asset_id: 'a1',
           type: 'BUY',
           quantity: 10,
           price: 150,

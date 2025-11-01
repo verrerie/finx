@@ -2,6 +2,8 @@
  * Type definitions for Portfolio Management
  */
 
+export type AssetType = 'STOCK' | 'REAL_ESTATE' | 'INVESTMENT_ACCOUNT';
+
 /**
  * Portfolio entity
  */
@@ -15,15 +17,43 @@ export interface Portfolio {
 }
 
 /**
+ * Generic Asset entity
+ */
+export interface Asset {
+  id: string;
+  asset_type: AssetType;
+  name: string;
+  currency: string;
+}
+
+export interface Stock extends Asset {
+  asset_type: 'STOCK';
+  symbol: string;
+}
+
+export interface RealEstate extends Asset {
+  asset_type: 'REAL_ESTATE';
+  address: string;
+  property_type: string;
+  market_value: number;
+}
+
+export interface InvestmentAccount extends Asset {
+  asset_type: 'INVESTMENT_ACCOUNT';
+  account_type: string; // PEA, PER, Assurance Vie
+  institution: string;
+  current_value: number;
+}
+
+/**
  * Holding (position) entity
  */
 export interface Holding {
   id: string;
   portfolio_id: string;
-  symbol: string;
+  asset_id: string;
   quantity: number;
   average_cost: number;
-  currency: string;
   notes: string | null;
   created_at: Date;
   updated_at: Date;
@@ -38,7 +68,9 @@ export type TransactionType =
   | 'DIVIDEND' 
   | 'SPLIT' 
   | 'TRANSFER_IN' 
-  | 'TRANSFER_OUT';
+  | 'TRANSFER_OUT'
+  | 'RENTAL_INCOME'
+  | 'EXPENSE';
 
 /**
  * Transaction entity
@@ -46,7 +78,7 @@ export type TransactionType =
 export interface Transaction {
   id: string;
   portfolio_id: string;
-  symbol: string;
+  asset_id: string;
   type: TransactionType;
   quantity: number;
   price: number;
@@ -64,7 +96,7 @@ export interface Transaction {
 export interface WatchlistItem {
   id: string;
   portfolio_id: string;
-  symbol: string;
+  asset_id: string;
   notes: string | null;
   target_price: number | null;
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
@@ -78,7 +110,7 @@ export interface WatchlistItem {
 export interface InvestmentThesis {
   id: string;
   portfolio_id: string;
-  symbol: string;
+  asset_id: string;
   thesis: string;
   bull_case: string | null;
   bear_case: string | null;
@@ -119,6 +151,10 @@ export interface Tag {
  */
 export interface HoldingDetail extends Holding {
   portfolio_name: string;
+  asset_name: string;
+  asset_type: AssetType;
+  symbol: string | null;
+  currency: string;
   total_cost: number;
   current_price?: number;
   current_value?: number;
@@ -143,7 +179,7 @@ export interface PortfolioSummary extends Portfolio {
  */
 export interface TransactionFilters {
   portfolio_id?: string;
-  symbol?: string;
+  asset_id?: string;
   type?: TransactionType;
   start_date?: Date;
   end_date?: Date;
@@ -173,7 +209,9 @@ export interface PerformanceMetrics {
  * Position performance (individual holding performance)
  */
 export interface PositionPerformance {
-  symbol: string;
+  asset_id: string;
+  asset_name: string;
+  symbol: string | null;
   quantity: number;
   average_cost: number;
   total_cost: number;
@@ -199,7 +237,7 @@ export interface CreatePortfolioInput {
  */
 export interface AddTransactionInput {
   portfolio_id: string;
-  symbol: string;
+  asset_id: string;
   type: TransactionType;
   quantity: number;
   price: number;
@@ -214,7 +252,7 @@ export interface AddTransactionInput {
  */
 export interface AddWatchlistInput {
   portfolio_id: string;
-  symbol: string;
+  asset_id: string;
   notes?: string;
   target_price?: number;
   priority?: 'LOW' | 'MEDIUM' | 'HIGH';
@@ -225,7 +263,7 @@ export interface AddWatchlistInput {
  */
 export interface CreateThesisInput {
   portfolio_id: string;
-  symbol: string;
+  asset_id: string;
   thesis: string;
   bull_case?: string;
   bear_case?: string;

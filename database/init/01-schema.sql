@@ -1,7 +1,7 @@
 -- ============================================================================
 -- FinX Portfolio Database Schema
--- Version: 1.0.0
--- Description: Database schema for portfolio management and tracking
+-- Version: 2.0.0
+-- Description: Database schema for portfolio management and tracking with multi-asset support
 -- ============================================================================
 
 -- Create database if not exists (for manual setup)
@@ -30,6 +30,72 @@ CREATE TABLE IF NOT EXISTS portfolios (
 COMMENT='Portfolio metadata and configuration';
 
 -- ============================================================================
+-- Table: asset_types
+-- Description: Defines the types of assets that can be held
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS asset_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    type_name VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Defines asset classes like STOCK, REAL_ESTATE, etc.';
+
+-- Insert core asset types
+INSERT IGNORE INTO asset_types (type_name, description) VALUES
+    ('STOCK', 'Publicly traded equity security'),
+    ('REAL_ESTATE', 'Physical real estate property'),
+    ('INVESTMENT_ACCOUNT', 'Managed investment accounts like PEA, PER, Assurance Vie');
+
+-- ============================================================================
+-- Table: assets
+-- Description: Generic table for all assets
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS assets (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    asset_type_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    symbol VARCHAR(20) NULL, -- Nullable, as not all assets have a symbol
+    currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (asset_type_id) REFERENCES asset_types(id),
+    UNIQUE KEY idx_assets_symbol (symbol), -- Symbol should be unique if present
+    INDEX idx_assets_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Generic asset information';
+
+-- ============================================================================
+-- Table: asset_details_real_estate
+-- Description: Specific details for real estate assets
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS asset_details_real_estate (
+    asset_id CHAR(36) PRIMARY KEY,
+    address TEXT NOT NULL,
+    property_type VARCHAR(50),
+    market_value DECIMAL(18, 4),
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Details for real estate assets';
+
+-- ============================================================================
+-- Table: asset_details_investment_account
+-- Description: Specific details for investment accounts
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS asset_details_investment_account (
+    asset_id CHAR(36) PRIMARY KEY,
+    account_type VARCHAR(50) NOT NULL, -- e.g., PEA, PER, Assurance Vie
+    institution VARCHAR(255),
+    current_value DECIMAL(18, 4),
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Details for investment accounts';
+
+-- ============================================================================
 -- Table: holdings
 -- Description: Current portfolio holdings (positions)
 -- ============================================================================
@@ -37,20 +103,17 @@ COMMENT='Portfolio metadata and configuration';
 CREATE TABLE IF NOT EXISTS holdings (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     portfolio_id CHAR(36) NOT NULL,
-    symbol VARCHAR(20) NOT NULL,
+    asset_id CHAR(36) NOT NULL,
     quantity DECIMAL(18, 8) NOT NULL,
     average_cost DECIMAL(18, 4) NOT NULL,
-    currency VARCHAR(3) NOT NULL DEFAULT 'USD',
     notes TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
-    UNIQUE KEY idx_holdings_portfolio_symbol (portfolio_id, symbol),
-    INDEX idx_holdings_symbol (symbol),
-    INDEX idx_holdings_updated (updated_at),
-    
-    CONSTRAINT chk_quantity CHECK (quantity > 0)
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+    UNIQUE KEY idx_holdings_portfolio_asset (portfolio_id, asset_id),
+    INDEX idx_holdings_updated (updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='Current portfolio holdings and positions';
 
@@ -62,8 +125,8 @@ COMMENT='Current portfolio holdings and positions';
 CREATE TABLE IF NOT EXISTS transactions (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     portfolio_id CHAR(36) NOT NULL,
-    symbol VARCHAR(20) NOT NULL,
-    type ENUM('BUY', 'SELL', 'DIVIDEND', 'SPLIT', 'TRANSFER_IN', 'TRANSFER_OUT') NOT NULL,
+    asset_id CHAR(36) NOT NULL,
+    type ENUM('BUY', 'SELL', 'DIVIDEND', 'SPLIT', 'TRANSFER_IN', 'TRANSFER_OUT', 'RENTAL_INCOME', 'EXPENSE') NOT NULL,
     quantity DECIMAL(18, 8) NOT NULL,
     price DECIMAL(18, 4) NOT NULL,
     fees DECIMAL(18, 4) NOT NULL DEFAULT 0,
@@ -74,27 +137,23 @@ CREATE TABLE IF NOT EXISTS transactions (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
     INDEX idx_transactions_portfolio (portfolio_id),
-    INDEX idx_transactions_symbol (symbol),
     INDEX idx_transactions_date (transaction_date),
     INDEX idx_transactions_type (type),
-    INDEX idx_transactions_created (created_at),
-    
-    CONSTRAINT chk_quantity_positive CHECK (quantity > 0),
-    CONSTRAINT chk_price_positive CHECK (price >= 0),
-    CONSTRAINT chk_fees_non_negative CHECK (fees >= 0)
+    INDEX idx_transactions_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='Transaction history for all portfolio activities';
 
 -- ============================================================================
 -- Table: watchlists
--- Description: Stocks to watch/research
+-- Description: Assets to watch/research
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS watchlists (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     portfolio_id CHAR(36) NOT NULL,
-    symbol VARCHAR(20) NOT NULL,
+    asset_id CHAR(36) NOT NULL,
     notes TEXT,
     target_price DECIMAL(18, 4),
     priority ENUM('LOW', 'MEDIUM', 'HIGH') NOT NULL DEFAULT 'MEDIUM',
@@ -102,11 +161,11 @@ CREATE TABLE IF NOT EXISTS watchlists (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
-    UNIQUE KEY idx_watchlist_portfolio_symbol (portfolio_id, symbol),
-    INDEX idx_watchlist_symbol (symbol),
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+    UNIQUE KEY idx_watchlist_portfolio_asset (portfolio_id, asset_id),
     INDEX idx_watchlist_priority (priority)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Watchlist for stocks to monitor and research';
+COMMENT='Watchlist for assets to monitor and research';
 
 -- ============================================================================
 -- Table: investment_theses
@@ -116,7 +175,7 @@ COMMENT='Watchlist for stocks to monitor and research';
 CREATE TABLE IF NOT EXISTS investment_theses (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     portfolio_id CHAR(36) NOT NULL,
-    symbol VARCHAR(20) NOT NULL,
+    asset_id CHAR(36) NOT NULL,
     thesis TEXT NOT NULL,
     bull_case TEXT,
     bear_case TEXT,
@@ -127,8 +186,8 @@ CREATE TABLE IF NOT EXISTS investment_theses (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
-    UNIQUE KEY idx_thesis_portfolio_symbol (portfolio_id, symbol),
-    INDEX idx_thesis_symbol (symbol),
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+    UNIQUE KEY idx_thesis_portfolio_asset (portfolio_id, asset_id),
     INDEX idx_thesis_status (status),
     INDEX idx_thesis_review (review_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -157,7 +216,7 @@ COMMENT='Daily portfolio value snapshots for performance tracking';
 
 -- ============================================================================
 -- Table: tags
--- Description: Tags for categorizing stocks (e.g., "growth", "dividend")
+-- Description: Tags for categorizing assets (e.g., "growth", "dividend")
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS tags (
@@ -200,7 +259,7 @@ SELECT
     p.name,
     p.description,
     p.currency,
-    COUNT(DISTINCT h.symbol) as holding_count,
+    COUNT(DISTINCT h.asset_id) as holding_count,
     SUM(h.quantity * h.average_cost) as total_cost,
     p.created_at,
     p.updated_at
@@ -215,16 +274,21 @@ SELECT
     h.id,
     h.portfolio_id,
     p.name as portfolio_name,
-    h.symbol,
+    a.id as asset_id,
+    a.name as asset_name,
+    a.symbol,
+    at.type_name as asset_type,
     h.quantity,
     h.average_cost,
-    h.currency,
+    a.currency,
     (h.quantity * h.average_cost) as total_cost,
     h.notes,
     h.created_at,
     h.updated_at
 FROM holdings h
-JOIN portfolios p ON h.portfolio_id = p.id;
+JOIN portfolios p ON h.portfolio_id = p.id
+JOIN assets a ON h.asset_id = a.id
+JOIN asset_types at ON a.asset_type_id = at.id;
 
 -- ============================================================================
 -- Initial Data
@@ -259,8 +323,8 @@ DELIMITER //
 -- Description: Add a transaction and automatically update holdings
 CREATE PROCEDURE IF NOT EXISTS add_transaction(
     IN p_portfolio_id CHAR(36),
-    IN p_symbol VARCHAR(20),
-    IN p_type ENUM('BUY', 'SELL', 'DIVIDEND', 'SPLIT', 'TRANSFER_IN', 'TRANSFER_OUT'),
+    IN p_asset_id CHAR(36),
+    IN p_type ENUM('BUY', 'SELL', 'DIVIDEND', 'SPLIT', 'TRANSFER_IN', 'TRANSFER_OUT', 'RENTAL_INCOME', 'EXPENSE'),
     IN p_quantity DECIMAL(18, 8),
     IN p_price DECIMAL(18, 4),
     IN p_fees DECIMAL(18, 4),
@@ -279,20 +343,20 @@ BEGIN
     
     -- Insert transaction
     SET v_transaction_id = UUID();
-    INSERT INTO transactions (id, portfolio_id, symbol, type, quantity, price, fees, currency, transaction_date, notes)
-    VALUES (v_transaction_id, p_portfolio_id, p_symbol, p_type, p_quantity, p_price, p_fees, p_currency, p_transaction_date, p_notes);
+    INSERT INTO transactions (id, portfolio_id, asset_id, type, quantity, price, fees, currency, transaction_date, notes)
+    VALUES (v_transaction_id, p_portfolio_id, p_asset_id, p_type, p_quantity, p_price, p_fees, p_currency, p_transaction_date, p_notes);
     
     -- Update holdings based on transaction type
     IF p_type IN ('BUY', 'TRANSFER_IN') THEN
         -- Get current holding
         SELECT quantity, average_cost INTO v_current_quantity, v_current_average_cost
         FROM holdings
-        WHERE portfolio_id = p_portfolio_id AND symbol = p_symbol;
+        WHERE portfolio_id = p_portfolio_id AND asset_id = p_asset_id;
         
         IF v_current_quantity IS NULL THEN
             -- New holding
-            INSERT INTO holdings (portfolio_id, symbol, quantity, average_cost, currency)
-            VALUES (p_portfolio_id, p_symbol, p_quantity, p_price + (p_fees / p_quantity), p_currency);
+            INSERT INTO holdings (portfolio_id, asset_id, quantity, average_cost)
+            VALUES (p_portfolio_id, p_asset_id, p_quantity, p_price + (p_fees / p_quantity));
         ELSE
             -- Update existing holding with new average cost
             SET v_new_quantity = v_current_quantity + p_quantity;
@@ -300,18 +364,18 @@ BEGIN
             
             UPDATE holdings
             SET quantity = v_new_quantity, average_cost = v_new_average_cost
-            WHERE portfolio_id = p_portfolio_id AND symbol = p_symbol;
+            WHERE portfolio_id = p_portfolio_id AND asset_id = p_asset_id;
         END IF;
         
     ELSEIF p_type IN ('SELL', 'TRANSFER_OUT') THEN
         -- Reduce holding quantity
         UPDATE holdings
         SET quantity = quantity - p_quantity
-        WHERE portfolio_id = p_portfolio_id AND symbol = p_symbol;
+        WHERE portfolio_id = p_portfolio_id AND asset_id = p_asset_id;
         
         -- Remove holding if quantity is zero or negative
         DELETE FROM holdings
-        WHERE portfolio_id = p_portfolio_id AND symbol = p_symbol AND quantity <= 0;
+        WHERE portfolio_id = p_portfolio_id AND asset_id = p_asset_id AND quantity <= 0;
     END IF;
     
     COMMIT;
@@ -327,7 +391,7 @@ DELIMITER ;
 
 SELECT 
     'FinX Portfolio Database' as database_name,
-    '1.0.0' as version,
+    '2.0.0' as version,
     NOW() as initialized_at,
     'Schema created successfully' as status;
 

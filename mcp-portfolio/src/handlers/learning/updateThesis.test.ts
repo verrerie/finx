@@ -21,7 +21,7 @@ describe('updateThesis Handler', () => {
     const result = await updateThesis(
       {
         portfolio_id: mockThesis.portfolio_id,
-        symbol: mockThesis.symbol,
+        asset_id: mockThesis.asset_id,
         thesis: 'Updated thesis',
       },
       ctx
@@ -29,7 +29,7 @@ describe('updateThesis Handler', () => {
 
     expect(mockService.updateThesis).toHaveBeenCalledWith(
       mockThesis.portfolio_id,
-      mockThesis.symbol,
+      mockThesis.asset_id,
       {
         thesis: 'Updated thesis',
         bull_case: undefined,
@@ -43,7 +43,7 @@ describe('updateThesis Handler', () => {
     expect(result.isError).toBeUndefined();
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
-    expect(parsed.thesis.symbol).toBe(mockThesis.symbol);
+    expect(parsed.thesis.asset_id).toBe(mockThesis.asset_id);
     expect(parsed.thesis.thesis).toBe('Updated thesis');
   });
 
@@ -54,7 +54,7 @@ describe('updateThesis Handler', () => {
     const result = await updateThesis(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
         thesis: 'test',
       },
       ctx
@@ -69,7 +69,7 @@ describe('updateThesis Handler', () => {
   it('should return error when portfolio_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
-    const result = await updateThesis({ symbol: 'AAPL' }, ctx);
+    const result = await updateThesis({ asset_id: 'a1' }, ctx);
 
     expect(mockService.updateThesis).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
@@ -78,7 +78,7 @@ describe('updateThesis Handler', () => {
     expect(parsed.error).toContain('Missing arguments');
   });
 
-  it('should return error when symbol is missing', async () => {
+  it('should return error when asset_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
     const result = await updateThesis({ portfolio_id: 'test-id' }, ctx);
@@ -101,7 +101,7 @@ describe('updateThesis Handler', () => {
     const ctx = createMockContext({ learningService: mockService });
 
     await expect(
-      updateThesis({ portfolio_id: 'test-id', symbol: 'AAPL', thesis: 'test' }, ctx)
+      updateThesis({ portfolio_id: 'test-id', asset_id: 'a1', thesis: 'test' }, ctx)
     ).rejects.toThrow('Database error');
   });
 });

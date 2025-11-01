@@ -7,12 +7,14 @@ import { PortfolioService } from './portfolio.service.js';
 import type { PortfolioRepository } from '../database/repositories/portfolio.repository.js';
 import type { HoldingRepository } from '../database/repositories/holding.repository.js';
 import type { TransactionRepository } from '../database/repositories/transaction.repository.js';
+import type { AssetService } from './asset.service.js';
 
 describe('PortfolioService', () => {
   let service: PortfolioService;
   let mockPortfolioRepo: Partial<PortfolioRepository>;
   let mockHoldingRepo: Partial<HoldingRepository>;
   let mockTransactionRepo: Partial<TransactionRepository>;
+  let mockAssetService: Partial<AssetService>;
 
   beforeEach(() => {
     mockPortfolioRepo = {
@@ -25,18 +27,30 @@ describe('PortfolioService', () => {
     mockHoldingRepo = {
       findDetailsByPortfolio: vi.fn(),
       findByPortfolio: vi.fn(),
+      findByAsset: vi.fn(),
+      updatePosition: vi.fn(),
+      create: vi.fn(),
     };
 
     mockTransactionRepo = {
       create: vi.fn(),
       find: vi.fn(),
-      findByPortfolioId: vi.fn(),
+      findByPortfolio: vi.fn(),
+      getTotalInvested: vi.fn(),
+      getTotalRealized: vi.fn(),
+      getTotalDividends: vi.fn(),
+    };
+
+    mockAssetService = {
+      findAssetById: vi.fn(),
+      findAssets: vi.fn(),
     };
 
     service = new PortfolioService(
       mockPortfolioRepo as PortfolioRepository,
       mockHoldingRepo as HoldingRepository,
-      mockTransactionRepo as TransactionRepository
+      mockTransactionRepo as TransactionRepository,
+      mockAssetService as AssetService,
     );
   });
 

@@ -21,7 +21,7 @@ describe('updateWatchlistItem Handler', () => {
     const result = await updateWatchlistItem(
       {
         portfolio_id: mockWatchlistItem.portfolio_id,
-        symbol: mockWatchlistItem.symbol,
+        asset_id: mockWatchlistItem.asset_id,
         notes: 'Updated notes',
       },
       ctx
@@ -29,14 +29,14 @@ describe('updateWatchlistItem Handler', () => {
 
     expect(mockService.updateWatchlistItem).toHaveBeenCalledWith(
       mockWatchlistItem.portfolio_id,
-      mockWatchlistItem.symbol,
+      mockWatchlistItem.asset_id,
       { notes: 'Updated notes', target_price: undefined, priority: undefined }
     );
 
     expect(result.isError).toBeUndefined();
     const parsed = JSON.parse(result.content[0].text);
     expect(parsed.success).toBe(true);
-    expect(parsed.watchlist_item.symbol).toBe(mockWatchlistItem.symbol);
+    expect(parsed.watchlist_item.asset_id).toBe(mockWatchlistItem.asset_id);
     expect(parsed.watchlist_item.notes).toBe('Updated notes');
   });
 
@@ -47,7 +47,7 @@ describe('updateWatchlistItem Handler', () => {
     const result = await updateWatchlistItem(
       {
         portfolio_id: 'test-id',
-        symbol: 'AAPL',
+        asset_id: 'a1',
         notes: 'test',
       },
       ctx
@@ -62,13 +62,13 @@ describe('updateWatchlistItem Handler', () => {
   it('should return error when portfolio_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
-    const result = await updateWatchlistItem({ symbol: 'AAPL' }, ctx);
+    const result = await updateWatchlistItem({ asset_id: 'a1' }, ctx);
 
     expect(mockService.updateWatchlistItem).not.toHaveBeenCalled();
     expect(result.isError).toBe(true);
   });
 
-  it('should return error when symbol is missing', async () => {
+  it('should return error when asset_id is missing', async () => {
     const ctx = createMockContext({ learningService: mockService });
 
     const result = await updateWatchlistItem({ portfolio_id: 'test-id' }, ctx);
@@ -91,7 +91,7 @@ describe('updateWatchlistItem Handler', () => {
     const ctx = createMockContext({ learningService: mockService });
 
     await expect(
-      updateWatchlistItem({ portfolio_id: 'test-id', symbol: 'AAPL', notes: 'test' }, ctx)
+      updateWatchlistItem({ portfolio_id: 'test-id', asset_id: 'a1', notes: 'test' }, ctx)
     ).rejects.toThrow('Database error');
   });
 });
