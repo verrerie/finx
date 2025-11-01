@@ -22,7 +22,7 @@ This guide will walk you through testing each of the 4 market data tools one by 
        "finx-market-data": {
          "command": "node",
          "args": [
-           "/Users/verrerie/git/finx/dist/mcp-market-data/index.js"
+           "/absolute/path/to/finx/dist/mcp-market-data/index.js"
          ],
          "env": {
            "ALPHA_VANTAGE_API_KEY": "YOUR_KEY_HERE"
@@ -40,7 +40,7 @@ This guide will walk you through testing each of the 4 market data tools one by 
          "command": "npx",
          "args": [
            "tsx",
-           "/Users/verrerie/git/finx/mcp-market-data/src/index.ts"
+           "/absolute/path/to/finx/mcp-market-data/src/index.ts"
          ]
        }
      }
@@ -368,13 +368,13 @@ Once you're comfortable with these tools:
 1. ✅ You'll understand basic financial metrics
 2. ✅ You'll have documented several concepts
 3. ✅ You'll have a watchlist of interesting stocks
-4. ✅ You'll be ready for Phase 1a.3 (learning features)
+4. ✅ You're ready to use the advanced learning features
 
-**Phase 1a.3 will add:**
+**Advanced features available:**
 - `explain_fundamental()` - Get educational explanations of any metric
 - `compare_peers()` - Automated peer comparison analysis
 
-But first, explore and learn with what you have! 🚀
+Explore and learn with these powerful tools! 🚀
 
 ---
 

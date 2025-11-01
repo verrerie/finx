@@ -422,7 +422,7 @@ WHERE snapshot_date < DATE_SUB(NOW(), INTERVAL 2 YEAR);
 ## Next Steps
 
 1. **Start the database**: `docker compose up -d mariadb`
-2. **Build Portfolio MCP Server**: See `docs/PORTFOLIO_MCP.md` (coming next)
+2. **Build Portfolio MCP Server**: See `docs/USAGE.md` for portfolio management tools
 3. **Connect from application**: Use credentials from `.env`
 
 ---
