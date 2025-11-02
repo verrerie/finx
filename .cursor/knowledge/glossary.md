@@ -26,6 +26,8 @@ Quick reference for financial terms. Add terms as you encounter them.
 
 **Earnings Per Share (EPS)**: Company profit divided by number of shares. Per-share profit measurement. [Related: P/E Ratio]
 
+**ROI (Return on Investment)**: Measures the profitability of an investment relative to its cost. Formula: (Net Profit / Cost of Investment) * 100%.
+
 ## Growth Metrics
 
 **Revenue Growth**: Percentage increase in sales over time. Top-line growth indicator. [Related: EPS Growth]
