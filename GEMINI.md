@@ -45,6 +45,10 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
     docker compose up -d mariadb
     ```
 
+### Database Management Best Practices
+
+*   **Always run a backup before schema changes:** Before making any modifications to the database schema (e.g., adding/removing tables, altering columns), ensure you run a full database backup. This allows for quick recovery in case of unexpected issues. You can use the `scripts/backup.sh` script for this purpose.
+
 4.  **Build all servers:** *Compile the TypeScript source code for both the Market Data and Portfolio servers.*
     ```bash
     pnpm build

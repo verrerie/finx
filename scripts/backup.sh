@@ -9,7 +9,7 @@ DB_USER="${DB_USER:-finx_user}" # Default user from docker-compose.yml
 DB_PASSWORD="${DB_PASSWORD:-finx_password}" # Default password from docker-compose.yml
 
 # Rclone configuration
-RCLONE_REMOTE="w.yunbo"
+RCLONE_REMOTE="finx"
 RCLONE_DEST_PATH="/backups/finx-database" # A folder on Google Drive
 
 # Backup file details
