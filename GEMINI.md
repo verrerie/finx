@@ -123,5 +123,6 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
 *   **Language:** *TypeScript is used throughout the project to provide type safety and improve code maintainability.*
 *   **Testing:** *`vitest` is used for fast unit and integration tests, while `tsx` handles end-to-end test execution, ensuring comprehensive test coverage.*
 *   **Documentation:** *Extensive documentation in the `docs/` directory provides detailed information on usage, learning paths, monorepo structure, and database specifics, aiding new contributors and users.*
+*   **GitHub CLI (`gh`):** For all GitHub interactions (e.g., checking CI status, managing pull requests, issues), prefer using the `gh` command-line tool.
 *   **AI Agent Configuration:** *The `.cursor/` directory centralizes configurations for the AI agent, including prompts, knowledge base, concepts, and a journal, enabling consistent agent behavior and knowledge management.*
 
