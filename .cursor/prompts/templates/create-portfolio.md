@@ -1,0 +1,2 @@
+I want to create a new portfolio for my [investment strategy, e.g., 'long-term growth stocks']. 
+The currency should be [currency, e.g., 'USD']. Please name it '[portfolio name]' and add a description: '[description]'.

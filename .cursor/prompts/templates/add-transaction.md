@@ -1,0 +1,1 @@
+I [bought/sold] [quantity] shares of [company name] ([ticker]) on [date] at [price] per share for my '[portfolio name]' portfolio. Please add this transaction.
