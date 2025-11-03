@@ -145,6 +145,7 @@ class TestReporter {
  */
 class PortfolioTests {
   private portfolioId: string | null = null;
+  private assetId: string | null = null;
 
   constructor(
     private client: MCPClient,
@@ -159,6 +160,7 @@ class PortfolioTests {
     await this.testListPortfolios();
     if (this.portfolioId) {
       await this.testGetPortfolio();
+      await this.testCreateAsset();
       await this.testAddTransaction();
       await this.testGetHoldings();
       await this.testGetTransactions();
@@ -265,6 +267,31 @@ class PortfolioTests {
     }
   }
 
+  private async testCreateAsset() {
+    try {
+      const result = await this.client.request('tools/call', {
+        name: 'create_asset',
+        arguments: {
+          asset_type: 'STOCK',
+          name: 'Apple Inc.',
+          symbol: 'AAPL',
+          currency: 'USD',
+        },
+      });
+
+      const response = JSON.parse(result.content[0].text);
+
+      if (response.success && response.asset) {
+        this.assetId = response.asset.id;
+        this.reporter.success(`create_asset: ${this.assetId}`);
+      } else {
+        this.reporter.fail('create_asset did not return success');
+      }
+    } catch (error) {
+      this.reporter.fail('create_asset failed', error);
+    }
+  }
+
   private async testAddTransaction() {
     try {
       // Add a BUY transaction
@@ -272,7 +299,7 @@ class PortfolioTests {
         name: 'add_transaction',
         arguments: {
           portfolio_id: this.portfolioId,
-          symbol: 'AAPL',
+          asset_id: this.assetId,
           type: 'BUY',
           quantity: 10,
           price: 150.00,
@@ -345,7 +372,7 @@ class PortfolioTests {
         arguments: {
           portfolio_id: this.portfolioId,
           current_prices: {
-            'AAPL': 175.00, // Simulated current price
+            [this.assetId!]: 175.00, // Simulated current price
           },
         },
       });
@@ -376,7 +403,10 @@ class TestRunner {
     console.log('Server: mcp-portfolio/src/index.ts');
     console.log('Database: MariaDB (localhost:3306)\n');
 
-    const client = new MCPClient('mcp-portfolio/src/index.ts');
+    // Setup database for testing
+    await this.setupDatabase();
+
+    const client = new MCPClient('mcp-portfolio/src/index.ts', 'Portfolio');
     const reporter = new TestReporter();
     const tests = new PortfolioTests(client, reporter);
 
@@ -405,12 +435,76 @@ class TestRunner {
 
     process.exit(success ? 0 : 1);
   }
+
+  private async setupDatabase() {
+    console.log('Setting up database for tests...');
+    try {
+      // Apply schema
+      await new Promise((resolve, reject) => {
+        const schemaProcess = spawn('docker-compose', [
+          'exec',
+          '-T',
+          'mariadb',
+          'mysql',
+          '-u',
+          'finx_user',
+          '-pfinx_password',
+          'finx',
+        ], {
+          stdio: ['pipe', 'inherit', 'inherit'],
+        });
+
+        const schemaStream = require('fs').createReadStream('database/init/01-schema.sql');
+        schemaStream.pipe(schemaProcess.stdin);
+
+        schemaProcess.on('close', (code) => {
+          if (code === 0) {
+            console.log('Schema applied successfully.');
+            resolve(null);
+          } else {
+            reject(new Error(`Schema application failed with code ${code}`));
+          }
+        });
+        schemaProcess.on('error', reject);
+      });
+
+      // Apply seed data
+      await new Promise((resolve, reject) => {
+        const seedProcess = spawn('docker-compose', [
+          'exec',
+          '-T',
+          'mariadb',
+          'mysql',
+          '-u',
+          'finx_user',
+          '-pfinx_password',
+          'finx',
+        ], {
+          stdio: ['pipe', 'inherit', 'inherit'],
+        });
+
+        const seedStream = require('fs').createReadStream('database/init/02-seed-data.sql');
+        seedStream.pipe(seedProcess.stdin);
+
+        seedProcess.on('close', (code) => {
+          if (code === 0) {
+            console.log('Seed data applied successfully.');
+            resolve(null);
+          } else {
+            reject(new Error(`Seed data application failed with code ${code}`));
+          }
+        });
+        seedProcess.on('error', reject);
+      });
+
+      console.log('Database setup complete.');
+    } catch (error) {
+      console.error('Database setup failed:', error);
+      process.exit(1);
+    }
+  }
 }
 
 // Run tests
 const runner = new TestRunner();
-runner.run().catch((error) => {
-  console.error('Fatal error:', error);
-  process.exit(1);
-});
 

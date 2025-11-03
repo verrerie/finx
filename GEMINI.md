@@ -115,6 +115,8 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
 *   **Run end-to-end workflows:**
     ```bash
     pnpm test:e2e
+    pnpm test:portfolio
+    pnpm test:market-data
     ```
 
 ## Development Conventions
