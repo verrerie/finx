@@ -112,7 +112,7 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
     ```bash
     pnpm test:coverage
     ```
-*   **Run end-to-end workflows:**
+*   **Run integration tests:**
     ```bash
     pnpm test:e2e
     pnpm test:portfolio
