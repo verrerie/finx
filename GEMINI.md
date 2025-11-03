@@ -112,7 +112,7 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
     ```bash
     pnpm test:coverage
     ```
-*   **Run end-to-end workflows:**
+*   **Run integration tests:**
     ```bash
     pnpm test:e2e
     pnpm test:portfolio
@@ -127,5 +127,6 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
 *   **Documentation:** *Extensive documentation in the `docs/` directory provides detailed information on usage, learning paths, monorepo structure, and database specifics, aiding new contributors and users.*
 *   **GitHub CLI (`gh`):** For all GitHub interactions (e.g., checking CI status, managing pull requests, issues), prefer using the `gh` command-line tool.
 *   **Branching Strategy:** Always create a new branch for any changes, no matter how small. This ensures a clean history and facilitates code reviews.
+*   **Pull Request Merging:** Always await explicit confirmation from the user before merging any pull requests.
 *   **AI Agent Configuration:** *The `.cursor/` directory centralizes configurations for the AI agent, including prompts, knowledge base, concepts, and a journal, enabling consistent agent behavior and knowledge management.*
 
