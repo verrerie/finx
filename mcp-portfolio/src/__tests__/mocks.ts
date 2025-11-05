@@ -146,6 +146,7 @@ export class MockAssetService implements Partial<AssetService> {
   createAsset = vi.fn();
   findAssetById = vi.fn();
   findAssets = vi.fn();
+  updateAssetSymbol = vi.fn();
 }
 
 /**
