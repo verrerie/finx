@@ -41,6 +41,20 @@ export class AssetService {
   }
 
   /**
+   * Update an asset's symbol
+   */
+  async updateAssetSymbol(assetId: string, newSymbol: string): Promise<Asset> {
+    const existingAsset = await query('SELECT id FROM assets WHERE symbol = ? AND id != ?', [newSymbol, assetId]);
+    if (existingAsset.length > 0) {
+      throw new Error(`Symbol '${newSymbol}' is already in use.`);
+    }
+
+    await query('UPDATE assets SET symbol = ? WHERE id = ?', [newSymbol, assetId]);
+
+    return this.findAssetById(assetId);
+  }
+
+  /**
    * Find asset by ID
    */
   async findAssetById(id: string): Promise<Asset> {

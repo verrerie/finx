@@ -481,5 +481,23 @@ export const PORTFOLIO_TOOLS = [
             required: ['asset_type', 'name'],
         },
     },
+    {
+        name: 'updateAssetSymbol',
+        description: 'Update the ticker symbol for a given asset. The new symbol must be unique.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                asset_id: {
+                    type: 'string',
+                    description: 'The ID of the asset to update.',
+                },
+                new_symbol: {
+                    type: 'string',
+                    description: 'The new, unique ticker symbol.',
+                },
+            },
+            required: ['asset_id', 'new_symbol'],
+        },
+    },
 ] as const;
 
