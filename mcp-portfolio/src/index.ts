@@ -20,6 +20,7 @@ import { ThesisRepository } from './database/repositories/thesis.repository.js';
 import { TransactionRepository } from './database/repositories/transaction.repository.js';
 import { WatchlistRepository } from './database/repositories/watchlist.repository.js';
 import { LearningService } from './services/learning.service.js';
+import { PerformanceService } from './services/performance.service.js';
 import { PortfolioService } from './services/portfolio.service.js';
 import { AssetService } from './services/asset.service.js';
 import { PORTFOLIO_TOOLS } from './tools/tool-definitions.js';
@@ -35,7 +36,8 @@ const transactionRepo = new TransactionRepository();
 const watchlistRepo = new WatchlistRepository();
 const thesisRepo = new ThesisRepository();
 const assetService = new AssetService();
-const portfolioService = new PortfolioService(portfolioRepo, holdingRepo, transactionRepo, assetService);
+const performanceService = new PerformanceService(holdingRepo, transactionRepo);
+const portfolioService = new PortfolioService(portfolioRepo, holdingRepo, transactionRepo, assetService, performanceService);
 const learningService = new LearningService(watchlistRepo, thesisRepo, holdingRepo, assetService);
 
 /**

@@ -8,5 +8,5 @@ export const createAsset: ToolHandler = async (args, { assetService }) => {
 
   const asset = await assetService.createAsset(args);
 
-  return success({ asset, message: `Asset ${asset.name} created` });
+  return success({ asset_id: asset.id, message: `Asset ${asset.name} created` });
 };

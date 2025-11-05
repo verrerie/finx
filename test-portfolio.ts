@@ -17,6 +17,8 @@ interface MCPMessage {
   error?: any;
 }
 
+import * as fs from 'fs';
+
 /**
  * Message buffer for handling incomplete JSON messages
  */
@@ -161,10 +163,12 @@ class PortfolioTests {
     if (this.portfolioId) {
       await this.testGetPortfolio();
       await this.testCreateAsset();
-      await this.testAddTransaction();
-      await this.testGetHoldings();
-      await this.testGetTransactions();
-      await this.testCalculatePerformance();
+      if (this.assetId) {
+        await this.testAddTransaction();
+        await this.testGetHoldings();
+        await this.testGetTransactions();
+        await this.testCalculatePerformance();
+      }
     }
   }
 
@@ -274,17 +278,18 @@ class PortfolioTests {
         arguments: {
           asset_type: 'STOCK',
           name: 'Apple Inc.',
-          symbol: 'AAPL',
+          symbol: `AAPL-${Math.random().toString(36).substring(7)}`,
           currency: 'USD',
         },
       });
 
       const response = JSON.parse(result.content[0].text);
 
-      if (response.success && response.asset) {
-        this.assetId = response.asset.id;
+      if (response.success && response.asset_id) {
+        this.assetId = response.asset_id;
         this.reporter.success(`create_asset: ${this.assetId}`);
       } else {
+        console.error('Response:', JSON.stringify(response, null, 2));
         this.reporter.fail('create_asset did not return success');
       }
     } catch (error) {
@@ -445,7 +450,7 @@ class TestRunner {
           'exec',
           '-T',
           'mariadb',
-          'mysql',
+          'mariadb',
           '-u',
           'finx_user',
           '-pfinx_password',
@@ -454,7 +459,7 @@ class TestRunner {
           stdio: ['pipe', 'inherit', 'inherit'],
         });
 
-        const schemaStream = require('fs').createReadStream('database/init/01-schema.sql');
+        const schemaStream = fs.createReadStream('database/init/01-schema.sql');
         schemaStream.pipe(schemaProcess.stdin);
 
         schemaProcess.on('close', (code) => {
@@ -474,7 +479,7 @@ class TestRunner {
           'exec',
           '-T',
           'mariadb',
-          'mysql',
+          'mariadb',
           '-u',
           'finx_user',
           '-pfinx_password',
@@ -483,7 +488,7 @@ class TestRunner {
           stdio: ['pipe', 'inherit', 'inherit'],
         });
 
-        const seedStream = require('fs').createReadStream('database/init/02-seed-data.sql');
+        const seedStream = fs.createReadStream('database/init/02-seed-data.sql');
         seedStream.pipe(seedProcess.stdin);
 
         seedProcess.on('close', (code) => {
@@ -507,4 +512,5 @@ class TestRunner {
 
 // Run tests
 const runner = new TestRunner();
+runner.run();
 

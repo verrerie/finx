@@ -22,6 +22,7 @@ import { Cache } from './cache.js';
 import { ENV, RATE_LIMITS } from './config.js';
 import { createProviders } from './factories/provider.factory.js';
 import { RateLimiter } from './rate-limiter.js';
+import { EducationalService } from './services/educational.service.js';
 import { MarketDataService } from './services/market-data.service.js';
 import { TOOL_DEFINITIONS } from './tools/tool-definitions.js';
 import { Period } from './types.js';
@@ -31,12 +32,17 @@ const cache = new Cache();
 const rateLimiter = new RateLimiter(RATE_LIMITS.CALLS_PER_MINUTE, RATE_LIMITS.CALLS_PER_DAY);
 const providers = createProviders(ENV.ALPHA_VANTAGE_API_KEY);
 
-// Create service with injected dependencies
+// Create services with injected dependencies
 const marketDataService = new MarketDataService(
     cache,
     rateLimiter,
     providers.primary,
     providers.fallback
+);
+const educationalService = new EducationalService(
+    cache,
+    providers.fallback,
+    [providers.primary, providers.fallback].filter(p => p) as any
 );
 
 // Create MCP server
@@ -132,7 +138,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
             case 'explain_fundamental': {
                 const { metric, symbol } = args as { metric: string; symbol?: string };
-                const result = await marketDataService.explainFundamental(metric, symbol);
+                const result = await educationalService.explainFundamental(metric, symbol);
 
                 const text = result.explanation + (result.contextData || '');
 
@@ -147,7 +153,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                     sector?: string;
                     metrics?: string[];
                 };
-                const result = await marketDataService.comparePeers(symbol, sector, metrics);
+                const result = await educationalService.comparePeers(symbol, sector, metrics);
 
                 return {
                     content: [{ type: 'text', text: result.comparison }],

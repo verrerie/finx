@@ -11,6 +11,24 @@ CREATE DATABASE IF NOT EXISTS finx
 
 USE finx;
 
+-- Drop tables in reverse order of creation to avoid foreign key constraints
+DROP VIEW IF EXISTS portfolio_summary;
+DROP VIEW IF EXISTS holding_details;
+DROP TABLE IF EXISTS holding_tags;
+DROP TABLE IF EXISTS tags;
+DROP TABLE IF EXISTS portfolio_snapshots;
+DROP TABLE IF EXISTS investment_theses;
+DROP TABLE IF EXISTS watchlists;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS holdings;
+DROP TABLE IF EXISTS asset_details_investment_account;
+DROP TABLE IF EXISTS asset_details_real_estate;
+DROP TABLE IF EXISTS assets;
+DROP TABLE IF EXISTS asset_types;
+DROP TABLE IF EXISTS portfolios;
+DROP PROCEDURE IF EXISTS add_transaction;
+
+
 -- ============================================================================
 -- Table: portfolios
 -- Description: Stores portfolio metadata
