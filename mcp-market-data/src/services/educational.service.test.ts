@@ -14,7 +14,6 @@ describe('EducationalService', () => {
         searchSymbol: vi.fn(),
         getCompanyInfo: vi.fn(),
         explainFundamental: vi.fn(),
-        comparePeers: vi.fn(),
       },
     ];
     service = new EducationalService(providers);

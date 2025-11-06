@@ -5,7 +5,7 @@
  * implementing this interface can be substituted for another.
  */
 
-import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
+import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult, ExplainFundamentalResult, ComparePeersResult } from '../types.js';
 
 export interface IMarketDataProvider {
     /**
@@ -36,6 +36,18 @@ export interface IMarketDataProvider {
      * Optional - not all providers support this
      */
     searchSymbol?(query: string): Promise<SymbolSearchResult[]>;
+
+    /**
+     * Get an educational explanation of a financial metric
+     * Optional - not all providers support this
+     */
+    explainFundamental?(metric: string, symbol?: string): Promise<ExplainFundamentalResult>;
+
+    /**
+     * Compare a stock against sector peers
+     * Optional - not all providers support this
+     */
+    comparePeers?(symbol: string, sector?: string, metrics?: string[]): Promise<ComparePeersResult>;
 }
 
 /**
