@@ -5,8 +5,7 @@
  * Tests all core portfolio management tools
  */
 
-import { spawn, ChildProcess } from 'child_process';
-import * as readline from 'readline';
+import { ChildProcess, spawn } from 'child_process';
 
 interface MCPMessage {
   jsonrpc: string;
@@ -16,6 +15,8 @@ interface MCPMessage {
   result?: any;
   error?: any;
 }
+
+import * as fs from 'fs';
 
 /**
  * Message buffer for handling incomplete JSON messages
@@ -27,7 +28,7 @@ class MessageBuffer {
     this.buffer += chunk;
     const messages: MCPMessage[] = [];
     const lines = this.buffer.split('\n');
-    
+
     for (let i = 0; i < lines.length - 1; i++) {
       const line = lines[i].trim();
       if (line) {
@@ -38,7 +39,7 @@ class MessageBuffer {
         }
       }
     }
-    
+
     this.buffer = lines[lines.length - 1];
     return messages;
   }
@@ -67,7 +68,7 @@ class MCPClient {
         if (message.id !== undefined && this.pendingRequests.has(message.id as number)) {
           const request = this.pendingRequests.get(message.id as number)!;
           this.pendingRequests.delete(message.id as number);
-          
+
           if (message.error) {
             request.reject(message.error);
           } else {
@@ -135,7 +136,7 @@ class TestReporter {
     console.log(`  ✓ ${this.passed} passed`);
     console.log(`  ✗ ${this.failed} failed`);
     console.log('='.repeat(60));
-    
+
     return this.failed === 0;
   }
 }
@@ -150,7 +151,7 @@ class PortfolioTests {
   constructor(
     private client: MCPClient,
     private reporter: TestReporter
-  ) {}
+  ) { }
 
   async run() {
     console.log('\n🧪 Testing Portfolio MCP Server\n');
@@ -161,20 +162,22 @@ class PortfolioTests {
     if (this.portfolioId) {
       await this.testGetPortfolio();
       await this.testCreateAsset();
-      await this.testAddTransaction();
-      await this.testGetHoldings();
-      await this.testGetTransactions();
-      await this.testCalculatePerformance();
+      if (this.assetId) {
+        await this.testAddTransaction();
+        await this.testGetHoldings();
+        await this.testGetTransactions();
+        await this.testCalculatePerformance();
+      }
     }
   }
 
   private async testListTools() {
     try {
       const result = await this.client.request('tools/list');
-      
+
       if (result.tools && Array.isArray(result.tools)) {
         this.reporter.success(`list_tools returned ${result.tools.length} tools`);
-        
+
         const expectedTools = [
           'create_portfolio',
           'list_portfolios',
@@ -185,10 +188,10 @@ class PortfolioTests {
           'calculate_performance',
           'delete_portfolio',
         ];
-        
+
         const toolNames = result.tools.map((t: any) => t.name);
         const allPresent = expectedTools.every(name => toolNames.includes(name));
-        
+
         if (allPresent) {
           this.reporter.success('All expected tools are present');
         } else {
@@ -214,7 +217,7 @@ class PortfolioTests {
       });
 
       const response = JSON.parse(result.content[0].text);
-      
+
       if (response.success && response.portfolio) {
         this.portfolioId = response.portfolio.id;
         this.reporter.success(`create_portfolio: ${this.portfolioId}`);
@@ -234,7 +237,7 @@ class PortfolioTests {
       });
 
       const response = JSON.parse(result.content[0].text);
-      
+
       if (response.success && response.portfolios) {
         this.reporter.success(`list_portfolios returned ${response.count} portfolio(s)`);
       } else {
@@ -256,7 +259,7 @@ class PortfolioTests {
       });
 
       const response = JSON.parse(result.content[0].text);
-      
+
       if (response.success && response.portfolio) {
         this.reporter.success('get_portfolio returned portfolio details');
       } else {
@@ -274,17 +277,18 @@ class PortfolioTests {
         arguments: {
           asset_type: 'STOCK',
           name: 'Apple Inc.',
-          symbol: 'AAPL',
+          symbol: `AAPL-${Math.random().toString(36).substring(7)}`,
           currency: 'USD',
         },
       });
 
       const response = JSON.parse(result.content[0].text);
 
-      if (response.success && response.asset) {
+      if (response.success && response.asset && response.asset.id) {
         this.assetId = response.asset.id;
         this.reporter.success(`create_asset: ${this.assetId}`);
       } else {
+        console.error('Response:', JSON.stringify(response, null, 2));
         this.reporter.fail('create_asset did not return success');
       }
     } catch (error) {
@@ -310,7 +314,7 @@ class PortfolioTests {
       });
 
       const response = JSON.parse(result.content[0].text);
-      
+
       if (response.success && response.transaction) {
         this.reporter.success('add_transaction (BUY) created transaction and holding');
       } else {
@@ -332,7 +336,7 @@ class PortfolioTests {
       });
 
       const response = JSON.parse(result.content[0].text);
-      
+
       if (response.success && response.holdings) {
         this.reporter.success(`get_holdings returned ${response.count} holding(s)`);
       } else {
@@ -354,7 +358,7 @@ class PortfolioTests {
       });
 
       const response = JSON.parse(result.content[0].text);
-      
+
       if (response.success && response.transactions) {
         this.reporter.success(`get_transactions returned ${response.count} transaction(s)`);
       } else {
@@ -378,7 +382,7 @@ class PortfolioTests {
       });
 
       const response = JSON.parse(result.content[0].text);
-      
+
       if (response.success && response.performance) {
         const perf = response.performance;
         this.reporter.success(
@@ -406,7 +410,7 @@ class TestRunner {
     // Setup database for testing
     await this.setupDatabase();
 
-    const client = new MCPClient('mcp-portfolio/src/index.ts', 'Portfolio');
+    const client = new MCPClient('mcp-portfolio/src/index.ts');
     const reporter = new TestReporter();
     const tests = new PortfolioTests(client, reporter);
 
@@ -445,7 +449,7 @@ class TestRunner {
           'exec',
           '-T',
           'mariadb',
-          'mysql',
+          'mariadb',
           '-u',
           'finx_user',
           '-pfinx_password',
@@ -454,7 +458,7 @@ class TestRunner {
           stdio: ['pipe', 'inherit', 'inherit'],
         });
 
-        const schemaStream = require('fs').createReadStream('database/init/01-schema.sql');
+        const schemaStream = fs.createReadStream('database/init/01-schema.sql');
         schemaStream.pipe(schemaProcess.stdin);
 
         schemaProcess.on('close', (code) => {
@@ -474,7 +478,7 @@ class TestRunner {
           'exec',
           '-T',
           'mariadb',
-          'mysql',
+          'mariadb',
           '-u',
           'finx_user',
           '-pfinx_password',
@@ -483,7 +487,7 @@ class TestRunner {
           stdio: ['pipe', 'inherit', 'inherit'],
         });
 
-        const seedStream = require('fs').createReadStream('database/init/02-seed-data.sql');
+        const seedStream = fs.createReadStream('database/init/02-seed-data.sql');
         seedStream.pipe(seedProcess.stdin);
 
         seedProcess.on('close', (code) => {
@@ -507,4 +511,5 @@ class TestRunner {
 
 // Run tests
 const runner = new TestRunner();
+runner.run();
 

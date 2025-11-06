@@ -18,7 +18,8 @@
         "outDir": "./dist",
         "rootDir": "./",
         "types": [
-            "node"
+            "node",
+            "vitest/globals"
         ]
     },
     "include": [
