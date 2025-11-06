@@ -9,11 +9,13 @@ describe('EducationalService', () => {
   beforeEach(() => {
     providers = [
       {
+        name: 'mock',
         getQuote: vi.fn(),
         getHistoricalData: vi.fn(),
         searchSymbol: vi.fn(),
         getCompanyInfo: vi.fn(),
         explainFundamental: vi.fn(),
+        comparePeers: vi.fn(),
       },
     ];
     service = new EducationalService(providers);
