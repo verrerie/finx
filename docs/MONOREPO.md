@@ -14,12 +14,7 @@ finx/
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── src/
-├── mcp-portfolio/            # Portfolio MCP Server (workspace package)
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── src/
 ├── test-market-data.ts       # Integration tests
-├── test-portfolio.ts         # Integration tests
 └── docs/                     # Shared documentation
 ```
 
@@ -31,13 +26,6 @@ finx/
 - Company fundamentals
 - Financial metrics education
 - Dependencies: Alpha Vantage, Yahoo Finance
-
-### 2. @finx/mcp-portfolio
-**Portfolio Management MCP Server**
-- Portfolio tracking
-- Transaction recording
-- Performance calculation
-- Dependencies: MariaDB
 
 ## Benefits of Monorepo
 
@@ -73,7 +61,6 @@ pnpm build
 Build specific package:
 ```bash
 pnpm build:market-data
-pnpm build:portfolio
 ```
 
 ### Development
@@ -81,7 +68,6 @@ pnpm build:portfolio
 Run a server in development mode (with hot reload):
 ```bash
 pnpm dev:market-data
-pnpm dev:portfolio
 ```
 
 ### Testing
@@ -94,7 +80,6 @@ pnpm test
 Run integration tests:
 ```bash
 pnpm test:market-data    # Test market data server
-pnpm test:portfolio      # Test portfolio server
 ```
 
 Run tests with coverage:
@@ -125,7 +110,6 @@ pnpm provides powerful workspace commands:
 ### Run command in specific workspace:
 ```bash
 pnpm --filter @finx/mcp-market-data <command>
-pnpm --filter @finx/mcp-portfolio <command>
 ```
 
 ### Run command in all workspaces:
@@ -136,7 +120,6 @@ pnpm --recursive <command>
 ### Add dependency to specific workspace:
 ```bash
 pnpm --filter @finx/mcp-market-data add axios
-pnpm --filter @finx/mcp-portfolio add moment
 ```
 
 ### Add dev dependency to root:
@@ -156,7 +139,6 @@ mcp-{name}/
 │   ├── index.ts          # Server entry point
 │   ├── config.ts         # Configuration
 │   ├── types.ts          # TypeScript types
-│   ├── database/         # Data layer (if applicable)
 │   ├── services/         # Business logic
 │   └── tools/            # MCP tool definitions
 └── dist/                 # Build output (gitignored)
@@ -174,7 +156,6 @@ Located in each `mcp-{name}/package.json`:
 - **Runtime Dependencies**: Package-specific dependencies
 - **Example**: 
   - Market Data: `alphavantage`, `yahoo-finance2`
-  - Portfolio: `mariadb`
 
 ## Adding a New Workspace Package
 
@@ -214,7 +195,6 @@ Located in each `mcp-{name}/package.json`:
    ```yaml
    packages:
      - 'mcp-market-data'
-     - 'mcp-portfolio'
      - 'mcp-{name}'
    ```
 
@@ -287,6 +267,4 @@ The monorepo works seamlessly with GitHub Actions:
 
 **Related Documentation:**
 - [README.md](../README.md) - Project overview
-- [DATABASE.md](./DATABASE.md) - Database setup
 - [LEARNING.md](./LEARNING.md) - Learning guide
-

@@ -1,21 +1,17 @@
 {
     "name": "finx",
     "version": "0.1.0",
-    "description": "Learning-focused Financial AI Agent with MCP servers for market data and portfolio management",
+    "description": "Learning-focused Financial AI Agent with MCP servers for market data",
     "private": true,
     "type": "module",
     "scripts": {
         "dev:market-data": "pnpm --filter @finx/mcp-market-data dev",
         "build:market-data": "pnpm --filter @finx/mcp-market-data build",
-        "dev:portfolio": "pnpm --filter @finx/mcp-portfolio dev",
-        "build:portfolio": "pnpm --filter @finx/mcp-portfolio build",
         "build": "pnpm --recursive build",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage",
         "test:market-data": "tsx test-market-data.ts",
-        "test:portfolio": "tsx test-portfolio.ts",
-        "test:e2e": "tsx test-e2e.ts",
         "lint": "pnpm --recursive lint",
         "clean": "pnpm --recursive exec rm -rf dist node_modules",
         "install:all": "pnpm install"
@@ -24,7 +20,6 @@
         "finance",
         "investment",
         "mcp",
-        "portfolio",
         "market-data",
         "learning",
         "monorepo"
