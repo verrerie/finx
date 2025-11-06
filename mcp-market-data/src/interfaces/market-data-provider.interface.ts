@@ -5,7 +5,8 @@
  * implementing this interface can be substituted for another.
  */
 
-import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult, ExplainFundamentalResult, ComparePeersResult } from '../types.js';
+import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
+import { ExplainFundamentalResult, ComparePeersResult } from '../services/educational.service.js';
 
 export interface IMarketDataProvider {
     /**

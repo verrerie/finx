@@ -10,7 +10,16 @@ import {
     listAvailableSectors
 } from '../educational.js';
 import { IMarketDataProvider } from '../interfaces/market-data-provider.interface.js';
-import { CompanyInfo, ExplainFundamentalResult, ComparePeersResult } from '../types.js';
+import { CompanyInfo } from '../types.js';
+
+export interface ExplainFundamentalResult {
+    explanation: string;
+    contextData?: string;
+}
+
+export interface ComparePeersResult {
+    comparison: string;
+}
 
 export class EducationalService {
   constructor(
