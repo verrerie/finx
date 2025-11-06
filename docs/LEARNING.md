@@ -36,18 +36,7 @@ This guide explains how to use FinX as an educational tool to build your investm
 
 **Success:** Can explain business model, understand competitive position, articulate bull/bear cases, develop data-backed opinions
 
-### Stage 3: Portfolio Thinking (Weeks 9-12)
-**Goal:** Understand portfolio construction and management
-
-**Learn:** Position sizing, diversification, cost basis, returns, allocation strategies, rebalancing
-
-**Tools:** `create_portfolio`, `add_transaction`, `calculate_performance`, `analyze-portfolio.md` prompt
-
-**Practice:** Create $100K simulated portfolio → Buy 5-10 researched stocks → Track weekly → Monthly review → Document reasoning
-
-**Success:** Understand portfolio vs individual returns, explain diversification, deliberate position sizing, documented rationale
-
-### Stage 4: Systematic Decision-Making (Weeks 13+)
+### Stage 3: Systematic Decision-Making (Weeks 9+)
 **Goal:** Develop and refine your personal investment process
 
 **Learn:** Thesis development, what-if analysis, review processes, learning from wins/losses, thesis-driven exits
@@ -85,18 +74,6 @@ This guide explains how to use FinX as an educational tool to build your investm
 5. **Document:** Create journal entry with business model, key metrics, bull/bear cases, thesis, questions, decision
 
 **Time:** 60-90 minutes | **Output:** Clear documented reasoning
-
-### Workflow 3: Building a Portfolio
-
-**Example: Creating Your First Simulated Portfolio**
-
-1. **Define Strategy:** Document in `.cursor/knowledge/frameworks/my-investment-approach.md` (goals, principles, allocation targets)
-2. **Create Portfolio:** `create_portfolio()` → Name it "Learning Portfolio"
-3. **Research Candidates:** Use Workflow 2 for each company → Document thesis → Add to watchlist
-4. **Make Purchases:** Before each, use `plan-transaction.md` prompt → Execute with `add_transaction()` → Document reasoning
-5. **Track & Review:** Weekly performance check, monthly full review, quarterly deep dives
-
-**Time:** Initial 4-6 hours, then 1-2 hours weekly
 
 ---
 
@@ -224,7 +201,7 @@ This guide explains how to use FinX as an educational tool to build your investm
 
 **Weekly (30-60 min):** Performance review, document decisions, research one company OR one concept, update knowledge base
 
-**Monthly (2-3 hours):** Comprehensive portfolio analysis, review theses, mistake post-mortems, plan goals, reflect
+**Monthly (2-3 hours):** Comprehensive analysis, review theses, mistake post-mortems, plan goals, reflect
 
 **Quarterly (4-6 hours):** Deep position reviews, benchmark comparison, rebalancing analysis, refine process, major knowledge base update
 

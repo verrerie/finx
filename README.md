@@ -10,7 +10,7 @@ A learning-focused financial AI agent system built with MCP (Model Context Proto
 
 ## 🎯 Philosophy
 
-**Learn by Doing** - This is not just an investment tool; it's an educational platform that helps you understand financial concepts by applying them to real data and your actual portfolio.
+**Learn by Doing** - This is not just an investment tool; it's an educational platform that helps you understand financial concepts by applying them to real data.
 
 ## ✨ What You Can Do
 
@@ -119,14 +119,6 @@ FinX guides you through investment concepts progressively, from basics to advanc
 - Advanced financial statement analysis prompts
 - Valuation model guides
 - Sector-specific analysis frameworks
-
-### Future Features: Risk & Portfolio Theory
-
-**Coming Soon:**
-- Diversification metrics and optimization
-- Correlation analysis
-- Risk-adjusted returns (Sharpe, Sortino ratios)
-- Modern portfolio theory concepts
 
 **Recommended Reading:**
 - "The Intelligent Investor" by Benjamin Graham
