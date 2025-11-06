@@ -13,6 +13,7 @@ import { CACHE_TTL } from '../config.js';
 import { IMarketDataProvider, supportsHistoricalData, supportsSymbolSearch } from '../interfaces/market-data-provider.interface.js';
 import { RateLimiter } from '../rate-limiter.js';
 import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
+import { EducationalService, ExplainFundamentalResult, ComparePeersResult } from './educational.service.js';
 
 
 export interface GetQuoteResult {
@@ -47,12 +48,16 @@ export interface SearchSymbolResult {
  * Service for handling market data operations
  */
 export class MarketDataService {
+    private educationalService: EducationalService;
+
     constructor(
         private cache: Cache,
         private rateLimiter: RateLimiter,
         private primaryProvider: IMarketDataProvider | null,
         private fallbackProvider: IMarketDataProvider
-    ) {}
+    ) {
+        this.educationalService = new EducationalService(this.cache, this.fallbackProvider, [this.primaryProvider, this.fallbackProvider].filter(p => p) as IMarketDataProvider[]);
+    }
 
     /**
      * Get stock quote with caching and provider fallback
@@ -191,5 +196,18 @@ export class MarketDataService {
         throw new Error('Symbol search requires Alpha Vantage API key. Please set ALPHA_VANTAGE_API_KEY environment variable.\n\nTip: You can find ticker symbols at https://finance.yahoo.com');
     }
 
-}
+    /**
+     * Get explanation for a financial metric
+     */
+    async explainFundamental(metric: string, symbol?: string): Promise<ExplainFundamentalResult> {
+        return this.educationalService.explainFundamental(metric, symbol);
+    }
 
+    /**
+     * Compare a stock against sector peers
+     */
+    async comparePeers(symbol: string, sector?: string, metrics?: string[]): Promise<ComparePeersResult> {
+        return this.educationalService.comparePeers(symbol, sector, metrics);
+    }
+
+}
