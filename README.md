@@ -6,7 +6,7 @@
 ![pnpm Version](https://img.shields.io/badge/pnpm-%3E%3D9.0.0-orange)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A learning-focused financial AI agent system built with MCP (Model Context Protocol) servers. Designed to help you learn investment concepts through hands-on portfolio management and market analysis.
+A learning-focused financial AI agent system built with MCP (Model Context Protocol) servers. Designed to help you learn investment concepts through hands-on market analysis.
 
 ## 🎯 Philosophy
 
@@ -14,7 +14,7 @@ A learning-focused financial AI agent system built with MCP (Model Context Proto
 
 ## ✨ What You Can Do
 
-FinX provides two powerful MCP servers that integrate seamlessly with Cursor to help you learn investing:
+FinX provides a powerful MCP server that integrates seamlessly with Cursor to help you learn investing:
 
 ### 📊 Market Data Server
 - **Get real-time quotes** - Current prices, market metrics, and daily performance
@@ -23,21 +23,12 @@ FinX provides two powerful MCP servers that integrate seamlessly with Cursor to 
 - **Learn financial concepts** - Educational explanations of metrics like P/E ratio, ROE, profit margins
 - **Compare companies** - Side-by-side analysis of peers in the same sector
 
-### 💼 Portfolio Management Server
-- **Track your investments** - Create portfolios and record buy/sell transactions
-- **Calculate performance** - See returns, gains/losses, and position-level analytics
-- **Manage watchlists** - Track companies you're researching before investing
-- **Document your thesis** - Record bull and bear cases for each investment decision
-- **Run what-if scenarios** - Model how transactions would impact your portfolio
-- **Analyze holdings** - Deep dive into individual positions and overall portfolio health
-
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 22.x LTS or higher
 - pnpm 9.x or higher
-- Docker and Docker Compose (for database)
 - Alpha Vantage API key (free tier: [Get one here](https://www.alphavantage.co/support/#api-key))
 - Cursor IDE (for MCP integration)
 
@@ -56,29 +47,15 @@ pnpm install
 cp env.example .env
 # Edit .env and add:
 # - Your Alpha Vantage API key
-# - Database credentials (if changing defaults)
 ```
 
-3. **Start the database:**
-
-```bash
-docker compose up -d mariadb
-```
-
-Verify it's running:
-```bash
-docker compose ps
-```
-
-See [docs/DATABASE.md](./docs/DATABASE.md) for detailed database documentation.
-
-4. **Build all servers:**
+3. **Build the server:**
 
 ```bash
 pnpm build
 ```
 
-5. **Configure MCP in Cursor:**
+4. **Configure MCP in Cursor:**
 
 Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
 
@@ -93,19 +70,6 @@ Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
       "env": {
         "ALPHA_VANTAGE_API_KEY": "your_key_here"
       }
-    },
-    "finx-portfolio": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/finx/mcp-portfolio/dist/index.js"
-      ],
-      "env": {
-        "DB_HOST": "localhost",
-        "DB_PORT": "3306",
-        "DB_NAME": "finx",
-        "DB_USER": "finx_user",
-        "DB_PASSWORD": "finx_password"
-      }
     }
   }
 }
@@ -113,7 +77,7 @@ Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
 
 **⚠️ Important:** Replace `/absolute/path/to/finx` with your actual installation path.
 
-6. **Restart Cursor** to load the MCP servers
+5. **Restart Cursor** to load the MCP server
 
 
 ## 📚 Learning Path
@@ -141,32 +105,7 @@ FinX guides you through investment concepts progressively, from basics to advanc
 - `decode-financials.md` - Understand a company
 - `compare-stocks.md` - Learn by comparison
 
-### Stage 2: Portfolio Management
-
-**What You Learn:**
-- Building and tracking investment portfolios
-- Recording transactions and cost basis
-- Calculating returns and performance
-- Investment thesis development
-- What-if scenario analysis
-- Portfolio rebalancing strategies
-
-**Available Tools:**
-- `create_portfolio` - Start tracking investments
-- `add_transaction` - Record buy/sell transactions
-- `get_holdings` - View all positions
-- `calculate_performance` - Analyze returns
-- `add_to_watchlist` - Track research candidates
-- `create_thesis` - Document investment rationale
-- `analyze_what_if` - Model transaction scenarios
-- Plus 11 more portfolio management tools
-
-**Learning Prompts:**
-- `analyze-portfolio.md` - Comprehensive portfolio review
-- `evaluate-position.md` - Deep dive on individual holdings
-- `plan-transaction.md` - Systematic transaction planning
-
-### Stage 3: Financial Statement Analysis
+### Stage 2: Financial Statement Analysis
 
 **What You Learn:**
 - Balance sheet analysis
@@ -200,7 +139,6 @@ FinX guides you through investment concepts progressively, from basics to advanc
 - **Runtime:** Node.js 22.x LTS
 - **Package Manager:** pnpm 9.x
 - **Market Data:** Alpha Vantage + Yahoo Finance (fallback)
-- **Database:** MariaDB 11.8 (for portfolio data)
 
 ## 📖 Documentation
 
@@ -211,7 +149,6 @@ FinX guides you through investment concepts progressively, from basics to advanc
 
 ### Technical Documentation
 - **[MONOREPO.md](./docs/MONOREPO.md)** - Monorepo structure and workspace management (for developers)
-- **[DATABASE.md](./docs/DATABASE.md)** - Database setup, schema, and management
 - **[.cursorrules](./.cursorrules)** - AI behavior guidelines for learning
 - **[.cursor/prompts/](./cursor/prompts/)** - Structured learning prompts
 
@@ -236,7 +173,6 @@ pnpm test:e2e          # End-to-end workflows
 
 ```bash
 pnpm dev:market-data   # Watch mode for Market Data server
-pnpm dev:portfolio     # Watch mode for Portfolio server
 ```
 
 ## 🤝 Contributing

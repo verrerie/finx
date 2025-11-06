@@ -20,7 +20,6 @@ export default defineConfig({
                 '**/types.ts', // Type definitions only
                 '**/providers/**', // Providers tested via integration tests
                 '**/tools/tool-definitions.ts', // Tool schemas (constants only)
-                '**/database/**', // Database layer (integration tested)
             ],
             all: true,
             thresholds: {
