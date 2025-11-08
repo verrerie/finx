@@ -47,6 +47,7 @@ export interface GetNewsResult {
     data: any[];
     source: string;
     metadata: string;
+    rateLimitInfo?: string;
 }
 
 
@@ -214,28 +215,58 @@ export class MarketDataService {
             };
         }
 
+        let news: any[] = [];
+        let source = 'N/A';
+        let rateLimitInfo: string | undefined;
+
+        // Try primary provider first
         if (this.primaryProvider && supportsNews(this.primaryProvider)) {
             try {
-                const news = await this.rateLimiter.execute(() =>
+                news = await this.rateLimiter.execute(() =>
                     this.primaryProvider!.getNews!(symbol, topic)
                 );
-                this.cache.set(cacheKey, news, config.CACHE_TTL.NEWS); // Using quote TTL for news
-
+                source = this.primaryProvider.name;
                 const stats = this.rateLimiter.getStats();
-                return {
-                    data: news,
-                    source: this.primaryProvider.name,
-                    metadata: `Found ${news.length} articles. API calls: ${stats.callsLastDay}/25 today`,
-                };
+                rateLimitInfo = `API calls: ${stats.callsLastDay}/25 today`;
+
+                if (news.length > 0) {
+                    this.cache.set(cacheKey, news, config.CACHE_TTL.NEWS);
+                    return {
+                        data: news,
+                        source: source,
+                        metadata: `Found ${news.length} articles. ${rateLimitInfo}`,
+                        rateLimitInfo: rateLimitInfo,
+                    };
+                }
             } catch (error) {
                 console.error(`${this.primaryProvider.name} news failed:`, error);
             }
         }
 
+        // Fallback to secondary provider if primary failed or returned no news
+        if (supportsNews(this.fallbackProvider)) {
+            try {
+                news = await this.fallbackProvider.getNews!(symbol, topic);
+                source = this.fallbackProvider.name;
+                // No rate limit info for fallback as it's not rate-limited by us
+                if (news.length > 0) {
+                    this.cache.set(cacheKey, news, config.CACHE_TTL.NEWS);
+                    return {
+                        data: news,
+                        source: source,
+                        metadata: `Found ${news.length} articles.`,
+                    };
+                }
+            } catch (error) {
+                console.error(`${this.fallbackProvider.name} news failed:`, error);
+            }
+        }
+
         return {
             data: [],
-            source: 'N/A',
-            metadata: 'No news provider available or an error occurred.',
+            source: source,
+            metadata: 'No news found from any provider or an error occurred.',
+            rateLimitInfo: rateLimitInfo,
         };
     }
 
