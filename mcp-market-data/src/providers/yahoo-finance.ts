@@ -117,13 +117,6 @@ export class YahooFinanceProvider implements IMarketDataProvider {
         }
     }
 
-
-    async getNews(symbol?: string, topic?: string): Promise<any[]> {
-        // Yahoo Finance does not have a direct news API in yahoo-finance2 library
-        // Returning empty array for now.
-        return [];
-    }
-
     private getStartDate(period: Period): Date {
         const now = new Date();
         const date = new Date(now);
