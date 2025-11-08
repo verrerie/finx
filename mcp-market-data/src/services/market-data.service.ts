@@ -9,8 +9,8 @@
  */
 
 import { Cache } from '../cache.js';
-import { CACHE_TTL } from '../config.js';
-import { IMarketDataProvider, supportsHistoricalData, supportsSymbolSearch } from '../interfaces/market-data-provider.interface.js';
+import { config } from '../config.js';
+import { IMarketDataProvider, supportsHistoricalData, supportsSymbolSearch, supportsNews } from '../interfaces/market-data-provider.interface.js';
 import { RateLimiter } from '../rate-limiter.js';
 import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
 import { EducationalService, ExplainFundamentalResult, ComparePeersResult } from './educational.service.js';
@@ -41,6 +41,12 @@ export interface SearchSymbolResult {
     source: string;
     metadata: string;
     rateLimitInfo?: string;
+}
+
+export interface GetNewsResult {
+    data: any[];
+    source: string;
+    metadata: string;
 }
 
 
@@ -82,7 +88,7 @@ export class MarketDataService {
                 const quote = await this.rateLimiter.execute(() =>
                     this.primaryProvider!.getQuote(upperSymbol)
                 );
-                this.cache.set(cacheKey, quote, CACHE_TTL.QUOTE);
+                this.cache.set(cacheKey, quote, config.CACHE_TTL.QUOTE);
 
                 const stats = this.rateLimiter.getStats();
                 return {
@@ -98,7 +104,7 @@ export class MarketDataService {
 
         // Fallback provider
         const quote = await this.fallbackProvider.getQuote(upperSymbol);
-        this.cache.set(cacheKey, quote, CACHE_TTL.QUOTE);
+        this.cache.set(cacheKey, quote, config.CACHE_TTL.QUOTE);
 
         return {
             data: quote,
@@ -130,7 +136,7 @@ export class MarketDataService {
                 const info = await this.rateLimiter.execute(() =>
                     this.primaryProvider!.getCompanyInfo(upperSymbol)
                 );
-                this.cache.set(cacheKey, info, CACHE_TTL.COMPANY_INFO);
+                this.cache.set(cacheKey, info, config.CACHE_TTL.COMPANY_INFO);
 
                 const stats = this.rateLimiter.getStats();
                 return {
@@ -146,7 +152,7 @@ export class MarketDataService {
 
         // Fallback provider
         const info = await this.fallbackProvider.getCompanyInfo(upperSymbol);
-        this.cache.set(cacheKey, info, CACHE_TTL.COMPANY_INFO);
+        this.cache.set(cacheKey, info, config.CACHE_TTL.COMPANY_INFO);
 
         return {
             data: info,
@@ -194,6 +200,43 @@ export class MarketDataService {
         }
 
         throw new Error('Symbol search requires Alpha Vantage API key. Please set ALPHA_VANTAGE_API_KEY environment variable.\n\nTip: You can find ticker symbols at https://finance.yahoo.com');
+    }
+
+    async getNews(symbol?: string, topic?: string): Promise<GetNewsResult> {
+        const cacheKey = `news:${symbol || ''}:${topic || ''}`;
+
+        const cached = this.cache.get<any[]>(cacheKey);
+        if (cached) {
+            return {
+                data: cached,
+                source: 'Cache',
+                metadata: `Found ${cached.length} cached articles`,
+            };
+        }
+
+        if (this.primaryProvider && supportsNews(this.primaryProvider)) {
+            try {
+                const news = await this.rateLimiter.execute(() =>
+                    this.primaryProvider!.getNews!(symbol, topic)
+                );
+                this.cache.set(cacheKey, news, config.CACHE_TTL.NEWS); // Using quote TTL for news
+
+                const stats = this.rateLimiter.getStats();
+                return {
+                    data: news,
+                    source: this.primaryProvider.name,
+                    metadata: `Found ${news.length} articles. API calls: ${stats.callsLastDay}/25 today`,
+                };
+            } catch (error) {
+                console.error(`${this.primaryProvider.name} news failed:`, error);
+            }
+        }
+
+        return {
+            data: [],
+            source: 'N/A',
+            metadata: 'No news provider available or an error occurred.',
+        };
     }
 
     /**

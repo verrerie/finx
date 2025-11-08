@@ -69,6 +69,18 @@ export interface CompanyInfo {
     lastUpdated: Date;
 }
 
+export interface NewsArticle {
+    title: string;
+    url: string;
+    source: string;
+    summary: string;
+    timePublished: Date;
+    authors: string[];
+    topics: { topic: string; relevanceScore: string }[];
+    overallSentimentScore: number;
+    overallSentimentLabel: string;
+}
+
 export interface CacheEntry<T> {
     data: T;
     timestamp: number;

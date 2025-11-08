@@ -9,7 +9,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { Cache } from './cache.js';
-import { ENV, RATE_LIMITS } from './config.js';
+import { config } from './config.js';
 import { createProviders } from './factories/provider.factory.js';
 import { RateLimiter } from './rate-limiter.js';
 import { EducationalService } from './services/educational.service.js';
@@ -20,8 +20,8 @@ import { Period } from './types.js';
 export async function startMarketDataServer(server: Server, transport: StdioServerTransport) {
     // Initialize dependencies
     const cache = new Cache();
-    const rateLimiter = new RateLimiter(RATE_LIMITS.CALLS_PER_MINUTE, RATE_LIMITS.CALLS_PER_DAY);
-    const providers = createProviders(ENV.ALPHA_VANTAGE_API_KEY);
+    const rateLimiter = new RateLimiter(config.RATE_LIMITS.CALLS_PER_MINUTE, config.RATE_LIMITS.CALLS_PER_DAY);
+    const providers = createProviders(config.ENV.ALPHA_VANTAGE_API_KEY);
 
     // Create services with injected dependencies
     const marketDataService = new MarketDataService(
@@ -135,6 +135,17 @@ export async function startMarketDataServer(server: Server, transport: StdioServ
 
                     return {
                         content: [{ type: 'text', text: result.comparison }],
+                    };
+                }
+
+                case 'get_news': {
+                    const { symbol, topic } = args as { symbol?: string; topic?: string };
+                    const result = await marketDataService.getNews(symbol, topic);
+
+                    const text = JSON.stringify(result.data, null, 2) + `\n\n(${result.metadata})`;
+
+                    return {
+                        content: [{ type: 'text', text }],
                     };
                 }
 

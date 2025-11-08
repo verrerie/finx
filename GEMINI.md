@@ -5,6 +5,7 @@
 FinX is a learning-focused financial AI agent system built with MCP (Model Context Protocol) servers. Its primary purpose is to help users understand investment concepts through hands-on market analysis. It integrates with Cursor IDE to provide a main MCP server:
 
 *   **Market Data Server:** Provides real-time quotes, historical data, company research (fundamentals, financial ratios), and educational explanations of financial metrics.
+*   **Financial News Server:** Provides financial news and sentiment analysis.
 
 
 The system is designed with a "Learn by Doing" philosophy, acting as an educational platform to apply financial concepts to real data.
@@ -43,7 +44,7 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
     pnpm build
     ```
 
-4.  **Configure MCP in Cursor:** *Integrate the FinX MCP server into your Cursor IDE by adding its configuration. **Ensure you replace `/absolute/path/to/finx` with the actual absolute path to your FinX project directory and `your_key_here` with your Alpha Vantage API key.** This step is crucial for Cursor to recognize and run the server.*
+4.  **Configure MCP in Cursor:** *Integrate the FinX MCP server into your Cursor IDE by adding its configuration. **Ensure you replace `/absolute/path/to/finx` with the actual absolute path to your FinX project directory and set your `ALPHA_VANTAGE_API_KEY` as a system environment variable.** This step is crucial for Cursor to recognize and run the server.*
 
     ```json
     {
@@ -52,10 +53,7 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
           "command": "node",
           "args": [
             "/absolute/path/to/finx/mcp-market-data/dist/index.js"
-          ],
-          "env": {
-            "ALPHA_VANTAGE_API_KEY": "your_key_here"
-          }
+          ]
         }
       }
     }

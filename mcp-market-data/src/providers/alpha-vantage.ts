@@ -1,25 +1,25 @@
-/**
- * Alpha Vantage data provider
- */
-
-import AlphaVantage from 'alphavantage';
-import { IMarketDataProvider } from '../interfaces/market-data-provider.interface.js';
-import { CompanyInfo, StockQuote, SymbolSearchResult } from '../types.js';
+import axios from 'axios';
+import { IMarketDataProvider, supportsNews, supportsSymbolSearch } from '../interfaces/market-data-provider.interface.js';
+import { CompanyInfo, HistoricalDataPoint, NewsArticle, Period, StockQuote, SymbolSearchResult } from '../types.js';
+import { config } from '../config.js';
 
 export class AlphaVantageProvider implements IMarketDataProvider {
     readonly name = 'Alpha Vantage';
     private client: any;
+    private apiKey: string;
 
-    constructor(apiKey: string) {
-        if (!apiKey) {
+    constructor(apiKey?: string) {
+        const key = apiKey || config.ENV.ALPHA_VANTAGE_API_KEY;
+        if (!key) {
             throw new Error('Alpha Vantage API key is required');
         }
-        this.client = AlphaVantage({ key: apiKey });
+        this.apiKey = key;
     }
 
     async getQuote(symbol: string): Promise<StockQuote> {
         try {
-            const data = await this.client.data.quote(symbol);
+            const response = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${this.apiKey}`);
+            const data = response.data;
 
             if (!data || !data['Global Quote']) {
                 throw new Error(`No quote data available for ${symbol}`);
@@ -42,7 +42,8 @@ export class AlphaVantageProvider implements IMarketDataProvider {
 
     async getCompanyInfo(symbol: string): Promise<CompanyInfo> {
         try {
-            const data = await this.client.fundamental.company_overview(symbol);
+            const response = await axios.get(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${this.apiKey}`);
+            const data = response.data;
 
             if (!data || !data.Symbol) {
                 throw new Error(`No company data available for ${symbol}`);
@@ -92,7 +93,8 @@ export class AlphaVantageProvider implements IMarketDataProvider {
 
     async searchSymbol(query: string): Promise<SymbolSearchResult[]> {
         try {
-            const data = await this.client.data.search(query);
+            const response = await axios.get(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${query}&apikey=${this.apiKey}`);
+            const data = response.data;
 
             if (!data || !data.bestMatches) {
                 return [];
@@ -106,6 +108,29 @@ export class AlphaVantageProvider implements IMarketDataProvider {
             }));
         } catch (error) {
             throw new Error(`Alpha Vantage search error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
+
+    async getNews(symbol?: string, topic?: string): Promise<any[]> {
+        try {
+            let url = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&apikey=${this.apiKey}`;
+            if (symbol) {
+                url += `&tickers=${symbol}`;
+            }
+            if (topic) {
+                url += `&topics=${topic}`;
+            }
+
+            const response = await axios.get(url);
+            const data = response.data;
+
+            if (!data || !data.feed) {
+                return [];
+            }
+
+            return data.feed;
+        } catch (error) {
+            throw new Error(`Alpha Vantage news error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 

@@ -112,5 +112,22 @@ export const TOOL_DEFINITIONS: Tool[] = [
             required: ['symbol'],
         },
     },
+    {
+        name: 'get_news',
+        description: 'Get financial news articles and sentiment for a given stock symbol or topic.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                symbol: {
+                    type: 'string',
+                    description: 'Stock ticker symbol (e.g., AAPL, MSFT, GOOGL).',
+                },
+                topic: {
+                    type: 'string',
+                    description: 'A news topic to search for (e.g., "earnings", "ipo").',
+                },
+            },
+        },
+    },
 ];
 

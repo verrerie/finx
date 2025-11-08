@@ -49,6 +49,12 @@ export interface IMarketDataProvider {
      * Optional - not all providers support this
      */
     comparePeers?(symbol: string, sector?: string, metrics?: string[]): Promise<ComparePeersResult>;
+
+    /**
+     * Get financial news
+     * Optional - not all providers support this
+     */
+    getNews?(symbol?: string, topic?: string): Promise<any[]>;
 }
 
 /**
@@ -67,5 +73,14 @@ export function supportsSymbolSearch(provider: IMarketDataProvider): provider is
     searchSymbol: (query: string) => Promise<SymbolSearchResult[]>;
 } {
     return typeof provider.searchSymbol === 'function';
+}
+
+/**
+ * Check if provider supports news
+ */
+export function supportsNews(provider: IMarketDataProvider): provider is IMarketDataProvider & {
+    getNews: (symbol?: string, topic?: string) => Promise<any[]>;
+} {
+    return typeof provider.getNews === 'function';
 }
 

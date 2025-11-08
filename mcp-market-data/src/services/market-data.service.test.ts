@@ -22,6 +22,7 @@ describe('MarketDataService', () => {
             getQuote: vi.fn(),
             getCompanyInfo: vi.fn(),
             searchSymbol: vi.fn(),
+            getNews: vi.fn(),
         } as any;
 
         mockFallbackProvider = {
@@ -300,6 +301,68 @@ describe('MarketDataService', () => {
 
             expect(result.data).toEqual(mockQuote);
             expect(result.source).toBe('Mock Fallback');
+        });
+    });
+
+    describe('getNews', () => {
+        const mockNews = [{ title: 'Test News', url: 'http://test.com' }];
+
+        it('should return cached news if available', async () => {
+            cache.set('news:AAPL:', mockNews, 5 * 60 * 1000);
+
+            const result = await service.getNews('AAPL');
+
+            expect(result.data).toEqual(mockNews);
+            expect(result.source).toBe('Cache');
+            expect(result.metadata).toContain('Found 1 cached articles');
+        });
+
+        it('should fetch from primary provider if not cached and supports news', async () => {
+            mockPrimaryProvider.supportsNews = () => true;
+            vi.mocked(mockPrimaryProvider.getNews).mockResolvedValue(mockNews);
+
+            const result = await service.getNews('AAPL');
+
+            expect(result.data).toEqual(mockNews);
+            expect(result.source).toBe('Mock Primary');
+            expect(result.metadata).toContain('Found 1 articles');
+            expect(mockPrimaryProvider.getNews).toHaveBeenCalledWith('AAPL', undefined);
+        });
+
+        it('should return empty array if primary provider is null', async () => {
+            const serviceWithoutPrimary = new MarketDataService(
+                cache,
+                rateLimiter,
+                null,
+                mockFallbackProvider
+            );
+
+            const result = await serviceWithoutPrimary.getNews('AAPL');
+
+            expect(result.data).toEqual([]);
+            expect(result.source).toBe('N/A');
+            expect(result.metadata).toContain('No news provider available');
+        });
+
+        it('should return empty array if primary provider does not support news', async () => {
+            mockPrimaryProvider.supportsNews = () => false;
+
+            const result = await service.getNews('AAPL');
+
+            expect(result.data).toEqual([]);
+            expect(result.source).toBe('N/A');
+            expect(result.metadata).toContain('No news provider available');
+        });
+
+        it('should return empty array if primary provider news fetching fails', async () => {
+            mockPrimaryProvider.supportsNews = () => true;
+            vi.mocked(mockPrimaryProvider.getNews).mockRejectedValue(new Error('News API failed'));
+
+            const result = await service.getNews('AAPL');
+
+            expect(result.data).toEqual([]);
+            expect(result.source).toBe('N/A');
+            expect(result.metadata).toContain('No news provider available');
         });
     });
 });
