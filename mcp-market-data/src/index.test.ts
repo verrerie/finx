@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-let mockServer: Server;
-let mockTransport: StdioServerTransport;
+let mockServer: any;
+let mockTransport: any;
 let mockMarketDataService: any;
 let mockEducationalService: any;
 
@@ -12,7 +12,8 @@ describe('Market Data MCP Server', () => {
         vi.clearAllMocks();
 
         // Import SDK modules dynamically within beforeEach
-        const { Server, StdioServerTransport } = await import('@modelcontextprotocol/sdk/server/index.js');
+        const { Server } = await import('@modelcontextprotocol/sdk/server/index.js');
+        const { StdioServerTransport } = await import('@modelcontextprotocol/sdk/server/stdio.js');
         const { CallToolRequestSchema, ListToolsRequestSchema } = await import('@modelcontextprotocol/sdk/types.js');
 
         // Mock Server and StdioServerTransport
@@ -40,70 +41,70 @@ describe('Market Data MCP Server', () => {
     });
 
 
-// Mock external dependencies
-vi.mock('./cache.js');
-vi.mock('./rate-limiter.js');
-vi.mock('./factories/provider.factory.js', () => ({
-    createProviders: vi.fn(() => ({
-        primary: { getQuote: vi.fn(), getHistoricalData: vi.fn(), searchSymbol: vi.fn(), getCompanyInfo: vi.fn(), getSupportedMetrics: vi.fn(), getCompanyPeers: vi.fn() },
-        fallback: { getQuote: vi.fn(), getHistoricalData: vi.fn(), searchSymbol: vi.fn(), getCompanyInfo: vi.fn(), getSupportedMetrics: vi.fn(), getCompanyPeers: vi.fn() },
-    })),
-}));
-vi.mock('@modelcontextprotocol/sdk/server/index.js', () => ({
-    Server: vi.fn(() => mockServer),
-    StdioServerTransport: vi.fn(() => mockTransport),
-}));
+    // Mock external dependencies
+    vi.mock('./cache.js');
+    vi.mock('./rate-limiter.js');
+    vi.mock('./factories/provider.factory.js', () => ({
+        createProviders: vi.fn(() => ({
+            primary: { getQuote: vi.fn(), getHistoricalData: vi.fn(), searchSymbol: vi.fn(), getCompanyInfo: vi.fn(), getSupportedMetrics: vi.fn(), getCompanyPeers: vi.fn() },
+            fallback: { getQuote: vi.fn(), getHistoricalData: vi.fn(), searchSymbol: vi.fn(), getCompanyInfo: vi.fn(), getSupportedMetrics: vi.fn(), getCompanyPeers: vi.fn() },
+        })),
+    }));
+    vi.mock('@modelcontextprotocol/sdk/server/index.js', () => ({
+        Server: vi.fn(() => mockServer),
+        StdioServerTransport: vi.fn(() => mockTransport),
+    }));
 
-vi.mock('./services/market-data.service.js', () => ({
-    MarketDataService: vi.fn(() => mockMarketDataService),
-}));
-vi.mock('./services/educational.service.js', () => ({
-    EducationalService: vi.fn(() => mockEducationalService),
-}));
+    vi.mock('./services/market-data.service.js', () => ({
+        MarketDataService: vi.fn(() => mockMarketDataService),
+    }));
+    vi.mock('./services/educational.service.js', () => ({
+        EducationalService: vi.fn(() => mockEducationalService),
+    }));
 
-vi.mock('./tools/tool-definitions.js', () => ({
-    TOOL_DEFINITIONS: [
-        {
-            name: 'get_quote',
-            description: 'Get current stock quote',
-            inputSchema: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'] },
-        },
-        {
-            name: 'explain_fundamental',
-            description: 'Explain a financial metric',
-            inputSchema: { type: 'object', properties: { metric: { type: 'string' } }, required: ['metric'] },
-        },
-        {
-            name: 'get_historical_data',
-            description: 'Get historical data',
-            inputSchema: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'] },
-        },
-        {
-            name: 'search_symbol',
-            description: 'Search symbol',
-            inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] },
-        },
-        {
-            name: 'get_company_info',
-            description: 'Get company info',
-            inputSchema: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'] },
-        },
-        {
-            name: 'compare_peers',
-            description: 'Compare peers',
-            inputSchema: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'] },
-        },
-    ],
-}));
+    vi.mock('./tools/tool-definitions.js', () => ({
+        TOOL_DEFINITIONS: [
+            {
+                name: 'get_quote',
+                description: 'Get current stock quote',
+                inputSchema: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'] },
+            },
+            {
+                name: 'explain_fundamental',
+                description: 'Explain a financial metric',
+                inputSchema: { type: 'object', properties: { metric: { type: 'string' } }, required: ['metric'] },
+            },
+            {
+                name: 'get_historical_data',
+                description: 'Get historical data',
+                inputSchema: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'] },
+            },
+            {
+                name: 'search_symbol',
+                description: 'Search symbol',
+                inputSchema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] },
+            },
+            {
+                name: 'get_company_info',
+                description: 'Get company info',
+                inputSchema: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'] },
+            },
+            {
+                name: 'compare_peers',
+                description: 'Compare peers',
+                inputSchema: { type: 'object', properties: { symbol: { type: 'string' } }, required: ['symbol'] },
+            },
+        ],
+    }));
 
 
 
-// Mock dotenv config to prevent actual file loading
-vi.mock('dotenv', () => ({
-    default: {
-        config: vi.fn(),
-    },
-}));
+    // Mock dotenv config to prevent actual file loading
+    vi.mock('dotenv', () => ({
+        default: {
+            config: vi.fn(),
+        },
+    }));
 
     it('should set up ListToolsRequestSchema handler', async () => {
         expect(mockServer.setRequestHandler).toHaveBeenCalledWith(

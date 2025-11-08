@@ -1,7 +1,6 @@
 
+import { beforeAll, describe, expect, it } from 'vitest';
 import { AlphaVantageProvider } from './alpha-vantage';
-import { config } from '../config.helper';
-import { describe, it, expect, beforeAll } from 'vitest';
 
 const apiKey = process.env.ALPHA_VANTAGE_API_KEY;
 const describeIf = apiKey ? describe : describe.skip;
@@ -17,7 +16,7 @@ describeIf('AlphaVantageProvider (Integration)', () => {
 
   describe('getNews', () => {
     it('should fetch and return news', async () => {
-      const news = await provider.getNews({ symbol: 'AAPL' });
+      const news = await provider.getNews('AAPL', 'technology');
       expect(news).toBeInstanceOf(Array);
       if (news.length > 0) {
         expect(news[0]).toHaveProperty('title');

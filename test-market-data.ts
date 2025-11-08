@@ -6,7 +6,9 @@
  */
 
 import { ChildProcess, spawn } from 'child_process';
+import dotenv from 'dotenv';
 import { resolve } from 'path';
+dotenv.config();
 
 // ============================================================================
 // Types & Interfaces
@@ -546,7 +548,7 @@ class TestRunner {
 async function main() {
     const config: MCPClientConfig = {
         serverPath: resolve(process.cwd(), 'mcp-market-data/src/index.ts'),
-        timeout: 30000,
+        timeout: 20000,
     };
 
     const runner = new TestRunner(config);
