@@ -1,6 +1,6 @@
 
 import { Cache } from '../cache.js';
-import { CACHE_TTL } from '../config.js';
+import { config } from '../config.js';
 import {
     findSectorFromSymbol,
     formatMetricExplanation,
@@ -107,7 +107,7 @@ export class EducationalService {
 
         // Use fallback provider for quick comparison
         const info = await this.fallbackProvider.getCompanyInfo(sym);
-        this.cache.set(`company:${sym}`, info, CACHE_TTL.COMPANY_INFO);
+        this.cache.set(`company:${sym}`, info, config.CACHE_TTL.COMPANY_INFO);
         return { symbol: sym, data: info, source: this.fallbackProvider.name };
       } catch (error) {
         return { symbol: sym, data: null, error: String(error) };

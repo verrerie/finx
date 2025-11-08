@@ -6,7 +6,9 @@
  */
 
 import { ChildProcess, spawn } from 'child_process';
+import dotenv from 'dotenv';
 import { resolve } from 'path';
+dotenv.config();
 
 // ============================================================================
 // Types & Interfaces
@@ -444,6 +446,38 @@ class MarketDataTests {
         }
     }
 
+    async testGetNews(): Promise<TestResult> {
+        this.reporter.printTestStart('📰 Test 8: Get News (AAPL, technology)');
+
+        try {
+            const newsResult = await this.client.callTool('get_news', {
+                symbol: 'AAPL',
+                topic: 'technology'
+            });
+            const newsData = JSON.parse(newsResult.content[0].text.split('\n\n')[0]);
+
+            this.reporter.printSuccess(`Found ${newsData.length} articles`);
+
+            newsData.slice(0, 3).forEach((article: any) => {
+                console.log(`  - ${article.title} (${article.url})`);
+            });
+
+            return {
+                passed: true,
+                name: 'Get News',
+                message: `Found ${newsData.length} articles`,
+                data: newsData
+            };
+        } catch (error) {
+            this.reporter.printError(`Failed: ${error}`);
+            return {
+                passed: false,
+                name: 'Get News',
+                message: String(error)
+            };
+        }
+    }
+
     async runAllTests(): Promise<TestResult[]> {
         const tests = [
             () => this.testListTools(),
@@ -453,6 +487,7 @@ class MarketDataTests {
             () => this.testSearchSymbol(),
             () => this.testExplainFundamental(),
             () => this.testComparePeers(),
+            () => this.testGetNews(),
         ];
 
         const results: TestResult[] = [];
@@ -513,7 +548,7 @@ class TestRunner {
 async function main() {
     const config: MCPClientConfig = {
         serverPath: resolve(process.cwd(), 'mcp-market-data/src/index.ts'),
-        timeout: 30000,
+        timeout: 20000,
     };
 
     const runner = new TestRunner(config);

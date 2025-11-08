@@ -5,7 +5,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev:market-data": "pnpm --filter @finx/mcp-market-data dev",
+        "dev:market-data": "pnpm --filter mcp-market-data dev",
         "build:market-data": "pnpm --filter @finx/mcp-market-data build",
         "build": "pnpm --recursive build",
         "test": "vitest run",
@@ -31,6 +31,7 @@
         "@typescript-eslint/eslint-plugin": "^8.46.3",
         "@typescript-eslint/parser": "^8.46.3",
         "@vitest/coverage-v8": "^2.1.8",
+        "dotenv": "^16.4.7",
         "eslint": "^9.39.1",
         "globals": "^16.5.0",
         "tsx": "^4.19.2",

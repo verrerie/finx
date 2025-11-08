@@ -26,6 +26,7 @@
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.0.5",
         "alphavantage": "^2.5.0",
+        "axios": "^1.13.2",
         "dotenv": "^16.4.7",
         "yahoo-finance2": "^3.10.0"
     },
