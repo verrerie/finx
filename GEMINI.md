@@ -85,7 +85,6 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
 *   **Run integration tests:**
     ```bash
     pnpm test:e2e
-    pnpm test:market-data
     ```
 
 ## Development Conventions

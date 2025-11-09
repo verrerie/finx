@@ -26,9 +26,6 @@ export default defineConfig({
                 '**/providers/**', // Providers tested via integration tests
                 '**/tools/tool-definitions.ts', // Tool schemas (constants only)
                 '**/eslint.config.js',
-                '**/mcp-market-data/src/index.ts',
-                '**/mcp-market-data/src/types.ts',
-                '**/mcp-market-data/src/tools/tool-definitions.ts',
             ],
             all: true,
             thresholds: {

@@ -155,10 +155,10 @@ FinX guides you through investment concepts progressively, from basics to advanc
 ### Testing
 
 ```bash
-pnpm test              # Run all tests
+pnpm test              # Run all unit tests
 pnpm test:watch        # Watch mode
 pnpm test:coverage     # With coverage
-pnpm test:e2e          # End-to-end workflows
+pnpm test:e2e          # Integration tests (spawns MCP server, tests all tools)
 ```
 
 ### Development

@@ -38,8 +38,14 @@ jobs:
         run: pnpm run lint
         continue-on-error: true
       
-      - name: Run tests
+      - name: Run unit tests
         run: pnpm run test:coverage
+      
+      - name: Run integration tests
+        run: pnpm run test:e2e
+        continue-on-error: true
+        env:
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

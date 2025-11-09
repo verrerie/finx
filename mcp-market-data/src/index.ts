@@ -1,6 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -16,6 +20,12 @@ import { EducationalService } from './services/educational.service.js';
 import { MarketDataService } from './services/market-data.service.js';
 import { TOOL_DEFINITIONS } from './tools/tool-definitions.js';
 import { Period } from './types.js';
+
+// Read version from package.json
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const packageJsonPath = resolve(__dirname, '../package.json');
+const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+const VERSION = packageJson.version;
 
 export async function startMarketDataServer(server: Server, transport: StdioServerTransport) {
     // Initialize dependencies
@@ -173,7 +183,7 @@ async function main() {
     const server = new Server(
         {
             name: 'finx-market-data',
-            version: '0.2.0', // Bumped for SOLID refactoring
+            version: VERSION,
         },
         {
             capabilities: {
@@ -184,7 +194,7 @@ async function main() {
     const transport = new StdioServerTransport();
     await startMarketDataServer(server, transport);
 
-    console.error('FinX Market Data MCP Server running (v0.2.0 - SOLID refactored)');
+    console.error(`FinX Market Data MCP Server running (v${VERSION})`);
 }
 
 main().catch((error) => {
