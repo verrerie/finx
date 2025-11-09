@@ -5,6 +5,11 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         dangerouslyIgnoreUnhandledErrors: true,
+        exclude: [
+            'node_modules/**',
+            'dist/**',
+            '**/*.d.ts',
+        ],
         onConsoleLog: (log) => {
             if (log.includes('Please consider completing the survey') || log.includes('[Deprecated] historical()')) {
                 return false;
