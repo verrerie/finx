@@ -46,7 +46,9 @@ pnpm install
 ```bash
 cp env.example .env
 # Edit .env and add:
-# - Your Alpha Vantage API key
+# - Your Alpha Vantage API key (required)
+# - Your Financial Modeling Prep API key (optional, for financial statements)
+# - Your FRED API key (optional, for economic indicators)
 ```
 
 3. **Build the server:**
@@ -68,7 +70,9 @@ Add to your Cursor MCP configuration (`~/.cursor/mcp.json`):
         "/absolute/path/to/finx/mcp-market-data/dist/index.js"
       ],
       "env": {
-        "ALPHA_VANTAGE_API_KEY": "your_key_here"
+        "ALPHA_VANTAGE_API_KEY": "your_key_here",
+        "FMP_API_KEY": "your_fmp_key_here",
+        "FRED_API_KEY": "your_fred_key_here"
       }
     }
   }
@@ -130,7 +134,7 @@ FinX guides you through investment concepts progressively, from basics to advanc
 
 - **Runtime:** Node.js 22.x LTS
 - **Package Manager:** pnpm 9.x
-- **Market Data:** Alpha Vantage + Yahoo Finance (fallback)
+- **Market Data:** Alpha Vantage + Yahoo Finance (fallback) + Financial Modeling Prep (financial statements) + FRED (economic indicators)
 
 ## 📖 Documentation
 

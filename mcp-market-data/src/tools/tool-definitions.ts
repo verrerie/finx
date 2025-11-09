@@ -129,5 +129,52 @@ export const TOOL_DEFINITIONS: Tool[] = [
             },
         },
     },
+    {
+        name: 'get_financial_statements',
+        description: 'Get financial statements (income statement, balance sheet, or cash flow statement) for a company. Returns comprehensive financial data for fundamental analysis.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                symbol: {
+                    type: 'string',
+                    description: 'Stock ticker symbol (e.g., AAPL)',
+                },
+                statementType: {
+                    type: 'string',
+                    enum: ['income', 'balance', 'cashflow'],
+                    description: 'Type of financial statement: "income" for income statement, "balance" for balance sheet, "cashflow" for cash flow statement',
+                },
+                period: {
+                    type: 'string',
+                    enum: ['annual', 'quarter'],
+                    description: 'Period type: "annual" for annual statements, "quarter" for quarterly statements',
+                    default: 'annual',
+                },
+            },
+            required: ['symbol', 'statementType'],
+        },
+    },
+    {
+        name: 'get_economic_indicator',
+        description: 'Get economic indicator data from FRED (Federal Reserve Economic Data). Returns historical economic data for macro analysis. Common series IDs: GDP (Gross Domestic Product), CPI (Consumer Price Index), UNRATE (Unemployment Rate), FEDFUNDS (Federal Funds Rate), DGS10 (10-Year Treasury Rate).',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                seriesId: {
+                    type: 'string',
+                    description: 'FRED series ID (e.g., "GDP", "CPIAUCSL", "UNRATE", "FEDFUNDS", "DGS10")',
+                },
+                startDate: {
+                    type: 'string',
+                    description: 'Optional: Start date in YYYY-MM-DD format',
+                },
+                endDate: {
+                    type: 'string',
+                    description: 'Optional: End date in YYYY-MM-DD format',
+                },
+            },
+            required: ['seriesId'],
+        },
+    },
 ];
 

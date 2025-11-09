@@ -199,6 +199,42 @@ Suggest consulting a financial advisor for:
 - `web_search("Apple Q4 2024 earnings")` - Search for recent Apple earnings news
 - `codebase_search("How does the cache work?")` - Understand caching implementation
 
+## Development Guidelines
+
+### Testing and Coverage Requirements
+
+**Always run tests after code changes:**
+- Run `pnpm test` to verify all tests pass
+- Run `pnpm test:coverage` to check coverage thresholds
+- Fix any failing tests or linting errors before committing
+
+**Coverage Thresholds (enforced in vitest.config.ts):**
+- **Statements:** 95% minimum
+- **Branches:** 90% minimum
+- **Functions:** 90% minimum
+- **Lines:** 95% minimum
+
+**Coverage Best Practices:**
+- Write tests for all new code and features
+- Add tests for error handling paths and edge cases
+- Ensure new code maintains or improves coverage thresholds
+- If coverage drops below thresholds, add tests before merging
+- Use `pnpm test:coverage` to verify thresholds are met
+
+**When adding new features:**
+1. Write tests first (TDD approach recommended)
+2. Implement the feature
+3. Run `pnpm test` to ensure all tests pass
+4. Run `pnpm test:coverage` to verify coverage thresholds
+5. Fix any coverage gaps before committing
+
+**Coverage exclusions (configured in vitest.config.ts):**
+- Type definitions (`**/types.ts`)
+- Tool schemas (`**/tools/tool-definitions.ts`)
+- MCP server entry points (`**/index.ts`)
+- Provider implementations (tested via integration tests)
+- Configuration files (`**/*.config.ts`)
+
 ## Related Commands
 
 For specific workflows and detailed instructions, see the `.cursor/commands/` directory:

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Cache } from '../cache.js';
 import { IMarketDataProvider } from '../interfaces/market-data-provider.interface.js';
 import { RateLimiter } from '../rate-limiter.js';
-import { CompanyInfo, StockQuote } from '../types.js';
+import { CompanyInfo, StatementType, StockQuote } from '../types.js';
 import { MarketDataService } from './market-data.service.js';
 
 describe('MarketDataService', () => {
@@ -36,6 +36,8 @@ describe('MarketDataService', () => {
             cache,
             rateLimiter,
             mockPrimaryProvider,
+            null, // Financial Modeling Prep provider (not used in these tests)
+            null, // FRED provider (not used in these tests)
             mockFallbackProvider
         );
     });
@@ -196,6 +198,8 @@ describe('MarketDataService', () => {
                 cache,
                 rateLimiter,
                 null,
+                null, // Financial Modeling Prep provider
+                null, // FRED provider
                 mockFallbackProvider
             );
 
@@ -283,6 +287,8 @@ describe('MarketDataService', () => {
                 cache,
                 rateLimiter,
                 null,
+                null, // Financial Modeling Prep provider
+                null, // FRED provider
                 mockFallbackProvider
             );
 
@@ -334,6 +340,8 @@ describe('MarketDataService', () => {
                 cache,
                 rateLimiter,
                 null,
+                null, // Financial Modeling Prep provider
+                null, // FRED provider
                 mockFallbackProvider
             );
 
@@ -345,7 +353,8 @@ describe('MarketDataService', () => {
         });
 
         it('should return empty array if primary provider does not support news', async () => {
-            mockPrimaryProvider.supportsNews = () => false;
+            // Since primary doesn't support news, it should return empty array
+            delete (mockPrimaryProvider as any).getNews;
 
             const result = await service.getNews('AAPL');
 
@@ -363,6 +372,136 @@ describe('MarketDataService', () => {
             expect(result.data).toEqual([]);
             expect(result.source).toBe('N/A');
             expect(result.metadata).toContain('No news provider available');
+        });
+    });
+
+    describe('getFinancialStatements', () => {
+        let mockFinancialModelingPrepProvider: IMarketDataProvider;
+        let serviceWithFMP: MarketDataService;
+
+        beforeEach(() => {
+            mockFinancialModelingPrepProvider = {
+                name: 'Financial Modeling Prep',
+                getQuote: vi.fn(),
+                getCompanyInfo: vi.fn(),
+                getFinancialStatements: vi.fn(),
+            } as any;
+
+            serviceWithFMP = new MarketDataService(
+                cache,
+                rateLimiter,
+                mockPrimaryProvider,
+                mockFinancialModelingPrepProvider,
+                null, // FRED provider
+                mockFallbackProvider
+            );
+        });
+
+        it('should return cached financial statements if available', async () => {
+            const mockStatements = [
+                { symbol: 'AAPL', period: 'annual' as const, date: '2024-01-01', revenue: 1000000, costOfRevenue: 500000, grossProfit: 500000, operatingExpenses: 200000, operatingIncome: 300000, incomeBeforeTax: 290000, netIncome: 240000 },
+            ];
+            cache.set('financial-statements:AAPL:income:annual', mockStatements, 24 * 60 * 60 * 1000);
+
+            const result = await serviceWithFMP.getFinancialStatements('AAPL', StatementType.INCOME, 'annual');
+
+            expect(result.data).toEqual(mockStatements);
+            expect(result.source).toBe('Cache');
+            expect(result.metadata).toContain('Found 1 cached statements');
+        });
+
+        it('should fetch financial statements from Financial Modeling Prep', async () => {
+            const mockStatements = [
+                { symbol: 'AAPL', period: 'annual' as const, date: '2024-01-01', revenue: 1000000, costOfRevenue: 500000, grossProfit: 500000, operatingExpenses: 200000, operatingIncome: 300000, incomeBeforeTax: 290000, netIncome: 240000 },
+            ];
+            vi.mocked(mockFinancialModelingPrepProvider.getFinancialStatements).mockResolvedValue(mockStatements);
+
+            const result = await serviceWithFMP.getFinancialStatements('AAPL', StatementType.INCOME, 'annual');
+
+            expect(result.data).toEqual(mockStatements);
+            expect(result.source).toBe('Financial Modeling Prep');
+            expect(result.metadata).toContain('Found 1 income statements');
+            expect(mockFinancialModelingPrepProvider.getFinancialStatements).toHaveBeenCalledWith('AAPL', StatementType.INCOME, 'annual');
+        });
+
+        it('should throw error when no provider supports financial statements', async () => {
+            await expect(service.getFinancialStatements('AAPL', StatementType.INCOME)).rejects.toThrow('No provider supports financial statements');
+        });
+
+        it('should handle Financial Modeling Prep errors gracefully', async () => {
+            vi.mocked(mockFinancialModelingPrepProvider.getFinancialStatements).mockRejectedValue(new Error('FMP API failed'));
+
+            await expect(serviceWithFMP.getFinancialStatements('AAPL', StatementType.INCOME)).rejects.toThrow('No provider supports financial statements');
+        });
+    });
+
+    describe('getEconomicIndicator', () => {
+        let mockFREDProvider: IMarketDataProvider;
+        let serviceWithFRED: MarketDataService;
+
+        beforeEach(() => {
+            mockFREDProvider = {
+                name: 'FRED',
+                getQuote: vi.fn(),
+                getCompanyInfo: vi.fn(),
+                getEconomicIndicator: vi.fn(),
+            } as any;
+
+            serviceWithFRED = new MarketDataService(
+                cache,
+                rateLimiter,
+                mockPrimaryProvider,
+                null, // Financial Modeling Prep provider
+                mockFREDProvider,
+                mockFallbackProvider
+            );
+        });
+
+        it('should return cached economic indicator if available', async () => {
+            const mockIndicator = {
+                seriesId: 'GDP',
+                title: 'Gross Domestic Product',
+                units: 'Billions of Dollars',
+                frequency: 'Quarterly',
+                data: [{ date: '2024-01-01', value: 25000 }],
+                lastUpdated: new Date(),
+            };
+            cache.set('economic-indicator:GDP:all:all', mockIndicator, 24 * 60 * 60 * 1000);
+
+            const result = await serviceWithFRED.getEconomicIndicator('GDP');
+
+            expect(result.data).toEqual(mockIndicator);
+            expect(result.source).toBe('Cache');
+            expect(result.metadata).toContain('Found 1 cached data points');
+        });
+
+        it('should fetch economic indicator from FRED', async () => {
+            const mockIndicator = {
+                seriesId: 'GDP',
+                title: 'Gross Domestic Product',
+                units: 'Billions of Dollars',
+                frequency: 'Quarterly',
+                data: [{ date: '2024-01-01', value: 25000 }],
+                lastUpdated: new Date(),
+            };
+            vi.mocked(mockFREDProvider.getEconomicIndicator).mockResolvedValue(mockIndicator);
+
+            const result = await serviceWithFRED.getEconomicIndicator('GDP', '2024-01-01', '2024-12-31');
+
+            expect(result.data).toEqual(mockIndicator);
+            expect(result.source).toBe('FRED');
+            expect(result.metadata).toContain('Found 1 data points for Gross Domestic Product');
+            expect(mockFREDProvider.getEconomicIndicator).toHaveBeenCalledWith('GDP', '2024-01-01', '2024-12-31');
+        });
+
+        it('should throw error when no provider supports economic indicators', async () => {
+            await expect(service.getEconomicIndicator('GDP')).rejects.toThrow('No provider supports economic indicators');
+        });
+
+        it('should handle FRED errors gracefully', async () => {
+            vi.mocked(mockFREDProvider.getEconomicIndicator).mockRejectedValue(new Error('FRED API failed'));
+
+            await expect(serviceWithFRED.getEconomicIndicator('GDP')).rejects.toThrow('No provider supports economic indicators');
         });
     });
 });

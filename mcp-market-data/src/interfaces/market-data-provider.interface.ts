@@ -5,7 +5,7 @@
  * implementing this interface can be substituted for another.
  */
 
-import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
+import { CompanyInfo, EconomicIndicator, FinancialStatement, HistoricalDataPoint, Period, StatementType, StockQuote, SymbolSearchResult } from '../types.js';
 import { ExplainFundamentalResult, ComparePeersResult } from '../services/educational.service.js';
 
 export interface IMarketDataProvider {
@@ -55,6 +55,18 @@ export interface IMarketDataProvider {
      * Optional - not all providers support this
      */
     getNews?(symbol?: string, topic?: string): Promise<any[]>;
+
+    /**
+     * Get financial statements (income statement, balance sheet, cash flow)
+     * Optional - not all providers support this
+     */
+    getFinancialStatements?(symbol: string, statementType: StatementType, period?: 'annual' | 'quarter'): Promise<FinancialStatement[]>;
+
+    /**
+     * Get economic indicator data from FRED
+     * Optional - not all providers support this
+     */
+    getEconomicIndicator?(seriesId: string, startDate?: string, endDate?: string): Promise<EconomicIndicator>;
 }
 
 /**
@@ -82,5 +94,23 @@ export function supportsNews(provider: IMarketDataProvider): provider is IMarket
     getNews: (symbol?: string, topic?: string) => Promise<any[]>;
 } {
     return typeof provider.getNews === 'function';
+}
+
+/**
+ * Check if provider supports financial statements
+ */
+export function supportsFinancialStatements(provider: IMarketDataProvider): provider is IMarketDataProvider & {
+    getFinancialStatements: (symbol: string, statementType: StatementType, period?: 'annual' | 'quarter') => Promise<FinancialStatement[]>;
+} {
+    return typeof provider.getFinancialStatements === 'function';
+}
+
+/**
+ * Check if provider supports economic indicators
+ */
+export function supportsEconomicIndicators(provider: IMarketDataProvider): provider is IMarketDataProvider & {
+    getEconomicIndicator: (seriesId: string, startDate?: string, endDate?: string) => Promise<EconomicIndicator>;
+} {
+    return typeof provider.getEconomicIndicator === 'function';
 }
 

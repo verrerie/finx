@@ -10,9 +10,9 @@
 
 import { Cache } from '../cache.js';
 import { config } from '../config.js';
-import { IMarketDataProvider, supportsHistoricalData, supportsNews, supportsSymbolSearch } from '../interfaces/market-data-provider.interface.js';
+import { IMarketDataProvider, supportsEconomicIndicators, supportsFinancialStatements, supportsHistoricalData, supportsNews, supportsSymbolSearch } from '../interfaces/market-data-provider.interface.js';
 import { RateLimiter } from '../rate-limiter.js';
-import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
+import { CompanyInfo, EconomicIndicator, FinancialStatement, HistoricalDataPoint, Period, StatementType, StockQuote, SymbolSearchResult } from '../types.js';
 import { ComparePeersResult, EducationalService, ExplainFundamentalResult } from './educational.service.js';
 
 
@@ -49,6 +49,18 @@ export interface GetNewsResult {
     metadata: string;
 }
 
+export interface GetFinancialStatementsResult {
+    data: FinancialStatement[];
+    source: string;
+    metadata: string;
+}
+
+export interface GetEconomicIndicatorResult {
+    data: EconomicIndicator;
+    source: string;
+    metadata: string;
+}
+
 
 /**
  * Service for handling market data operations
@@ -60,14 +72,18 @@ export class MarketDataService {
         private cache: Cache,
         private rateLimiter: RateLimiter,
         private primaryProvider: IMarketDataProvider | null,
+        private financialModelingPrepProvider: IMarketDataProvider | null,
+        private fredProvider: IMarketDataProvider | null,
         private fallbackProvider: IMarketDataProvider
     ) {
-        this.educationalService = new EducationalService(this.cache, this.fallbackProvider, [this.primaryProvider, this.fallbackProvider].filter(p => p) as IMarketDataProvider[]);
+        const allProviders = [this.primaryProvider, this.financialModelingPrepProvider, this.fredProvider, this.fallbackProvider].filter(p => p) as IMarketDataProvider[];
+        this.educationalService = new EducationalService(this.cache, this.fallbackProvider, allProviders);
     }
 
     /**
      * Generic helper method to fetch data with caching and provider fallback.
      * Eliminates code duplication between getQuote and getCompanyInfo.
+     * Provider priority: Alpha Vantage → Yahoo Finance
      */
     private async fetchWithCacheAndFallback<T>(
         cacheKey: string,
@@ -86,7 +102,7 @@ export class MarketDataService {
             };
         }
 
-        // Try primary provider first (with rate limiting)
+        // Try primary provider (Alpha Vantage) with rate limiting
         if (this.primaryProvider) {
             try {
                 const data = await this.rateLimiter.execute(fetchFromPrimary);
@@ -104,11 +120,11 @@ export class MarketDataService {
                     rateLimitInfo,
                 };
             } catch (error) {
-                console.error(`${this.primaryProvider.name} failed, falling back to ${this.fallbackProvider.name}:`, error);
+                console.error(`${this.primaryProvider?.name || 'Primary provider'} failed, falling back to ${this.fallbackProvider.name}:`, error);
             }
         }
 
-        // Fallback provider
+        // Fallback provider (Yahoo Finance)
         const data = await fetchFromFallback();
         this.cache.set(cacheKey, data, cacheTtl);
 
@@ -152,6 +168,7 @@ export class MarketDataService {
 
     /**
      * Get historical data (uses provider with best support)
+     * Priority: Yahoo Finance
      */
     async getHistoricalData(symbol: string, period: Period = '1y'): Promise<GetHistoricalDataResult> {
         const upperSymbol = symbol.toUpperCase();
@@ -203,12 +220,13 @@ export class MarketDataService {
             };
         }
 
+        // Try Alpha Vantage
         if (this.primaryProvider && supportsNews(this.primaryProvider)) {
             try {
                 const news = await this.rateLimiter.execute(() =>
                     this.primaryProvider!.getNews!(symbol, topic)
                 );
-                this.cache.set(cacheKey, news, config.CACHE_TTL.NEWS); // Using quote TTL for news
+                this.cache.set(cacheKey, news, config.CACHE_TTL.NEWS);
 
                 const stats = this.rateLimiter.getStats();
                 return {
@@ -226,6 +244,85 @@ export class MarketDataService {
             source: 'N/A',
             metadata: 'No news provider available or an error occurred.',
         };
+    }
+
+    /**
+     * Get financial statements (income statement, balance sheet, cash flow)
+     * Uses Financial Modeling Prep as primary source
+     */
+    async getFinancialStatements(symbol: string, statementType: StatementType, period: 'annual' | 'quarter' = 'annual'): Promise<GetFinancialStatementsResult> {
+        const upperSymbol = symbol.toUpperCase();
+        const cacheKey = `financial-statements:${upperSymbol}:${statementType}:${period}`;
+
+        // Check cache first
+        const cached = this.cache.get<FinancialStatement[]>(cacheKey);
+        if (cached) {
+            return {
+                data: cached,
+                source: 'Cache',
+                metadata: `Found ${cached.length} cached statements`,
+            };
+        }
+
+        // Try Financial Modeling Prep first
+        if (this.financialModelingPrepProvider && supportsFinancialStatements(this.financialModelingPrepProvider)) {
+            try {
+                const statements = await this.rateLimiter.execute(() =>
+                    this.financialModelingPrepProvider!.getFinancialStatements!(upperSymbol, statementType, period)
+                );
+                this.cache.set(cacheKey, statements, config.CACHE_TTL_FINANCIAL_STATEMENTS);
+
+                const stats = this.rateLimiter.getStats();
+                return {
+                    data: statements,
+                    source: this.financialModelingPrepProvider.name,
+                    metadata: `Found ${statements.length} ${statementType} statements (${period}). API calls: ${stats.callsLastDay}/25 today`,
+                };
+            } catch (error) {
+                console.error(`${this.financialModelingPrepProvider.name} financial statements failed, trying fallback:`, error);
+            }
+        }
+
+        throw new Error(`No provider supports financial statements. Please set FMP_API_KEY environment variable.\n\nTip: Financial Modeling Prep provides comprehensive financial statements. Get your free API key at https://financialmodelingprep.com/developer/docs/`);
+    }
+
+    /**
+     * Get economic indicator data from FRED
+     * Uses FRED as primary source
+     */
+    async getEconomicIndicator(seriesId: string, startDate?: string, endDate?: string): Promise<GetEconomicIndicatorResult> {
+        const cacheKey = `economic-indicator:${seriesId}:${startDate || 'all'}:${endDate || 'all'}`;
+
+        // Check cache first
+        const cached = this.cache.get<EconomicIndicator>(cacheKey);
+        if (cached) {
+            return {
+                data: cached,
+                source: 'Cache',
+                metadata: `Found ${cached.data.length} cached data points`,
+            };
+        }
+
+        // Try FRED provider
+        if (this.fredProvider && supportsEconomicIndicators(this.fredProvider)) {
+            try {
+                const indicator = await this.rateLimiter.execute(() =>
+                    this.fredProvider!.getEconomicIndicator!(seriesId, startDate, endDate)
+                );
+                this.cache.set(cacheKey, indicator, config.CACHE_TTL_ECONOMIC_DATA);
+
+                const stats = this.rateLimiter.getStats();
+                return {
+                    data: indicator,
+                    source: this.fredProvider.name,
+                    metadata: `Found ${indicator.data.length} data points for ${indicator.title}. API calls: ${stats.callsLastDay}/25 today`,
+                };
+            } catch (error) {
+                console.error(`${this.fredProvider.name} economic indicator failed:`, error);
+            }
+        }
+
+        throw new Error(`No provider supports economic indicators. Please set FRED_API_KEY environment variable.\n\nTip: FRED provides comprehensive economic data. Get your free API key at https://fred.stlouisfed.org/docs/api/api_key.html`);
     }
 
     /**

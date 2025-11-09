@@ -45,19 +45,21 @@ export async function startMarketDataServer(server: Server, transport: StdioServ
     // Initialize dependencies
     const cache = new Cache();
     const rateLimiter = new RateLimiter(config.RATE_LIMITS.CALLS_PER_MINUTE, config.RATE_LIMITS.CALLS_PER_DAY);
-    const providers = createProviders(config.ENV.ALPHA_VANTAGE_API_KEY);
+    const providers = createProviders(config.ENV.ALPHA_VANTAGE_API_KEY, config.ENV.FMP_API_KEY, config.ENV.FRED_API_KEY);
 
     // Create services with injected dependencies
     const marketDataService = new MarketDataService(
         cache,
         rateLimiter,
         providers.primary,
+        providers.financialModelingPrep,
+        providers.fred,
         providers.fallback
     );
     const educationalService = new EducationalService(
         cache,
         providers.fallback,
-        [providers.primary, providers.fallback].filter(p => p) as any
+        [providers.primary, providers.financialModelingPrep, providers.fred, providers.fallback].filter(p => p) as any
     );
 
     // List available tools
@@ -165,6 +167,40 @@ export async function startMarketDataServer(server: Server, transport: StdioServ
                 case 'get_news': {
                     const { symbol, topic } = args as { symbol?: string; topic?: string };
                     const result = await marketDataService.getNews(symbol, topic);
+
+                    const text = JSON.stringify(result.data, null, 2) + `\n\n(${result.metadata})`;
+
+                    return {
+                        content: [{ type: 'text', text }],
+                    };
+                }
+
+                case 'get_financial_statements': {
+                    const { symbol, statementType, period } = args as {
+                        symbol: string;
+                        statementType: 'income' | 'balance' | 'cashflow';
+                        period?: 'annual' | 'quarter';
+                    };
+                    const result = await marketDataService.getFinancialStatements(
+                        symbol,
+                        statementType as any,
+                        period || 'annual'
+                    );
+
+                    const text = JSON.stringify(result.data, null, 2) + `\n\n(${result.metadata})`;
+
+                    return {
+                        content: [{ type: 'text', text }],
+                    };
+                }
+
+                case 'get_economic_indicator': {
+                    const { seriesId, startDate, endDate } = args as {
+                        seriesId: string;
+                        startDate?: string;
+                        endDate?: string;
+                    };
+                    const result = await marketDataService.getEconomicIndicator(seriesId, startDate, endDate);
 
                     const text = JSON.stringify(result.data, null, 2) + `\n\n(${result.metadata})`;
 
