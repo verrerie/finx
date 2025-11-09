@@ -109,6 +109,45 @@ describe('MarketDataService', () => {
             const cached = cache.get<StockQuote>('quote:AAPL');
             expect(cached).toEqual(mockQuote);
         });
+
+        it('should work without rate limiter if primary provider exists', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                { primary: null, financialModelingPrep: null, fred: null },
+                mockPrimaryProvider,
+                null,
+                null,
+                mockFallbackProvider
+            );
+
+            vi.mocked(mockPrimaryProvider.getQuote).mockResolvedValue(mockQuote);
+
+            const result = await serviceWithoutRateLimiter.getQuote('AAPL');
+
+            expect(result.data).toEqual(mockQuote);
+            expect(result.source).toBe('Mock Primary');
+            expect(result.cached).toBe(false);
+            expect(result.rateLimitInfo).toBeUndefined();
+        });
+
+        it('should fallback to fallback provider if primary fails without rate limiter', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                { primary: null, financialModelingPrep: null, fred: null },
+                mockPrimaryProvider,
+                null,
+                null,
+                mockFallbackProvider
+            );
+
+            vi.mocked(mockPrimaryProvider.getQuote).mockRejectedValue(new Error('Primary failed'));
+            vi.mocked(mockFallbackProvider.getQuote).mockResolvedValue(mockQuote);
+
+            const result = await serviceWithoutRateLimiter.getQuote('AAPL');
+
+            expect(result.data).toEqual(mockQuote);
+            expect(result.source).toBe('Mock Fallback');
+        });
     });
 
     describe('getCompanyInfo', () => {
