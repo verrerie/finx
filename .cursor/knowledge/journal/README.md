@@ -7,6 +7,11 @@ Document your stock analyses, investment decisions, and track outcomes to learn 
 - **Company Analysis**: `YYYY-MM-DD-[company]-analysis.md`
 - **Comparison**: `YYYY-MM-DD-[co1]-vs-[co2].md`
 - **Reflection**: `YYYY-MM-DD-[topic]-reflection.md`
+- **Market Event**: `YYYY-MM-DD-[event-description].md`
+  - Examples:
+    - `2025-11-08-tech-market-decline.md`
+    - `2025-10-20-ai-stock-surge.md`
+    - `2025-09-15-volatility-spike.md`
 
 ## Company Analysis Template
 
@@ -57,6 +62,64 @@ Document your stock analyses, investment decisions, and track outcomes to learn 
 ## Updates
 [Add as situation changes]
 ```
+
+## Market Event Template
+
+Use this template for documenting significant market movements or events (created automatically by `@sentiment.md` command):
+
+```markdown
+# [Event Title] - [Date Range]
+
+## Quick Summary
+- **Event**: [Brief description]
+- **Date Range**: [Start] to [End]
+- **Primary Impact**: [Sectors/assets affected]
+- **Magnitude**: [Key numbers]
+
+## The Numbers
+[Quantified data with tables/charts]
+
+## Root Causes
+[Detailed explanation of causes with evidence]
+
+## Market Impact
+[Immediate and broader implications]
+
+## Historical Context
+[Comparison to similar past events]
+
+## Different Perspectives
+[Bullish, bearish, balanced views]
+
+## What to Watch Next
+[Indicators, events, data to monitor]
+
+## Key Learnings
+[Educational takeaways]
+
+## Questions to Explore
+[Follow-up questions for deeper learning]
+
+## Follow-Up Actions
+- [ ] [Action items]
+
+## Updates
+[Add as situation evolves]
+```
+
+**When to Use:**
+- Significant market movements (drops, surges, volatility spikes)
+- Sector rotations or major shifts
+- Economic events affecting markets
+- Policy changes impacting markets
+- Major news events with market implications
+
+**Tips:**
+- Document events as they happen (or shortly after)
+- Include verified data, not speculation
+- Note multiple perspectives
+- Track follow-up actions
+- Update as situation evolves
 
 ## Tips
 
