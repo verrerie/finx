@@ -85,7 +85,6 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
 *   **Run integration tests:**
     ```bash
     pnpm test:e2e
-    pnpm test:market-data
     ```
 
 ## Development Conventions
@@ -98,4 +97,14 @@ The system is designed with a "Learn by Doing" philosophy, acting as an educatio
 *   **Branching Strategy:** Always create a new branch for any changes, no matter how small. This ensures a clean history and facilitates code reviews.
 *   **Pull Request Merging:** Always await explicit confirmation from the user before merging any pull requests.
 *   **AI Agent Configuration:** *The `.cursor/` directory centralizes configurations for the AI agent, including prompts, knowledge base, concepts, and a journal, enabling consistent agent behavior and knowledge management.*
+
+## Manual Checks
+
+Before considering work complete, open the PR in Chrome for manual review:
+
+*   **Open PR in browser:** Allow user to manually review changes in Chrome.
+    ```bash
+    open -a "Google Chrome" https://github.com/verrerie/finx/pull/<PR_NUMBER>
+    # Or use: gh pr view <PR_NUMBER> --web
+    ```
 

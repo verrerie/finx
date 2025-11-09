@@ -109,5 +109,54 @@ describe('RateLimiter', () => {
         expect(stats.callsLastMinute).toBe(0);
         expect(stats.callsLastDay).toBe(0); // Should be cleaned
     });
+
+    it('should wait and retry when rate limit is exceeded', async () => {
+        rateLimiter = new RateLimiter(2, 25); // Very low limit: 2 calls per minute
+        const mockFn = vi.fn().mockResolvedValue('result');
+
+        // Make 2 calls to fill the limit
+        const promise1 = rateLimiter.execute(mockFn);
+        const promise2 = rateLimiter.execute(mockFn);
+        await vi.runAllTimersAsync();
+        await promise1;
+        await promise2;
+
+        // Third call should wait
+        const promise3 = rateLimiter.execute(mockFn);
+        
+        // Advance time by 1 second (default wait time)
+        vi.advanceTimersByTime(1000);
+        
+        // Advance time by 61 seconds to clear the minute window
+        vi.advanceTimersByTime(61 * 1000);
+        
+        await vi.runAllTimersAsync();
+        await promise3;
+
+        expect(mockFn).toHaveBeenCalledTimes(3);
+    });
+
+    it('should calculate wait time when limit is exceeded', async () => {
+        rateLimiter = new RateLimiter(2, 25);
+        const mockFn = vi.fn().mockResolvedValue('result');
+
+        // Make 2 calls to fill the limit
+        const promise1 = rateLimiter.execute(mockFn);
+        const promise2 = rateLimiter.execute(mockFn);
+        await vi.runAllTimersAsync();
+        await promise1;
+        await promise2;
+
+        // Third call should wait
+        const promise3 = rateLimiter.execute(mockFn);
+        
+        // Advance time to clear the window
+        vi.advanceTimersByTime(62 * 1000);
+        
+        await vi.runAllTimersAsync();
+        await promise3;
+
+        expect(mockFn).toHaveBeenCalledTimes(3);
+    });
 });
 

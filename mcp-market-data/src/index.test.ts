@@ -18,8 +18,8 @@ describe('Market Data MCP Server', () => {
 
         // Mock Server and StdioServerTransport
         mockServer = new Server({ name: 'test', version: '1.0.0' }, {});
-        mockServer.connect = vi.fn().mockResolvedValue(undefined);
-        mockServer.setRequestHandler = vi.fn();
+        mockServer.connect = vi.fn(() => Promise.resolve(undefined));
+        mockServer.setRequestHandler = vi.fn(() => {});
 
         mockTransport = new StdioServerTransport();
 
@@ -46,20 +46,28 @@ describe('Market Data MCP Server', () => {
     vi.mock('./rate-limiter.js');
     vi.mock('./factories/provider.factory.js', () => ({
         createProviders: vi.fn(() => ({
-            primary: { getQuote: vi.fn(), getHistoricalData: vi.fn(), searchSymbol: vi.fn(), getCompanyInfo: vi.fn(), getSupportedMetrics: vi.fn(), getCompanyPeers: vi.fn() },
-            fallback: { getQuote: vi.fn(), getHistoricalData: vi.fn(), searchSymbol: vi.fn(), getCompanyInfo: vi.fn(), getSupportedMetrics: vi.fn(), getCompanyPeers: vi.fn() },
+            primary: { getQuote: vi.fn(() => Promise.resolve({})), getHistoricalData: vi.fn(() => Promise.resolve([])), searchSymbol: vi.fn(() => Promise.resolve([])), getCompanyInfo: vi.fn(() => Promise.resolve({})), getSupportedMetrics: vi.fn(() => Promise.resolve([])), getCompanyPeers: vi.fn(() => Promise.resolve([])) },
+            fallback: { getQuote: vi.fn(() => Promise.resolve({})), getHistoricalData: vi.fn(() => Promise.resolve([])), searchSymbol: vi.fn(() => Promise.resolve([])), getCompanyInfo: vi.fn(() => Promise.resolve({})), getSupportedMetrics: vi.fn(() => Promise.resolve([])), getCompanyPeers: vi.fn(() => Promise.resolve([])) },
         })),
     }));
     vi.mock('@modelcontextprotocol/sdk/server/index.js', () => ({
-        Server: vi.fn(() => mockServer),
-        StdioServerTransport: vi.fn(() => mockTransport),
+        Server: vi.fn(function Server() {
+            return mockServer;
+        }),
+        StdioServerTransport: vi.fn(function StdioServerTransport() {
+            return mockTransport;
+        }),
     }));
 
     vi.mock('./services/market-data.service.js', () => ({
-        MarketDataService: vi.fn(() => mockMarketDataService),
+        MarketDataService: vi.fn(function MarketDataService() {
+            return mockMarketDataService;
+        }),
     }));
     vi.mock('./services/educational.service.js', () => ({
-        EducationalService: vi.fn(() => mockEducationalService),
+        EducationalService: vi.fn(function EducationalService() {
+            return mockEducationalService;
+        }),
     }));
 
     vi.mock('./tools/tool-definitions.js', () => ({
@@ -102,7 +110,7 @@ describe('Market Data MCP Server', () => {
     // Mock dotenv config to prevent actual file loading
     vi.mock('dotenv', () => ({
         default: {
-            config: vi.fn(),
+            config: vi.fn(() => {}),
         },
     }));
 

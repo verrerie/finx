@@ -79,7 +79,7 @@ pnpm test
 
 Run integration tests:
 ```bash
-pnpm test:market-data    # Test market data server
+pnpm test:e2e    # End-to-end integration tests for MCP server
 ```
 
 Run tests with coverage:

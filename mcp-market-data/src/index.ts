@@ -1,6 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { readFileSync } from 'fs';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -16,6 +20,26 @@ import { EducationalService } from './services/educational.service.js';
 import { MarketDataService } from './services/market-data.service.js';
 import { TOOL_DEFINITIONS } from './tools/tool-definitions.js';
 import { Period } from './types.js';
+
+/**
+ * Reads the version from package.json lazily with proper error handling.
+ * Falls back to '0.0.0' if the file cannot be read.
+ */
+function getVersion(): string {
+    try {
+        // Resolve path relative to the compiled output location (dist/)
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = dirname(__filename);
+        // In dist/, we need to go up one level to find package.json
+        const packageJsonPath = resolve(__dirname, '../package.json');
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+        return packageJson.version || '0.0.0';
+    } catch (error) {
+        // If we can't read package.json, log a warning and use a fallback version
+        console.error('Warning: Could not read version from package.json, using fallback:', error);
+        return '0.0.0';
+    }
+}
 
 export async function startMarketDataServer(server: Server, transport: StdioServerTransport) {
     // Initialize dependencies
@@ -170,10 +194,13 @@ export async function startMarketDataServer(server: Server, transport: StdioServ
 
 // Start server
 async function main() {
+    // Read version lazily at runtime, not during module initialization
+    const version = getVersion();
+
     const server = new Server(
         {
             name: 'finx-market-data',
-            version: '0.2.0', // Bumped for SOLID refactoring
+            version,
         },
         {
             capabilities: {
@@ -184,7 +211,7 @@ async function main() {
     const transport = new StdioServerTransport();
     await startMarketDataServer(server, transport);
 
-    console.error('FinX Market Data MCP Server running (v0.2.0 - SOLID refactored)');
+    console.error(`FinX Market Data MCP Server running (v${version})`);
 }
 
 main().catch((error) => {

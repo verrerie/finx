@@ -5,13 +5,13 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev:market-data": "pnpm --filter mcp-market-data dev",
+        "dev:market-data": "pnpm --filter @finx/mcp-market-data dev",
         "build:market-data": "pnpm --filter @finx/mcp-market-data build",
         "build": "pnpm --recursive build",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage",
-        "test:market-data": "tsx test-market-data.ts",
+        "test:e2e": "tsx test-market-data.ts",
         "lint": "pnpm --recursive lint",
         "clean": "pnpm --recursive exec rm -rf dist node_modules",
         "install:all": "pnpm install"
@@ -27,17 +27,17 @@
     "author": "",
     "license": "MIT",
     "devDependencies": {
-        "@types/node": "^22.10.5",
+        "@types/node": "^24.10.0",
         "@typescript-eslint/eslint-plugin": "^8.46.3",
         "@typescript-eslint/parser": "^8.46.3",
-        "@vitest/coverage-v8": "^2.1.8",
-        "dotenv": "^16.4.7",
+        "@vitest/coverage-v8": "^4.0.8",
+        "dotenv": "^17.2.3",
         "eslint": "^9.39.1",
         "globals": "^16.5.0",
-        "tsx": "^4.19.2",
-        "typescript": "^5.7.2",
+        "tsx": "^4.20.6",
+        "typescript": "^5.9.3",
         "typescript-eslint": "^8.46.3",
-        "vitest": "^2.1.8"
+        "vitest": "^4.0.8"
     },
     "engines": {
         "node": ">=22.0.0",
