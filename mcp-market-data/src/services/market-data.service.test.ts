@@ -7,14 +7,22 @@ import { MarketDataService } from './market-data.service.js';
 
 describe('MarketDataService', () => {
     let cache: Cache;
-    let rateLimiter: RateLimiter;
+    let rateLimiters: {
+        primary: RateLimiter | null;
+        financialModelingPrep: RateLimiter | null;
+        fred: RateLimiter | null;
+    };
     let mockPrimaryProvider: IMarketDataProvider;
     let mockFallbackProvider: IMarketDataProvider;
     let service: MarketDataService;
 
     beforeEach(() => {
         cache = new Cache();
-        rateLimiter = new RateLimiter(5, 25);
+        rateLimiters = {
+            primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+            financialModelingPrep: null,
+            fred: null,
+        };
 
         // Mock providers
         mockPrimaryProvider = {
@@ -34,7 +42,7 @@ describe('MarketDataService', () => {
 
         service = new MarketDataService(
             cache,
-            rateLimiter,
+            rateLimiters,
             mockPrimaryProvider,
             null, // Financial Modeling Prep provider (not used in these tests)
             null, // FRED provider (not used in these tests)
@@ -100,6 +108,45 @@ describe('MarketDataService', () => {
 
             const cached = cache.get<StockQuote>('quote:AAPL');
             expect(cached).toEqual(mockQuote);
+        });
+
+        it('should work without rate limiter if primary provider exists', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                { primary: null, financialModelingPrep: null, fred: null },
+                mockPrimaryProvider,
+                null,
+                null,
+                mockFallbackProvider
+            );
+
+            vi.mocked(mockPrimaryProvider.getQuote).mockResolvedValue(mockQuote);
+
+            const result = await serviceWithoutRateLimiter.getQuote('AAPL');
+
+            expect(result.data).toEqual(mockQuote);
+            expect(result.source).toBe('Mock Primary');
+            expect(result.cached).toBe(false);
+            expect(result.rateLimitInfo).toBeUndefined();
+        });
+
+        it('should fallback to fallback provider if primary fails without rate limiter', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                { primary: null, financialModelingPrep: null, fred: null },
+                mockPrimaryProvider,
+                null,
+                null,
+                mockFallbackProvider
+            );
+
+            vi.mocked(mockPrimaryProvider.getQuote).mockRejectedValue(new Error('Primary failed'));
+            vi.mocked(mockFallbackProvider.getQuote).mockResolvedValue(mockQuote);
+
+            const result = await serviceWithoutRateLimiter.getQuote('AAPL');
+
+            expect(result.data).toEqual(mockQuote);
+            expect(result.source).toBe('Mock Fallback');
         });
     });
 
@@ -196,7 +243,7 @@ describe('MarketDataService', () => {
         it('should throw error if primary provider not available', async () => {
             const serviceWithoutPrimary = new MarketDataService(
                 cache,
-                rateLimiter,
+                { primary: null, financialModelingPrep: null, fred: null },
                 null,
                 null, // Financial Modeling Prep provider
                 null, // FRED provider
@@ -285,7 +332,7 @@ describe('MarketDataService', () => {
         it('should work with only fallback provider', async () => {
             const serviceWithoutPrimary = new MarketDataService(
                 cache,
-                rateLimiter,
+                { primary: null, financialModelingPrep: null, fred: null },
                 null,
                 null, // Financial Modeling Prep provider
                 null, // FRED provider
@@ -338,7 +385,7 @@ describe('MarketDataService', () => {
         it('should return empty array if primary provider is null', async () => {
             const serviceWithoutPrimary = new MarketDataService(
                 cache,
-                rateLimiter,
+                { primary: null, financialModelingPrep: null, fred: null },
                 null,
                 null, // Financial Modeling Prep provider
                 null, // FRED provider
@@ -373,6 +420,26 @@ describe('MarketDataService', () => {
             expect(result.source).toBe('N/A');
             expect(result.metadata).toContain('No news provider available');
         });
+
+        it('should work without rate limiter for getNews', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                { primary: null, financialModelingPrep: null, fred: null },
+                mockPrimaryProvider,
+                null,
+                null,
+                mockFallbackProvider
+            );
+
+            mockPrimaryProvider.supportsNews = () => true;
+            const mockNews: any[] = [{ title: 'Test News', url: 'https://example.com' }];
+            vi.mocked(mockPrimaryProvider.getNews).mockResolvedValue(mockNews);
+
+            const result = await serviceWithoutRateLimiter.getNews('AAPL');
+
+            expect(result.data).toEqual(mockNews);
+            expect(result.source).toBe('Mock Primary');
+        });
     });
 
     describe('getFinancialStatements', () => {
@@ -389,7 +456,11 @@ describe('MarketDataService', () => {
 
             serviceWithFMP = new MarketDataService(
                 cache,
-                rateLimiter,
+                {
+                    primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+                    financialModelingPrep: new RateLimiter({ callsPerDay: 250 }),
+                    fred: null,
+                },
                 mockPrimaryProvider,
                 mockFinancialModelingPrepProvider,
                 null, // FRED provider
@@ -433,6 +504,29 @@ describe('MarketDataService', () => {
 
             await expect(serviceWithFMP.getFinancialStatements('AAPL', StatementType.INCOME)).rejects.toThrow('No provider supports financial statements');
         });
+
+        it('should work without rate limiter for getFinancialStatements', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                {
+                    primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+                    financialModelingPrep: null,
+                    fred: null,
+                },
+                mockPrimaryProvider,
+                mockFinancialModelingPrepProvider,
+                null,
+                mockFallbackProvider
+            );
+
+            const mockStatements: any[] = [{ date: '2024-01-01', revenue: 1000 }];
+            vi.mocked(mockFinancialModelingPrepProvider.getFinancialStatements).mockResolvedValue(mockStatements);
+
+            const result = await serviceWithoutRateLimiter.getFinancialStatements('AAPL', StatementType.INCOME, 'annual');
+
+            expect(result.data).toEqual(mockStatements);
+            expect(result.source).toBe('Financial Modeling Prep');
+        });
     });
 
     describe('getEconomicIndicator', () => {
@@ -449,7 +543,11 @@ describe('MarketDataService', () => {
 
             serviceWithFRED = new MarketDataService(
                 cache,
-                rateLimiter,
+                {
+                    primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+                    financialModelingPrep: null,
+                    fred: new RateLimiter({ callsPerSecond: 10 }),
+                },
                 mockPrimaryProvider,
                 null, // Financial Modeling Prep provider
                 mockFREDProvider,
@@ -502,6 +600,32 @@ describe('MarketDataService', () => {
             vi.mocked(mockFREDProvider.getEconomicIndicator).mockRejectedValue(new Error('FRED API failed'));
 
             await expect(serviceWithFRED.getEconomicIndicator('GDP')).rejects.toThrow('No provider supports economic indicators');
+        });
+
+        it('should work without rate limiter for getEconomicIndicator', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                {
+                    primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+                    financialModelingPrep: null,
+                    fred: null,
+                },
+                mockPrimaryProvider,
+                null,
+                mockFREDProvider,
+                mockFallbackProvider
+            );
+
+            const mockIndicator: any = {
+                title: 'GDP',
+                data: [{ date: '2024-01-01', value: 1000 }],
+            };
+            vi.mocked(mockFREDProvider.getEconomicIndicator).mockResolvedValue(mockIndicator);
+
+            const result = await serviceWithoutRateLimiter.getEconomicIndicator('GDP', '2024-01-01', '2024-12-31');
+
+            expect(result.data).toEqual(mockIndicator);
+            expect(result.source).toBe('FRED');
         });
     });
 });

@@ -70,7 +70,11 @@ export class MarketDataService {
 
     constructor(
         private cache: Cache,
-        private rateLimiter: RateLimiter,
+        private rateLimiters: {
+            primary: RateLimiter | null;
+            financialModelingPrep: RateLimiter | null;
+            fred: RateLimiter | null;
+        },
         private primaryProvider: IMarketDataProvider | null,
         private financialModelingPrepProvider: IMarketDataProvider | null,
         private fredProvider: IMarketDataProvider | null,
@@ -103,21 +107,32 @@ export class MarketDataService {
         }
 
         // Try primary provider (Alpha Vantage) with rate limiting
-        if (this.primaryProvider) {
+        if (this.primaryProvider && this.rateLimiters.primary) {
             try {
-                const data = await this.rateLimiter.execute(fetchFromPrimary);
+                const data = await this.rateLimiters.primary.execute(fetchFromPrimary);
                 this.cache.set(cacheKey, data, cacheTtl);
 
-                const stats = this.rateLimiter.getStats();
-                const rateLimitInfo = includeMinuteStats
-                    ? `API calls: ${stats.callsLastDay}/25 today, ${stats.callsLastMinute}/5 this minute`
-                    : `API calls: ${stats.callsLastDay}/25 today`;
+                const stats = this.rateLimiters.primary.getStats();
+                const rateLimitInfo = this.formatRateLimitInfo(stats, 'primary', includeMinuteStats);
 
                 return {
                     data,
                     source: this.primaryProvider.name,
                     cached: false,
                     rateLimitInfo,
+                };
+            } catch (error) {
+                console.error(`${this.primaryProvider?.name || 'Primary provider'} failed, falling back to ${this.fallbackProvider.name}:`, error);
+            }
+        } else if (this.primaryProvider) {
+            // No rate limiter, try without rate limiting (shouldn't happen in production)
+            try {
+                const data = await fetchFromPrimary();
+                this.cache.set(cacheKey, data, cacheTtl);
+                return {
+                    data,
+                    source: this.primaryProvider.name,
+                    cached: false,
                 };
             } catch (error) {
                 console.error(`${this.primaryProvider?.name || 'Primary provider'} failed, falling back to ${this.fallbackProvider.name}:`, error);
@@ -192,16 +207,20 @@ export class MarketDataService {
     async searchSymbol(query: string): Promise<SearchSymbolResult> {
         // Alpha Vantage has better symbol search
         if (this.primaryProvider && supportsSymbolSearch(this.primaryProvider)) {
-            const results = await this.rateLimiter.execute(() =>
-                this.primaryProvider!.searchSymbol!(query)
-            );
+            const executeFn = this.rateLimiters.primary
+                ? () => this.rateLimiters.primary!.execute(() => this.primaryProvider!.searchSymbol!(query))
+                : () => this.primaryProvider!.searchSymbol!(query);
 
-            const stats = this.rateLimiter.getStats();
+            const results = await executeFn();
+
+            const stats = this.rateLimiters.primary?.getStats();
+            const rateLimitInfo = stats ? this.formatRateLimitInfo(stats, 'primary') : undefined;
+
             return {
                 data: results,
                 source: this.primaryProvider.name,
                 metadata: `Found ${results.length} matches`,
-                rateLimitInfo: `API calls: ${stats.callsLastDay}/25 today`,
+                rateLimitInfo,
             };
         }
 
@@ -223,16 +242,21 @@ export class MarketDataService {
         // Try Alpha Vantage
         if (this.primaryProvider && supportsNews(this.primaryProvider)) {
             try {
-                const news = await this.rateLimiter.execute(() =>
-                    this.primaryProvider!.getNews!(symbol, topic)
-                );
+                const executeFn = this.rateLimiters.primary
+                    ? () => this.rateLimiters.primary!.execute(() => this.primaryProvider!.getNews!(symbol, topic))
+                    : () => this.primaryProvider!.getNews!(symbol, topic);
+
+                const news = await executeFn();
                 this.cache.set(cacheKey, news, config.CACHE_TTL.NEWS);
 
-                const stats = this.rateLimiter.getStats();
+                const stats = this.rateLimiters.primary?.getStats();
+                const rateLimitInfo = stats ? this.formatRateLimitInfo(stats, 'primary') : undefined;
+                const metadata = `Found ${news.length} articles${rateLimitInfo ? `. ${rateLimitInfo}` : ''}`;
+
                 return {
                     data: news,
                     source: this.primaryProvider.name,
-                    metadata: `Found ${news.length} articles. API calls: ${stats.callsLastDay}/25 today`,
+                    metadata,
                 };
             } catch (error) {
                 console.error(`${this.primaryProvider.name} news failed:`, error);
@@ -267,15 +291,23 @@ export class MarketDataService {
         // Try Financial Modeling Prep first
         if (this.financialModelingPrepProvider && supportsFinancialStatements(this.financialModelingPrepProvider)) {
             try {
-                const statements = await this.rateLimiter.execute(() =>
-                    this.financialModelingPrepProvider!.getFinancialStatements!(upperSymbol, statementType, period)
-                );
+                const executeFn = this.rateLimiters.financialModelingPrep
+                    ? () => this.rateLimiters.financialModelingPrep!.execute(() =>
+                          this.financialModelingPrepProvider!.getFinancialStatements!(upperSymbol, statementType, period)
+                      )
+                    : () => this.financialModelingPrepProvider!.getFinancialStatements!(upperSymbol, statementType, period);
+
+                const statements = await executeFn();
                 this.cache.set(cacheKey, statements, config.CACHE_TTL_FINANCIAL_STATEMENTS);
+
+                const stats = this.rateLimiters.financialModelingPrep?.getStats();
+                const rateLimitInfo = stats ? this.formatRateLimitInfo(stats, 'financialModelingPrep') : undefined;
+                const metadata = `Found ${statements.length} ${statementType} statements (${period})${rateLimitInfo ? `. ${rateLimitInfo}` : ''}`;
 
                 return {
                     data: statements,
                     source: this.financialModelingPrepProvider.name,
-                    metadata: `Found ${statements.length} ${statementType} statements (${period})`,
+                    metadata,
                 };
             } catch (error) {
                 console.error(`${this.financialModelingPrepProvider.name} financial statements failed, trying fallback:`, error);
@@ -305,15 +337,23 @@ export class MarketDataService {
         // Try FRED provider
         if (this.fredProvider && supportsEconomicIndicators(this.fredProvider)) {
             try {
-                const indicator = await this.rateLimiter.execute(() =>
-                    this.fredProvider!.getEconomicIndicator!(seriesId, startDate, endDate)
-                );
+                const executeFn = this.rateLimiters.fred
+                    ? () => this.rateLimiters.fred!.execute(() =>
+                          this.fredProvider!.getEconomicIndicator!(seriesId, startDate, endDate)
+                      )
+                    : () => this.fredProvider!.getEconomicIndicator!(seriesId, startDate, endDate);
+
+                const indicator = await executeFn();
                 this.cache.set(cacheKey, indicator, config.CACHE_TTL_ECONOMIC_DATA);
+
+                const stats = this.rateLimiters.fred?.getStats();
+                const rateLimitInfo = stats ? this.formatRateLimitInfo(stats, 'fred') : undefined;
+                const metadata = `Found ${indicator.data.length} data points for ${indicator.title}${rateLimitInfo ? `. ${rateLimitInfo}` : ''}`;
 
                 return {
                     data: indicator,
                     source: this.fredProvider.name,
-                    metadata: `Found ${indicator.data.length} data points for ${indicator.title}`,
+                    metadata,
                 };
             } catch (error) {
                 console.error(`${this.fredProvider.name} economic indicator failed:`, error);
@@ -335,6 +375,63 @@ export class MarketDataService {
      */
     async comparePeers(symbol: string, sector?: string, metrics?: string[]): Promise<ComparePeersResult> {
         return this.educationalService.comparePeers(symbol, sector, metrics);
+    }
+
+    /**
+     * Format rate limit information for display
+     * 
+     * @param stats - Rate limiter statistics
+     * @param providerType - Type of provider to determine which limits to display ('primary' | 'financialModelingPrep' | 'fred')
+     * @param includeMinuteStats - Whether to include per-minute statistics (for primary provider)
+     * @returns Formatted rate limit information string
+     */
+    private formatRateLimitInfo(
+        stats: {
+            callsLastSecond?: number;
+            callsLastMinute?: number;
+            callsLastDay?: number;
+            callsLastMonth?: number;
+        },
+        providerType: 'primary' | 'financialModelingPrep' | 'fred',
+        includeMinuteStats: boolean = false
+    ): string {
+        const parts: string[] = [];
+
+        // Get the appropriate rate limit config based on provider type
+        let rateLimitConfig: typeof config.RATE_LIMIT_CONFIGS.ALPHA_VANTAGE;
+        switch (providerType) {
+            case 'primary':
+                rateLimitConfig = config.RATE_LIMIT_CONFIGS.ALPHA_VANTAGE;
+                break;
+            case 'financialModelingPrep':
+                rateLimitConfig = config.RATE_LIMIT_CONFIGS.FINANCIAL_MODELING_PREP;
+                break;
+            case 'fred':
+                rateLimitConfig = config.RATE_LIMIT_CONFIGS.FRED;
+                break;
+        }
+
+        // Format per-second limit (FRED only)
+        if (stats.callsLastSecond !== undefined && rateLimitConfig.callsPerSecond !== undefined) {
+            parts.push(`${stats.callsLastSecond}/${rateLimitConfig.callsPerSecond} this second`);
+        }
+
+        // Format per-minute limit (Alpha Vantage only, when requested)
+        if (includeMinuteStats && stats.callsLastMinute !== undefined && rateLimitConfig.callsPerMinute !== undefined) {
+            parts.push(`${stats.callsLastMinute}/${rateLimitConfig.callsPerMinute} this minute`);
+        }
+
+        // Format per-day limit
+        if (stats.callsLastDay !== undefined && rateLimitConfig.callsPerDay !== undefined) {
+            parts.push(`${stats.callsLastDay}/${rateLimitConfig.callsPerDay} today`);
+        }
+
+        // Format per-month limit (IEX Cloud only)
+        if (stats.callsLastMonth !== undefined && rateLimitConfig.callsPerMonth !== undefined) {
+            parts.push(`${stats.callsLastMonth}/${rateLimitConfig.callsPerMonth} this month`);
+        }
+
+        return parts.length > 0 ? `API calls: ${parts.join(', ')}` : '';
     }
 
 }
