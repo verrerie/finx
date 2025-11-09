@@ -154,7 +154,7 @@ describe('Provider Factory', () => {
         it('should handle provider initialization errors gracefully', () => {
             // Mock provider constructors to throw errors
             const originalError = console.error;
-            const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
             // This will test the error handling paths
             const config = createProviders('invalid-key', 'invalid-fmp-key', 'invalid-fred-key');
