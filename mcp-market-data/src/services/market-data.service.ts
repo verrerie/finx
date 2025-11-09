@@ -10,10 +10,10 @@
 
 import { Cache } from '../cache.js';
 import { config } from '../config.js';
-import { IMarketDataProvider, supportsHistoricalData, supportsSymbolSearch, supportsNews } from '../interfaces/market-data-provider.interface.js';
+import { IMarketDataProvider, supportsHistoricalData, supportsNews, supportsSymbolSearch } from '../interfaces/market-data-provider.interface.js';
 import { RateLimiter } from '../rate-limiter.js';
 import { CompanyInfo, HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
-import { EducationalService, ExplainFundamentalResult, ComparePeersResult } from './educational.service.js';
+import { ComparePeersResult, EducationalService, ExplainFundamentalResult } from './educational.service.js';
 
 
 export interface GetQuoteResult {
