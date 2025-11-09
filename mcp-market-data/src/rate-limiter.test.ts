@@ -18,7 +18,7 @@ describe('RateLimiter', () => {
     });
 
     it('should execute function and track call', async () => {
-        rateLimiter = new RateLimiter(5, 25);
+        rateLimiter = new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 });
         const mockFn = vi.fn().mockResolvedValue('result');
 
         const promise = rateLimiter.execute(mockFn);
@@ -34,7 +34,7 @@ describe('RateLimiter', () => {
     });
 
     it('should allow multiple calls within limits', async () => {
-        rateLimiter = new RateLimiter(5, 25);
+        rateLimiter = new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 });
         const mockFn = vi.fn().mockResolvedValue('result');
 
         const promises = [
@@ -55,7 +55,7 @@ describe('RateLimiter', () => {
     });
 
     it('should handle errors from executed function', async () => {
-        rateLimiter = new RateLimiter(5, 25);
+        rateLimiter = new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 });
         const mockFn = vi.fn().mockRejectedValue(new Error('test error'));
 
         // Attach error handler immediately to prevent unhandled rejection
@@ -77,7 +77,7 @@ describe('RateLimiter', () => {
     });
 
     it('should clean old timestamps in getStats', async () => {
-        rateLimiter = new RateLimiter(5, 25);
+        rateLimiter = new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 });
         const mockFn = vi.fn().mockResolvedValue('result');
 
         // Make a call
@@ -94,7 +94,7 @@ describe('RateLimiter', () => {
     });
 
     it('should clean timestamps older than 24 hours', async () => {
-        rateLimiter = new RateLimiter(5, 25);
+        rateLimiter = new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 });
         const mockFn = vi.fn().mockResolvedValue('result');
 
         // Make a call
@@ -111,7 +111,7 @@ describe('RateLimiter', () => {
     });
 
     it('should wait and retry when rate limit is exceeded', async () => {
-        rateLimiter = new RateLimiter(2, 25); // Very low limit: 2 calls per minute
+        rateLimiter = new RateLimiter({ callsPerMinute: 2, callsPerDay: 25 }); // Very low limit: 2 calls per minute
         const mockFn = vi.fn().mockResolvedValue('result');
 
         // Make 2 calls to fill the limit
@@ -137,7 +137,7 @@ describe('RateLimiter', () => {
     });
 
     it('should calculate wait time when limit is exceeded', async () => {
-        rateLimiter = new RateLimiter(2, 25);
+        rateLimiter = new RateLimiter({ callsPerMinute: 2, callsPerDay: 25 });
         const mockFn = vi.fn().mockResolvedValue('result');
 
         // Make 2 calls to fill the limit
@@ -166,6 +166,16 @@ describe('RateLimiter', () => {
                 callsPerDay: 25,
             };
             rateLimiter = new RateLimiter(config);
+            const stats = rateLimiter.getStats();
+
+            expect(stats.callsLastMinute).toBe(0);
+            expect(stats.callsLastDay).toBe(0);
+        });
+
+        it('should support backward compatibility with two-argument constructor', () => {
+            // Test backward compatibility path using type assertion to bypass TypeScript
+            // This covers the backward compatibility code in the constructor
+            rateLimiter = new (RateLimiter as any)(5, 25);
             const stats = rateLimiter.getStats();
 
             expect(stats.callsLastMinute).toBe(0);

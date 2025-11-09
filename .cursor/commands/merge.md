@@ -255,8 +255,8 @@ git add -A
 git commit -m "fix: resolve linting issues"
 git push
 
-# 4. Check CI (wait 30s)
-sleep 30
+# 4. Check CI (wait 60s)
+sleep 60
 gh pr checks 28
 
 # 5. Merge if all checks pass
