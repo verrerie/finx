@@ -172,6 +172,16 @@ describe('RateLimiter', () => {
             expect(stats.callsLastDay).toBe(0);
         });
 
+        it('should support backward compatibility with two-argument constructor', () => {
+            // Test backward compatibility path using type assertion to bypass TypeScript
+            // This covers the backward compatibility code in the constructor
+            rateLimiter = new (RateLimiter as any)(5, 25);
+            const stats = rateLimiter.getStats();
+
+            expect(stats.callsLastMinute).toBe(0);
+            expect(stats.callsLastDay).toBe(0);
+        });
+
         it('should support per-second limits', async () => {
             const config: RateLimiterConfig = {
                 callsPerSecond: 2,
