@@ -19,7 +19,7 @@ export interface ProviderConfig {
     fallback: IMarketDataProvider;
 }
 
-export interface RateLimiterConfig {
+export interface ProviderRateLimiters {
     primary: RateLimiter | null;
     financialModelingPrep: RateLimiter | null;
     fred: RateLimiter | null;
@@ -90,7 +90,7 @@ export function createRateLimiters(
     alphaVantageApiKey?: string,
     fmpApiKey?: string,
     fredApiKey?: string
-): RateLimiterConfig {
+): ProviderRateLimiters {
     return {
         primary: alphaVantageApiKey
             ? createRateLimiter(config.RATE_LIMIT_CONFIGS.ALPHA_VANTAGE)
