@@ -420,6 +420,26 @@ describe('MarketDataService', () => {
             expect(result.source).toBe('N/A');
             expect(result.metadata).toContain('No news provider available');
         });
+
+        it('should work without rate limiter for getNews', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                { primary: null, financialModelingPrep: null, fred: null },
+                mockPrimaryProvider,
+                null,
+                null,
+                mockFallbackProvider
+            );
+
+            mockPrimaryProvider.supportsNews = () => true;
+            const mockNews: any[] = [{ title: 'Test News', url: 'https://example.com' }];
+            vi.mocked(mockPrimaryProvider.getNews).mockResolvedValue(mockNews);
+
+            const result = await serviceWithoutRateLimiter.getNews('AAPL');
+
+            expect(result.data).toEqual(mockNews);
+            expect(result.source).toBe('Mock Primary');
+        });
     });
 
     describe('getFinancialStatements', () => {
@@ -483,6 +503,29 @@ describe('MarketDataService', () => {
             vi.mocked(mockFinancialModelingPrepProvider.getFinancialStatements).mockRejectedValue(new Error('FMP API failed'));
 
             await expect(serviceWithFMP.getFinancialStatements('AAPL', StatementType.INCOME)).rejects.toThrow('No provider supports financial statements');
+        });
+
+        it('should work without rate limiter for getFinancialStatements', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                {
+                    primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+                    financialModelingPrep: null,
+                    fred: null,
+                },
+                mockPrimaryProvider,
+                mockFinancialModelingPrepProvider,
+                null,
+                mockFallbackProvider
+            );
+
+            const mockStatements: any[] = [{ date: '2024-01-01', revenue: 1000 }];
+            vi.mocked(mockFinancialModelingPrepProvider.getFinancialStatements).mockResolvedValue(mockStatements);
+
+            const result = await serviceWithoutRateLimiter.getFinancialStatements('AAPL', StatementType.INCOME, 'annual');
+
+            expect(result.data).toEqual(mockStatements);
+            expect(result.source).toBe('Financial Modeling Prep');
         });
     });
 
@@ -557,6 +600,32 @@ describe('MarketDataService', () => {
             vi.mocked(mockFREDProvider.getEconomicIndicator).mockRejectedValue(new Error('FRED API failed'));
 
             await expect(serviceWithFRED.getEconomicIndicator('GDP')).rejects.toThrow('No provider supports economic indicators');
+        });
+
+        it('should work without rate limiter for getEconomicIndicator', async () => {
+            const serviceWithoutRateLimiter = new MarketDataService(
+                cache,
+                {
+                    primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+                    financialModelingPrep: null,
+                    fred: null,
+                },
+                mockPrimaryProvider,
+                null,
+                mockFREDProvider,
+                mockFallbackProvider
+            );
+
+            const mockIndicator: any = {
+                title: 'GDP',
+                data: [{ date: '2024-01-01', value: 1000 }],
+            };
+            vi.mocked(mockFREDProvider.getEconomicIndicator).mockResolvedValue(mockIndicator);
+
+            const result = await serviceWithoutRateLimiter.getEconomicIndicator('GDP', '2024-01-01', '2024-12-31');
+
+            expect(result.data).toEqual(mockIndicator);
+            expect(result.source).toBe('FRED');
         });
     });
 });
