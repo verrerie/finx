@@ -258,7 +258,6 @@ describe('RateLimiter', () => {
             // Cancel the second promise to avoid infinite loop
             promise2.catch(() => { });
         });
-
     });
 });
 
