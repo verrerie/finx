@@ -237,6 +237,27 @@ describe('RateLimiter', () => {
             expect(stats.callsLastMinute).toBe(0);
             expect(stats.callsLastDay).toBe(0);
         });
+
+        it('should block calls when per-month limit is exceeded', async () => {
+            const config: RateLimiterConfig = {
+                callsPerMonth: 1,
+            };
+            rateLimiter = new RateLimiter(config);
+            const mockFn = vi.fn().mockResolvedValue('result');
+
+            // Make first call
+            const promise1 = rateLimiter.execute(mockFn);
+            await vi.runAllTimersAsync();
+            await promise1;
+
+            // Second call should be blocked
+            const promise2 = rateLimiter.execute(mockFn);
+            await vi.runAllTimersAsync();
+            await promise2;
+
+            expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+
     });
 });
 
