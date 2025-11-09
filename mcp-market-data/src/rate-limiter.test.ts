@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { RateLimiter } from './rate-limiter.js';
+import { createRateLimiter, RateLimiter, RateLimiterConfig } from './rate-limiter.js';
 
 describe('RateLimiter', () => {
     let rateLimiter: RateLimiter;
@@ -13,8 +13,8 @@ describe('RateLimiter', () => {
         rateLimiter = new RateLimiter();
         const stats = rateLimiter.getStats();
 
-        expect(stats.callsLastMinute).toBe(0);
-        expect(stats.callsLastDay).toBe(0);
+        // With no config, stats will be empty object
+        expect(stats).toEqual({});
     });
 
     it('should execute function and track call', async () => {
@@ -157,6 +157,86 @@ describe('RateLimiter', () => {
         await promise3;
 
         expect(mockFn).toHaveBeenCalledTimes(3);
+    });
+
+    describe('Config-based rate limiter', () => {
+        it('should create rate limiter with config object', () => {
+            const config: RateLimiterConfig = {
+                callsPerMinute: 5,
+                callsPerDay: 25,
+            };
+            rateLimiter = new RateLimiter(config);
+            const stats = rateLimiter.getStats();
+
+            expect(stats.callsLastMinute).toBe(0);
+            expect(stats.callsLastDay).toBe(0);
+        });
+
+        it('should support per-second limits', async () => {
+            const config: RateLimiterConfig = {
+                callsPerSecond: 2,
+            };
+            rateLimiter = new RateLimiter(config);
+            const mockFn = vi.fn().mockResolvedValue('result');
+
+            // Make 2 calls to fill the limit
+            const promise1 = rateLimiter.execute(mockFn);
+            const promise2 = rateLimiter.execute(mockFn);
+            await vi.runAllTimersAsync();
+            await promise1;
+            await promise2;
+
+            const stats = rateLimiter.getStats();
+            expect(stats.callsLastSecond).toBe(2);
+            expect(mockFn).toHaveBeenCalledTimes(2);
+        });
+
+        it('should support per-month limits', async () => {
+            const config: RateLimiterConfig = {
+                callsPerMonth: 1000,
+            };
+            rateLimiter = new RateLimiter(config);
+            const mockFn = vi.fn().mockResolvedValue('result');
+
+            const promise = rateLimiter.execute(mockFn);
+            await vi.runAllTimersAsync();
+            await promise;
+
+            const stats = rateLimiter.getStats();
+            expect(stats.callsLastMonth).toBe(1);
+            expect(mockFn).toHaveBeenCalledTimes(1);
+        });
+
+        it('should support multiple limit types', async () => {
+            const config: RateLimiterConfig = {
+                callsPerSecond: 10,
+                callsPerMinute: 5,
+                callsPerDay: 25,
+            };
+            rateLimiter = new RateLimiter(config);
+            const mockFn = vi.fn().mockResolvedValue('result');
+
+            const promise = rateLimiter.execute(mockFn);
+            await vi.runAllTimersAsync();
+            await promise;
+
+            const stats = rateLimiter.getStats();
+            expect(stats.callsLastSecond).toBe(1);
+            expect(stats.callsLastMinute).toBe(1);
+            expect(stats.callsLastDay).toBe(1);
+        });
+
+        it('should use factory function', () => {
+            const config: RateLimiterConfig = {
+                callsPerMinute: 5,
+                callsPerDay: 25,
+            };
+            rateLimiter = createRateLimiter(config);
+            const stats = rateLimiter.getStats();
+
+            expect(stats.callsLastMinute).toBe(0);
+            expect(stats.callsLastDay).toBe(0);
+        });
     });
 });
 

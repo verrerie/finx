@@ -47,7 +47,14 @@ describe('Market Data MCP Server', () => {
     vi.mock('./factories/provider.factory.js', () => ({
         createProviders: vi.fn(() => ({
             primary: { getQuote: vi.fn(() => Promise.resolve({})), getHistoricalData: vi.fn(() => Promise.resolve([])), searchSymbol: vi.fn(() => Promise.resolve([])), getCompanyInfo: vi.fn(() => Promise.resolve({})), getSupportedMetrics: vi.fn(() => Promise.resolve([])), getCompanyPeers: vi.fn(() => Promise.resolve([])) },
+            financialModelingPrep: null,
+            fred: null,
             fallback: { getQuote: vi.fn(() => Promise.resolve({})), getHistoricalData: vi.fn(() => Promise.resolve([])), searchSymbol: vi.fn(() => Promise.resolve([])), getCompanyInfo: vi.fn(() => Promise.resolve({})), getSupportedMetrics: vi.fn(() => Promise.resolve([])), getCompanyPeers: vi.fn(() => Promise.resolve([])) },
+        })),
+        createRateLimiters: vi.fn(() => ({
+            primary: { execute: vi.fn((fn) => fn()), getStats: vi.fn(() => ({ callsLastMinute: 0, callsLastDay: 0 })) },
+            financialModelingPrep: null,
+            fred: null,
         })),
     }));
     vi.mock('@modelcontextprotocol/sdk/server/index.js', () => ({

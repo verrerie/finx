@@ -7,14 +7,22 @@ import { MarketDataService } from './market-data.service.js';
 
 describe('MarketDataService', () => {
     let cache: Cache;
-    let rateLimiter: RateLimiter;
+    let rateLimiters: {
+        primary: RateLimiter | null;
+        financialModelingPrep: RateLimiter | null;
+        fred: RateLimiter | null;
+    };
     let mockPrimaryProvider: IMarketDataProvider;
     let mockFallbackProvider: IMarketDataProvider;
     let service: MarketDataService;
 
     beforeEach(() => {
         cache = new Cache();
-        rateLimiter = new RateLimiter(5, 25);
+        rateLimiters = {
+            primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+            financialModelingPrep: null,
+            fred: null,
+        };
 
         // Mock providers
         mockPrimaryProvider = {
@@ -34,7 +42,7 @@ describe('MarketDataService', () => {
 
         service = new MarketDataService(
             cache,
-            rateLimiter,
+            rateLimiters,
             mockPrimaryProvider,
             null, // Financial Modeling Prep provider (not used in these tests)
             null, // FRED provider (not used in these tests)
@@ -196,7 +204,7 @@ describe('MarketDataService', () => {
         it('should throw error if primary provider not available', async () => {
             const serviceWithoutPrimary = new MarketDataService(
                 cache,
-                rateLimiter,
+                { primary: null, financialModelingPrep: null, fred: null },
                 null,
                 null, // Financial Modeling Prep provider
                 null, // FRED provider
@@ -285,7 +293,7 @@ describe('MarketDataService', () => {
         it('should work with only fallback provider', async () => {
             const serviceWithoutPrimary = new MarketDataService(
                 cache,
-                rateLimiter,
+                { primary: null, financialModelingPrep: null, fred: null },
                 null,
                 null, // Financial Modeling Prep provider
                 null, // FRED provider
@@ -338,7 +346,7 @@ describe('MarketDataService', () => {
         it('should return empty array if primary provider is null', async () => {
             const serviceWithoutPrimary = new MarketDataService(
                 cache,
-                rateLimiter,
+                { primary: null, financialModelingPrep: null, fred: null },
                 null,
                 null, // Financial Modeling Prep provider
                 null, // FRED provider
@@ -389,7 +397,11 @@ describe('MarketDataService', () => {
 
             serviceWithFMP = new MarketDataService(
                 cache,
-                rateLimiter,
+                {
+                    primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+                    financialModelingPrep: new RateLimiter({ callsPerDay: 250 }),
+                    fred: null,
+                },
                 mockPrimaryProvider,
                 mockFinancialModelingPrepProvider,
                 null, // FRED provider
@@ -449,7 +461,11 @@ describe('MarketDataService', () => {
 
             serviceWithFRED = new MarketDataService(
                 cache,
-                rateLimiter,
+                {
+                    primary: new RateLimiter({ callsPerMinute: 5, callsPerDay: 25 }),
+                    financialModelingPrep: null,
+                    fred: new RateLimiter({ callsPerSecond: 10 }),
+                },
                 mockPrimaryProvider,
                 null, // Financial Modeling Prep provider
                 mockFREDProvider,

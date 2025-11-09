@@ -14,8 +14,7 @@ import {
 
 import { Cache } from './cache.js';
 import { config } from './config.js';
-import { createProviders } from './factories/provider.factory.js';
-import { RateLimiter } from './rate-limiter.js';
+import { createProviders, createRateLimiters } from './factories/provider.factory.js';
 import { EducationalService } from './services/educational.service.js';
 import { MarketDataService } from './services/market-data.service.js';
 import { TOOL_DEFINITIONS } from './tools/tool-definitions.js';
@@ -44,13 +43,13 @@ function getVersion(): string {
 export async function startMarketDataServer(server: Server, transport: StdioServerTransport) {
     // Initialize dependencies
     const cache = new Cache();
-    const rateLimiter = new RateLimiter(config.RATE_LIMITS.CALLS_PER_MINUTE, config.RATE_LIMITS.CALLS_PER_DAY);
     const providers = createProviders(config.ENV.ALPHA_VANTAGE_API_KEY, config.ENV.FMP_API_KEY, config.ENV.FRED_API_KEY);
+    const rateLimiters = createRateLimiters(config.ENV.ALPHA_VANTAGE_API_KEY, config.ENV.FMP_API_KEY, config.ENV.FRED_API_KEY);
 
     // Create services with injected dependencies
     const marketDataService = new MarketDataService(
         cache,
-        rateLimiter,
+        rateLimiters,
         providers.primary,
         providers.financialModelingPrep,
         providers.fred,
