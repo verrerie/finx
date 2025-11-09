@@ -66,7 +66,7 @@ This command guides the AI agent through a comprehensive analysis of significant
    - Ask user for clarification: date range, companies/sectors, or what aspect to understand
 
 **Tool Usage:**
-- Use `web_search` tool (not bash command)
+- Use `web_search()` (not bash command)
 - Pass search query as string parameter: `web_search("query string")`
 - Use MCP tools only if search doesn't provide needed data
 

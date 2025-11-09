@@ -2,12 +2,45 @@
 
 This command guides the AI agent through the complete PR merge workflow.
 
+## Core Principles
+
+**Safety First**
+- Never merge without review - Always review changes first
+- Never merge failing CI - Wait for all checks to pass
+- Always verify before merging - Check that all requirements are met
+
+**Repository Policy**
+- Always use squash merge - Repository policy requires squash merges
+- Always delete branch - Use `--delete-branch` flag
+- Follow Conventional Commits - Use proper commit message format
+
+**Workflow Integrity**
+- Verify after merge - Check that merge was successful
+- Fix issues before proceeding - Don't skip verification steps
+- Follow the complete workflow - Don't skip steps
+
 ## Workflow Steps
 
 ### 1. Review Changes
 
-Before merging, thoroughly review all changes:
+**Action Required:**
 
+1. **Review All Changes:**
+   - Check current branch and status
+   - Review the diff against main
+   - Review commit history
+   - Check for any uncommitted changes
+
+2. **Verify Changes:**
+   - Ensure all changes are intentional and correct
+   - Verify no debug code or console.logs left behind
+   - Confirm no commented-out code
+   - Check code follows project conventions
+
+**Tool Usage:**
+- Use bash commands for git operations
+
+**Example Commands:**
 ```bash
 # Check current branch and status
 git status
@@ -32,20 +65,34 @@ git status --porcelain
 
 ### 2. Fix or Improve if Necessary
 
-If issues are found during review:
+**Action Required:**
 
-1. **Fix the issues** - Make necessary corrections
-2. **Review again** - Re-check the changes
-3. **Repeat** until all issues are resolved
+1. **Fix Issues:**
+   - Make necessary corrections
+   - Run linter and fix issues
+   - Run tests and fix failures
+   - Fix type errors
+   - Update documentation if needed
 
-**Common fixes:**
-- Run linter and fix issues: `pnpm lint`
-- Run tests and fix failures: `pnpm test`
-- Fix type errors: `pnpm build`
-- Update documentation if needed
+2. **Verify Fixes:**
+   - Re-check the changes
+   - Ensure all checks pass
+   - Repeat until all issues are resolved
 
-**Verification:**
+**Tool Usage:**
+- Use bash commands for test/lint/build operations
+
+**Example Commands:**
 ```bash
+# Run linter and fix issues
+pnpm lint
+
+# Run tests and fix failures
+pnpm test
+
+# Fix type errors
+pnpm build
+
 # Ensure everything passes before proceeding
 pnpm lint
 pnpm test
@@ -54,8 +101,24 @@ pnpm build
 
 ### 3. Commit and Push
 
-Once all changes are reviewed and verified:
+**Action Required:**
 
+1. **Stage Changes:**
+   - Stage all changes for commit
+
+2. **Commit Changes:**
+   - Commit with descriptive message following Conventional Commits format
+   - Use appropriate type: `fix:`, `feat:`, `refactor:`, `test:`, `docs:`, etc.
+   - Include clear description
+   - Add bullet points for multiple changes
+
+3. **Push to Remote:**
+   - Push to remote branch
+
+**Tool Usage:**
+- Use bash commands for git operations
+
+**Example Commands:**
 ```bash
 # Stage all changes
 git add -A
@@ -79,8 +142,22 @@ git push
 
 ### 4. Check CI Status
 
-After pushing, wait 30 seconds then check CI status:
+**Action Required:**
 
+1. **Wait for CI to Start:**
+   - Wait at least 30 seconds after push
+   - Allow CI time to initialize
+
+2. **Check CI Status:**
+   - Check CI status for the PR
+   - Verify all checks are passing (or at least started)
+   - If checks are still pending, wait longer and check again
+   - If checks fail, fix issues and repeat from step 2
+
+**Tool Usage:**
+- Use bash commands for GitHub CLI operations
+
+**Example Commands:**
 ```bash
 # Wait 30 seconds for CI to start
 sleep 30
@@ -100,14 +177,40 @@ gh pr view <PR_NUMBER> --json statusCheckRollup --jq '.statusCheckRollup[] | {na
 
 ### 5. Squash Merge to Main
 
-If everything is fine (all checks passing, code reviewed, tests passing):
+**Action Required:**
 
+1. **Verify Pre-merge Requirements:**
+   - All CI checks are passing
+   - PR is mergeable (no conflicts)
+   - All tests pass locally
+   - Code review is complete
+   - No blocking issues
+
+2. **Perform Squash Merge:**
+   - Verify PR is mergeable
+   - Squash merge and delete branch
+
+3. **Verify Merge:**
+   - Update local main branch
+   - Verify merge was successful
+
+**Tool Usage:**
+- Use bash commands for git and GitHub CLI operations
+
+**Example Commands:**
 ```bash
 # Verify PR is mergeable
 gh pr view <PR_NUMBER> --json mergeable,mergeStateStatus
 
 # Squash merge and delete branch
 gh pr merge <PR_NUMBER> --squash --delete-branch
+
+# Update local main branch
+git checkout main
+git pull origin main
+
+# Verify merge was successful
+git log --oneline -5
 ```
 
 **Pre-merge Verification:**
@@ -117,16 +220,6 @@ gh pr merge <PR_NUMBER> --squash --delete-branch
 - [ ] Code review is complete
 - [ ] No blocking issues
 
-**After Merge:**
-```bash
-# Update local main branch
-git checkout main
-git pull origin main
-
-# Verify merge was successful
-git log --oneline -5
-```
-
 ## Important Notes
 
 - **Never merge without review** - Always review changes first
@@ -134,6 +227,7 @@ git log --oneline -5
 - **Always use squash merge** - Repository policy requires squash merges
 - **Always delete branch** - Use `--delete-branch` flag
 - **Verify after merge** - Check that merge was successful
+- **Follow the complete workflow** - Don't skip verification steps
 
 ## Error Handling
 
