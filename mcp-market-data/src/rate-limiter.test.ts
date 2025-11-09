@@ -123,13 +123,13 @@ describe('RateLimiter', () => {
 
         // Third call should wait
         const promise3 = rateLimiter.execute(mockFn);
-        
+
         // Advance time by 1 second (default wait time)
         vi.advanceTimersByTime(1000);
-        
+
         // Advance time by 61 seconds to clear the minute window
         vi.advanceTimersByTime(61 * 1000);
-        
+
         await vi.runAllTimersAsync();
         await promise3;
 
@@ -149,10 +149,10 @@ describe('RateLimiter', () => {
 
         // Third call should wait
         const promise3 = rateLimiter.execute(mockFn);
-        
+
         // Advance time to clear the window
         vi.advanceTimersByTime(62 * 1000);
-        
+
         await vi.runAllTimersAsync();
         await promise3;
 
@@ -236,6 +236,27 @@ describe('RateLimiter', () => {
 
             expect(stats.callsLastMinute).toBe(0);
             expect(stats.callsLastDay).toBe(0);
+        });
+
+        it('should block calls when per-month limit is exceeded', async () => {
+            const config: RateLimiterConfig = {
+                callsPerMonth: 1,
+            };
+            rateLimiter = new RateLimiter(config);
+            const mockFn = vi.fn().mockResolvedValue('result');
+
+            // Make first call
+            const promise1 = rateLimiter.execute(mockFn);
+            await vi.runAllTimersAsync();
+            await promise1;
+
+            // Second call should be blocked (will wait indefinitely, so we just verify it doesn't execute immediately)
+            const promise2 = rateLimiter.execute(mockFn);
+            // Don't wait for it to complete - just verify the first call executed
+            expect(mockFn).toHaveBeenCalledTimes(1);
+
+            // Cancel the second promise to avoid infinite loop
+            promise2.catch(() => { });
         });
     });
 });

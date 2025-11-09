@@ -1,5 +1,54 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createProviders } from './provider.factory.js';
+import { createProviders, createRateLimiters } from './provider.factory.js';
+
+// Mock providers to test error handling paths
+vi.mock('../providers/alpha-vantage.js', async () => {
+    const actual = await vi.importActual('../providers/alpha-vantage.js') as any;
+    class MockAlphaVantageProvider extends actual.AlphaVantageProvider {
+        constructor(apiKey?: string) {
+            if (apiKey === 'error-key') {
+                throw new Error('Failed to initialize Alpha Vantage');
+            }
+            super(apiKey);
+        }
+    }
+    return {
+        ...actual,
+        AlphaVantageProvider: MockAlphaVantageProvider,
+    };
+});
+
+vi.mock('../providers/financial-modeling-prep.js', async () => {
+    const actual = await vi.importActual('../providers/financial-modeling-prep.js') as any;
+    class MockFinancialModelingPrepProvider extends actual.FinancialModelingPrepProvider {
+        constructor(apiKey?: string) {
+            if (apiKey === 'error-key') {
+                throw new Error('Failed to initialize Financial Modeling Prep');
+            }
+            super(apiKey);
+        }
+    }
+    return {
+        ...actual,
+        FinancialModelingPrepProvider: MockFinancialModelingPrepProvider,
+    };
+});
+
+vi.mock('../providers/fred.js', async () => {
+    const actual = await vi.importActual('../providers/fred.js') as any;
+    class MockFREDProvider extends actual.FREDProvider {
+        constructor(apiKey?: string) {
+            if (apiKey === 'error-key') {
+                throw new Error('Failed to initialize FRED');
+            }
+            super(apiKey);
+        }
+    }
+    return {
+        ...actual,
+        FREDProvider: MockFREDProvider,
+    };
+});
 
 describe('Provider Factory', () => {
     let consoleErrorSpy: any;
@@ -105,7 +154,7 @@ describe('Provider Factory', () => {
         it('should handle provider initialization errors gracefully', () => {
             // Mock provider constructors to throw errors
             const originalError = console.error;
-            const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+            const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
             // This will test the error handling paths
             const config = createProviders('invalid-key', 'invalid-fmp-key', 'invalid-fred-key');
@@ -115,6 +164,81 @@ describe('Provider Factory', () => {
             expect(config.fallback.name).toBe('Yahoo Finance');
 
             errorSpy.mockRestore();
+        });
+
+        it('should handle Alpha Vantage provider initialization error', () => {
+            const config = createProviders('error-key');
+
+            expect(config.primary).toBeNull();
+            expect(config.fallback).toBeDefined();
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('Failed to initialize Alpha Vantage'),
+                expect.any(Error)
+            );
+        });
+
+        it('should handle Financial Modeling Prep provider initialization error', () => {
+            const config = createProviders(undefined, 'error-key');
+
+            expect(config.financialModelingPrep).toBeNull();
+            expect(config.fallback).toBeDefined();
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('Failed to initialize Financial Modeling Prep'),
+                expect.any(Error)
+            );
+        });
+
+        it('should handle FRED provider initialization error', () => {
+            const config = createProviders(undefined, undefined, 'error-key');
+
+            expect(config.fred).toBeNull();
+            expect(config.fallback).toBeDefined();
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('Failed to initialize FRED'),
+                expect.any(Error)
+            );
+        });
+    });
+
+    describe('createRateLimiters', () => {
+        it('should create rate limiters for providers with API keys', () => {
+            const rateLimiters = createRateLimiters('test-av-key', 'test-fmp-key', 'test-fred-key');
+
+            expect(rateLimiters.primary).toBeDefined();
+            expect(rateLimiters.financialModelingPrep).toBeDefined();
+            expect(rateLimiters.fred).toBeDefined();
+        });
+
+        it('should return null rate limiters for providers without API keys', () => {
+            const rateLimiters = createRateLimiters();
+
+            expect(rateLimiters.primary).toBeNull();
+            expect(rateLimiters.financialModelingPrep).toBeNull();
+            expect(rateLimiters.fred).toBeNull();
+        });
+
+        it('should create rate limiter only for primary provider', () => {
+            const rateLimiters = createRateLimiters('test-av-key');
+
+            expect(rateLimiters.primary).toBeDefined();
+            expect(rateLimiters.financialModelingPrep).toBeNull();
+            expect(rateLimiters.fred).toBeNull();
+        });
+
+        it('should create rate limiter only for Financial Modeling Prep provider', () => {
+            const rateLimiters = createRateLimiters(undefined, 'test-fmp-key');
+
+            expect(rateLimiters.primary).toBeNull();
+            expect(rateLimiters.financialModelingPrep).toBeDefined();
+            expect(rateLimiters.fred).toBeNull();
+        });
+
+        it('should create rate limiter only for FRED provider', () => {
+            const rateLimiters = createRateLimiters(undefined, undefined, 'test-fred-key');
+
+            expect(rateLimiters.primary).toBeNull();
+            expect(rateLimiters.financialModelingPrep).toBeNull();
+            expect(rateLimiters.fred).toBeDefined();
         });
     });
 });
