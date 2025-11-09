@@ -66,14 +66,18 @@ export class MarketDataService {
     }
 
     /**
-     * Get stock quote with caching and provider fallback
+     * Generic helper method to fetch data with caching and provider fallback.
+     * Eliminates code duplication between getQuote and getCompanyInfo.
      */
-    async getQuote(symbol: string): Promise<GetQuoteResult> {
-        const upperSymbol = symbol.toUpperCase();
-        const cacheKey = `quote:${upperSymbol}`;
-
+    private async fetchWithCacheAndFallback<T>(
+        cacheKey: string,
+        fetchFromPrimary: () => Promise<T>,
+        fetchFromFallback: () => Promise<T>,
+        cacheTtl: number,
+        includeMinuteStats: boolean = false
+    ): Promise<{ data: T; source: string; cached: boolean; rateLimitInfo?: string }> {
         // Check cache first
-        const cached = this.cache.get<StockQuote>(cacheKey);
+        const cached = this.cache.get<T>(cacheKey);
         if (cached) {
             return {
                 data: cached,
@@ -85,17 +89,19 @@ export class MarketDataService {
         // Try primary provider first (with rate limiting)
         if (this.primaryProvider) {
             try {
-                const quote = await this.rateLimiter.execute(() =>
-                    this.primaryProvider!.getQuote(upperSymbol)
-                );
-                this.cache.set(cacheKey, quote, config.CACHE_TTL.QUOTE);
+                const data = await this.rateLimiter.execute(fetchFromPrimary);
+                this.cache.set(cacheKey, data, cacheTtl);
 
                 const stats = this.rateLimiter.getStats();
+                const rateLimitInfo = includeMinuteStats
+                    ? `API calls: ${stats.callsLastDay}/25 today, ${stats.callsLastMinute}/5 this minute`
+                    : `API calls: ${stats.callsLastDay}/25 today`;
+
                 return {
-                    data: quote,
+                    data,
                     source: this.primaryProvider.name,
                     cached: false,
-                    rateLimitInfo: `API calls: ${stats.callsLastDay}/25 today, ${stats.callsLastMinute}/5 this minute`,
+                    rateLimitInfo,
                 };
             } catch (error) {
                 console.error(`${this.primaryProvider.name} failed, falling back to ${this.fallbackProvider.name}:`, error);
@@ -103,14 +109,30 @@ export class MarketDataService {
         }
 
         // Fallback provider
-        const quote = await this.fallbackProvider.getQuote(upperSymbol);
-        this.cache.set(cacheKey, quote, config.CACHE_TTL.QUOTE);
+        const data = await fetchFromFallback();
+        this.cache.set(cacheKey, data, cacheTtl);
 
         return {
-            data: quote,
+            data,
             source: this.fallbackProvider.name,
             cached: false,
         };
+    }
+
+    /**
+     * Get stock quote with caching and provider fallback
+     */
+    async getQuote(symbol: string): Promise<GetQuoteResult> {
+        const upperSymbol = symbol.toUpperCase();
+        const cacheKey = `quote:${upperSymbol}`;
+
+        return this.fetchWithCacheAndFallback<StockQuote>(
+            cacheKey,
+            () => this.primaryProvider!.getQuote(upperSymbol),
+            () => this.fallbackProvider.getQuote(upperSymbol),
+            config.CACHE_TTL.QUOTE,
+            true // Include minute stats for quotes
+        );
     }
 
     /**
@@ -120,45 +142,12 @@ export class MarketDataService {
         const upperSymbol = symbol.toUpperCase();
         const cacheKey = `company:${upperSymbol}`;
 
-        // Check cache first
-        const cached = this.cache.get<CompanyInfo>(cacheKey);
-        if (cached) {
-            return {
-                data: cached,
-                source: 'Cache',
-                cached: true,
-            };
-        }
-
-        // Try primary provider first (with rate limiting)
-        if (this.primaryProvider) {
-            try {
-                const info = await this.rateLimiter.execute(() =>
-                    this.primaryProvider!.getCompanyInfo(upperSymbol)
-                );
-                this.cache.set(cacheKey, info, config.CACHE_TTL.COMPANY_INFO);
-
-                const stats = this.rateLimiter.getStats();
-                return {
-                    data: info,
-                    source: this.primaryProvider.name,
-                    cached: false,
-                    rateLimitInfo: `API calls: ${stats.callsLastDay}/25 today`,
-                };
-            } catch (error) {
-                console.error(`${this.primaryProvider.name} failed, falling back to ${this.fallbackProvider.name}:`, error);
-            }
-        }
-
-        // Fallback provider
-        const info = await this.fallbackProvider.getCompanyInfo(upperSymbol);
-        this.cache.set(cacheKey, info, config.CACHE_TTL.COMPANY_INFO);
-
-        return {
-            data: info,
-            source: this.fallbackProvider.name,
-            cached: false,
-        };
+        return this.fetchWithCacheAndFallback<CompanyInfo>(
+            cacheKey,
+            () => this.primaryProvider!.getCompanyInfo(upperSymbol),
+            () => this.fallbackProvider.getCompanyInfo(upperSymbol),
+            config.CACHE_TTL.COMPANY_INFO
+        );
     }
 
     /**
