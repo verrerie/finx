@@ -398,18 +398,12 @@ export class MarketDataService {
         const parts: string[] = [];
 
         // Get the appropriate rate limit config based on provider type
-        let rateLimitConfig: typeof config.RATE_LIMIT_CONFIGS.ALPHA_VANTAGE;
-        switch (providerType) {
-            case 'primary':
-                rateLimitConfig = config.RATE_LIMIT_CONFIGS.ALPHA_VANTAGE;
-                break;
-            case 'financialModelingPrep':
-                rateLimitConfig = config.RATE_LIMIT_CONFIGS.FINANCIAL_MODELING_PREP;
-                break;
-            case 'fred':
-                rateLimitConfig = config.RATE_LIMIT_CONFIGS.FRED;
-                break;
-        }
+        const rateLimitConfigMap: Record<'primary' | 'financialModelingPrep' | 'fred', typeof config.RATE_LIMIT_CONFIGS.ALPHA_VANTAGE> = {
+            primary: config.RATE_LIMIT_CONFIGS.ALPHA_VANTAGE,
+            financialModelingPrep: config.RATE_LIMIT_CONFIGS.FINANCIAL_MODELING_PREP,
+            fred: config.RATE_LIMIT_CONFIGS.FRED,
+        };
+        const rateLimitConfig = rateLimitConfigMap[providerType];
 
         // Format per-second limit (FRED only)
         if (stats.callsLastSecond !== undefined && rateLimitConfig.callsPerSecond !== undefined) {
