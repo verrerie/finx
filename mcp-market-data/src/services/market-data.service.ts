@@ -272,11 +272,10 @@ export class MarketDataService {
                 );
                 this.cache.set(cacheKey, statements, config.CACHE_TTL_FINANCIAL_STATEMENTS);
 
-                const stats = this.rateLimiter.getStats();
                 return {
                     data: statements,
                     source: this.financialModelingPrepProvider.name,
-                    metadata: `Found ${statements.length} ${statementType} statements (${period}). API calls: ${stats.callsLastDay}/25 today`,
+                    metadata: `Found ${statements.length} ${statementType} statements (${period})`,
                 };
             } catch (error) {
                 console.error(`${this.financialModelingPrepProvider.name} financial statements failed, trying fallback:`, error);
@@ -311,11 +310,10 @@ export class MarketDataService {
                 );
                 this.cache.set(cacheKey, indicator, config.CACHE_TTL_ECONOMIC_DATA);
 
-                const stats = this.rateLimiter.getStats();
                 return {
                     data: indicator,
                     source: this.fredProvider.name,
-                    metadata: `Found ${indicator.data.length} data points for ${indicator.title}. API calls: ${stats.callsLastDay}/25 today`,
+                    metadata: `Found ${indicator.data.length} data points for ${indicator.title}`,
                 };
             } catch (error) {
                 console.error(`${this.fredProvider.name} economic indicator failed:`, error);

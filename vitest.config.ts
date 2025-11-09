@@ -32,7 +32,6 @@ export default defineConfig({
                 '**/tools/tool-definitions.ts', // Tool schemas (constants only)
                 '**/eslint.config.js',
             ],
-            all: true,
             thresholds: {
                 lines: 95,
                 functions: 90,
