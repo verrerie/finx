@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { HistoricalDataPoint, Period, StockQuote, SymbolSearchResult } from '../types.js';
-import { IMarketDataProvider, supportsHistoricalData, supportsSymbolSearch } from './market-data-provider.interface.js';
+import { EconomicIndicator, FinancialStatement, HistoricalDataPoint, Period, StatementType, StockQuote, SymbolSearchResult } from '../types.js';
+import { IMarketDataProvider, supportsEconomicIndicators, supportsFinancialStatements, supportsHistoricalData, supportsSymbolSearch } from './market-data-provider.interface.js';
 
 describe('Market Data Provider Interface', () => {
     describe('supportsHistoricalData', () => {
@@ -94,6 +94,74 @@ describe('Market Data Provider Interface', () => {
 
             expect(supportsHistoricalData(provider)).toBe(false);
             expect(supportsSymbolSearch(provider)).toBe(false);
+        });
+    });
+
+    describe('supportsFinancialStatements', () => {
+        it('should return true for provider with getFinancialStatements method', () => {
+            const provider: IMarketDataProvider = {
+                name: 'Test Provider',
+                getQuote: async () => ({} as StockQuote),
+                getCompanyInfo: async () => ({} as any),
+                getFinancialStatements: async (symbol: string, statementType: StatementType) => ([] as FinancialStatement[]),
+            };
+
+            expect(supportsFinancialStatements(provider)).toBe(true);
+        });
+
+        it('should return false for provider without getFinancialStatements method', () => {
+            const provider: IMarketDataProvider = {
+                name: 'Test Provider',
+                getQuote: async () => ({} as StockQuote),
+                getCompanyInfo: async () => ({} as any),
+            };
+
+            expect(supportsFinancialStatements(provider)).toBe(false);
+        });
+
+        it('should return false if getFinancialStatements is not a function', () => {
+            const provider: IMarketDataProvider = {
+                name: 'Test Provider',
+                getQuote: async () => ({} as StockQuote),
+                getCompanyInfo: async () => ({} as any),
+                getFinancialStatements: undefined,
+            };
+
+            expect(supportsFinancialStatements(provider)).toBe(false);
+        });
+    });
+
+    describe('supportsEconomicIndicators', () => {
+        it('should return true for provider with getEconomicIndicator method', () => {
+            const provider: IMarketDataProvider = {
+                name: 'Test Provider',
+                getQuote: async () => ({} as StockQuote),
+                getCompanyInfo: async () => ({} as any),
+                getEconomicIndicator: async (seriesId: string) => ({} as EconomicIndicator),
+            };
+
+            expect(supportsEconomicIndicators(provider)).toBe(true);
+        });
+
+        it('should return false for provider without getEconomicIndicator method', () => {
+            const provider: IMarketDataProvider = {
+                name: 'Test Provider',
+                getQuote: async () => ({} as StockQuote),
+                getCompanyInfo: async () => ({} as any),
+            };
+
+            expect(supportsEconomicIndicators(provider)).toBe(false);
+        });
+
+        it('should return false if getEconomicIndicator is not a function', () => {
+            const provider: IMarketDataProvider = {
+                name: 'Test Provider',
+                getQuote: async () => ({} as StockQuote),
+                getCompanyInfo: async () => ({} as any),
+                getEconomicIndicator: undefined,
+            };
+
+            expect(supportsEconomicIndicators(provider)).toBe(false);
         });
     });
 });

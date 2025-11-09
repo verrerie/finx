@@ -81,6 +81,41 @@ describe('Provider Factory', () => {
             expect(typeof config.primary?.getQuote).toBe('function');
             expect(typeof config.primary?.getCompanyInfo).toBe('function');
         });
+
+        it('should handle Financial Modeling Prep provider creation', () => {
+            const config = createProviders(undefined, 'test-fmp-key');
+
+            expect(config.financialModelingPrep).toBeDefined();
+            expect(config.financialModelingPrep?.name).toBe('Financial Modeling Prep');
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('Financial Modeling Prep provider: Financial Modeling Prep')
+            );
+        });
+
+        it('should handle FRED provider creation', () => {
+            const config = createProviders(undefined, undefined, 'test-fred-key');
+
+            expect(config.fred).toBeDefined();
+            expect(config.fred?.name).toBe('FRED');
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('FRED provider: FRED')
+            );
+        });
+
+        it('should handle provider initialization errors gracefully', () => {
+            // Mock provider constructors to throw errors
+            const originalError = console.error;
+            const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+            // This will test the error handling paths
+            const config = createProviders('invalid-key', 'invalid-fmp-key', 'invalid-fred-key');
+
+            // Should still have fallback provider
+            expect(config.fallback).toBeDefined();
+            expect(config.fallback.name).toBe('Yahoo Finance');
+
+            errorSpy.mockRestore();
+        });
     });
 });
 

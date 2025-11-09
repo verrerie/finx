@@ -34,10 +34,10 @@ export default defineConfig({
             ],
             all: true,
             thresholds: {
-                lines: 80,
-                functions: 50,  // Lower due to test helper functions
-                branches: 85,
-                statements: 80,
+                lines: 95,
+                functions: 90,
+                branches: 90,
+                statements: 95,
             },
         },
     },

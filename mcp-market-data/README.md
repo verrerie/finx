@@ -18,6 +18,10 @@ Educational MCP server for financial market data with learning features.
 
 - **Primary:** Alpha Vantage (free tier: 25 calls/day)
 - **Fallback:** Yahoo Finance (unlimited, less reliable)
+- **Financial Statements:** Financial Modeling Prep (free tier: 250 calls/day)
+- **Economic Indicators:** FRED (free tier: 10 requests/second)
+
+Provider priority: Alpha Vantage → Yahoo Finance
 
 ## Setup
 
@@ -33,5 +37,7 @@ pnpm build:market-data # Build for production
 ## Rate Limits
 
 - Alpha Vantage Free: 25 requests/day, 5 requests/minute
-- System implements caching and automatic fallback to Yahoo Finance
+- Financial Modeling Prep Free: 250 calls/day
+- FRED Free: 10 requests/second (unlimited)
+- System implements caching and automatic fallback through provider chain
 
