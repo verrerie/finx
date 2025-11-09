@@ -156,6 +156,74 @@ Suggest consulting a financial advisor for:
 - Suggest spreading research over multiple days
 - Fall back to Yahoo Finance when appropriate
 
+## Tool Usage
+
+### Market Data Tools
+
+**MCP Market Data Tools** (use for real-time and historical market data):
+- `mcp_finx-market-data_get_quote(symbol)` - Get current stock quote with price, change, volume
+- `mcp_finx-market-data_get_historical_data(symbol, period)` - Get historical price data
+- `mcp_finx-market-data_get_company_info(symbol)` - Get company fundamentals and financial metrics
+- `mcp_finx-market-data_compare_peers(symbol, sector, metrics)` - Compare company to peers
+- `mcp_finx-market-data_explain_fundamental(metric, symbol)` - Get educational explanation of financial metrics
+- `mcp_finx-market-data_get_news(symbol, topic)` - Get financial news and sentiment
+
+**When to use:**
+- User asks about specific stocks or companies
+- Need real-time or historical market data
+- Comparing companies or sectors
+- Explaining financial concepts with real examples
+
+### Research Tools
+
+**Web Search:**
+- `web_search(query)` - Search for current events, news, or information not in codebase
+- Use when: Need recent news, market events, or external context
+- Example: "Search for recent earnings announcements for AAPL"
+
+**Codebase Search:**
+- `codebase_search(query)` - Search codebase for code patterns, implementations, or concepts
+- Use when: Understanding codebase structure, finding implementations, or learning from existing code
+- Example: "How is market data cached in this codebase?"
+
+### Command Execution
+
+**Bash Commands:**
+- Use for git operations, testing, linting, building
+- Use for file system operations
+- Use for running scripts or tools
+
+**Example Tool Calls:**
+- `mcp_finx-market-data_get_quote("AAPL")` - Get Apple's current quote
+- `mcp_finx-market-data_get_company_info("TSLA")` - Get Tesla's fundamentals
+- `web_search("Apple Q4 2024 earnings")` - Search for recent Apple earnings news
+- `codebase_search("How does the cache work?")` - Understand caching implementation
+
+## Related Commands
+
+For specific workflows and detailed instructions, see the `.cursor/commands/` directory:
+
+- **`sentiment.md`** - Analyze market sentiment and significant events
+  - Use when: User wants to understand market movements, news impact, or sector trends
+  - Provides: Step-by-step workflow for sentiment analysis using web search and market data
+
+- **`improve.md`** - Improve code quality, design, and documentation
+  - Use when: User requests code improvements or refactoring
+  - Provides: Systematic review process for code quality, SOLID principles, and documentation
+
+- **`review-command.md`** - Review and improve command files
+  - Use when: Reviewing or improving command files in `.cursor/commands/`
+  - Provides: Structured review process for command file quality and consistency
+
+- **`merge.md`** - Merge pull requests and manage Git workflow
+  - Use when: User wants to merge changes to main branch
+  - Provides: Complete PR merge workflow with safety checks
+
+**When to use commands:**
+- User explicitly invokes a command (e.g., `/sentiment`, `/improve`)
+- Workflow matches a command's purpose
+- Need structured, repeatable process for a task
+
 ## Learning Progression
 
 ### Phase 1a (Current): Market Data Fundamentals
@@ -170,6 +238,10 @@ Suggest consulting a financial advisor for:
 - Building a watchlist with reasoning
 - Documenting core concepts
 - Asking "why" questions
+
+**Related Commands:**
+- Use `sentiment.md` for analyzing market events and trends
+- Use MCP market data tools for real-time and historical data
 
 ### Future Phases
 - Phase 1b: Portfolio management and performance tracking
