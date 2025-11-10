@@ -146,18 +146,43 @@ class MCPClient {
         return this.request('tools/call', { name, arguments: args });
     }
 
-    async close(): Promise<void> {
-        // Clear all pending request timeouts to prevent them from keeping the event loop alive
+    private clearPendingTimeouts(): void {
         for (const [id, timeoutId] of this.requestTimeouts.entries()) {
             clearTimeout(timeoutId);
             this.requestTimeouts.delete(id);
         }
+    }
 
-        // Reject all pending requests
+    private rejectPendingRequests(): void {
         for (const [id, { reject }] of this.pendingRequests.entries()) {
             reject(new Error('Client closed'));
             this.pendingRequests.delete(id);
         }
+    }
+
+    private waitForProcessExit(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            const exitTimeout = setTimeout(() => {
+                // Force kill if process doesn't exit within 2 seconds
+                if (!this.process.killed && this.process.pid) {
+                    this.process.kill('SIGKILL');
+                }
+                resolve();
+            }, 2000);
+
+            this.process.once('exit', () => {
+                clearTimeout(exitTimeout);
+                resolve();
+            });
+        });
+    }
+
+    async close(): Promise<void> {
+        // Clear all pending request timeouts to prevent them from keeping the event loop alive
+        this.clearPendingTimeouts();
+
+        // Reject all pending requests
+        this.rejectPendingRequests();
 
         this.messageBuffer.clear();
 
@@ -168,20 +193,7 @@ class MCPClient {
         this.process.kill();
 
         // Wait for process to exit with a timeout
-        return new Promise<void>((resolve) => {
-            const timeout = setTimeout(() => {
-                // Force kill if process doesn't exit within 2 seconds
-                if (!this.process.killed && this.process.pid) {
-                    this.process.kill('SIGKILL');
-                }
-                resolve();
-            }, 2000);
-
-            this.process.once('exit', () => {
-                clearTimeout(timeout);
-                resolve();
-            });
-        });
+        return this.waitForProcessExit();
     }
 }
 
