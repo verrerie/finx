@@ -164,6 +164,8 @@ Suggest consulting a financial advisor for:
 ### Market Data Tools
 
 **MCP Market Data Tools** (use for real-time and historical market data):
+
+**Available Tools:**
 - `mcp_finx-market-data_get_quote(symbol)` - Get current stock quote with price, change, volume
 - `mcp_finx-market-data_get_historical_data(symbol, period)` - Get historical price data
 - `mcp_finx-market-data_get_company_info(symbol)` - Get company fundamentals and financial metrics
@@ -177,17 +179,47 @@ Suggest consulting a financial advisor for:
 - Comparing companies or sectors
 - Explaining financial concepts with real examples
 
+**Example Tool Calls:**
+```python
+# Get current stock quote
+mcp_finx-market-data_get_quote("AAPL")
+
+# Get historical price data
+mcp_finx-market-data_get_historical_data("TSLA", "1y")
+
+# Get company fundamentals
+mcp_finx-market-data_get_company_info("MSFT")
+
+# Compare to peers
+mcp_finx-market-data_compare_peers("AAPL", "Technology", ["pe_ratio", "profit_margin"])
+
+# Explain a financial metric
+mcp_finx-market-data_explain_fundamental("pe_ratio", "AAPL")
+
+# Get financial news
+mcp_finx-market-data_get_news("AAPL", "earnings")
+```
+
 ### Research Tools
 
 **Web Search:**
 - `web_search(query)` - Search for current events, news, or information not in codebase
 - Use when: Need recent news, market events, or external context
-- Example: "Search for recent earnings announcements for AAPL"
+- Example: `web_search("Apple Q4 2024 earnings")`
 
 **Codebase Search:**
 - `codebase_search(query)` - Search codebase for code patterns, implementations, or concepts
 - Use when: Understanding codebase structure, finding implementations, or learning from existing code
-- Example: "How is market data cached in this codebase?"
+- Example: `codebase_search("How is market data cached in this codebase?")`
+
+**Example Tool Calls:**
+```python
+# Search for recent market news
+web_search("Apple Q4 2024 earnings announcement")
+
+# Search codebase for implementation details
+codebase_search("How does the cache work?")
+```
 
 ### Command Execution
 
@@ -196,13 +228,23 @@ Suggest consulting a financial advisor for:
 - Use for file system operations
 - Use for running scripts or tools
 
-**Example Tool Calls:**
-- `mcp_finx-market-data_get_quote("AAPL")` - Get Apple's current quote
-- `mcp_finx-market-data_get_company_info("TSLA")` - Get Tesla's fundamentals
-- `web_search("Apple Q4 2024 earnings")` - Search for recent Apple earnings news
-- `codebase_search("How does the cache work?")` - Understand caching implementation
+**Example Commands:**
+```bash
+# Git operations
+git status
+git checkout -b feature/new-feature
+
+# Testing and linting
+pnpm test
+pnpm lint
+
+# Building
+pnpm build
+```
 
 ## Development Guidelines
+
+**When performing development tasks (code changes, refactoring, bug fixes), follow these guidelines:**
 
 ### Branch Workflow Requirements
 
@@ -274,26 +316,54 @@ git status
 
 For specific workflows and detailed instructions, see the `.cursor/commands/` directory:
 
+### Available Commands
+
 - **`sentiment.md`** - Analyze market sentiment and significant events
-  - Use when: User wants to understand market movements, news impact, or sector trends
-  - Provides: Step-by-step workflow for sentiment analysis using web search and market data
+  - **Use when:**
+    - User asks about market movements, stock price changes, or sector trends
+    - User wants to understand why stocks moved (e.g., "Why did tech stocks drop?")
+    - User asks about news impact on markets
+    - User wants to analyze significant market events
+  - **How to use:** Follow the step-by-step workflow in `sentiment.md` using web search and market data tools
+  - **Provides:** Comprehensive sentiment analysis with educational context
 
 - **`improve.md`** - Improve code quality, design, and documentation
-  - Use when: User requests code improvements or refactoring
-  - Provides: Systematic review process for code quality, SOLID principles, and documentation
+  - **Use when:**
+    - User requests code improvements or refactoring
+    - User asks to improve code quality, design, or documentation
+    - User wants systematic code review
+  - **How to use:** Follow the systematic review process in `improve.md` focusing on design, SOLID principles, and documentation
+  - **Provides:** Structured code improvement workflow
 
 - **`review-command.md`** - Review and improve command files
-  - Use when: Reviewing or improving command files in `.cursor/commands/`
-  - Provides: Structured review process for command file quality and consistency
+  - **Use when:**
+    - User asks to review a command file (e.g., `/review-command @file.md`)
+    - User wants to improve command file quality
+    - Reviewing command files in `.cursor/commands/` for consistency and quality
+  - **How to use:** Follow the review process in `review-command.md` to evaluate command files
+  - **Provides:** Structured review process for command file quality and consistency
 
 - **`merge.md`** - Merge pull requests and manage Git workflow
-  - Use when: User wants to merge changes to main branch
-  - Provides: Complete PR merge workflow with safety checks
+  - **Use when:**
+    - User wants to merge changes to main branch
+    - User asks to merge a pull request
+    - User wants to complete a Git workflow with safety checks
+  - **How to use:** Follow the complete PR merge workflow in `merge.md` with all safety checks
+  - **Provides:** Complete PR merge workflow with safety checks
 
-**When to use commands:**
-- User explicitly invokes a command (e.g., `/sentiment`, `/improve`)
-- Workflow matches a command's purpose
-- Need structured, repeatable process for a task
+### When to Use Commands
+
+**Decision Logic:**
+1. **User explicitly invokes a command** (e.g., `/sentiment`, `/improve`) → Use that command's workflow
+2. **User query matches a command's purpose** → Use the appropriate command workflow
+3. **Need structured, repeatable process** → Check if a command exists for that workflow
+4. **Unclear which command to use** → Ask user for clarification or use the most appropriate command
+
+**Example Scenarios:**
+- User: "Why did Apple stock drop?" → Use `sentiment.md` workflow
+- User: "Improve this code" → Use `improve.md` workflow
+- User: "/review-command @file.md" → Use `review-command.md` workflow
+- User: "Merge this PR" → Use `merge.md` workflow
 
 ## Learning Progression
 
