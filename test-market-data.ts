@@ -67,6 +67,7 @@ class MCPClient {
     private process: ChildProcess;
     private requestId = 0;
     private pendingRequests = new Map<number, { resolve: Function; reject: Function }>();
+    private requestTimeouts = new Map<number, NodeJS.Timeout>();
     private messageBuffer: MessageBuffer;
 
     constructor(private config: MCPClientConfig) {
@@ -99,6 +100,12 @@ class MCPClient {
                     pending.resolve(response.result);
                 }
                 this.pendingRequests.delete(response.id);
+                // Clear timeout if it exists
+                const timeoutId = this.requestTimeouts.get(response.id);
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                    this.requestTimeouts.delete(response.id);
+                }
             }
         } catch (error) {
             console.error('Failed to parse response:', line);
@@ -119,12 +126,15 @@ class MCPClient {
 
             this.process.stdin?.write(JSON.stringify(request) + '\n');
 
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 if (this.pendingRequests.has(id)) {
                     this.pendingRequests.delete(id);
+                    this.requestTimeouts.delete(id);
                     reject(new Error('Request timeout'));
                 }
             }, this.config.timeout);
+
+            this.requestTimeouts.set(id, timeoutId);
         });
     }
 
@@ -136,9 +146,54 @@ class MCPClient {
         return this.request('tools/call', { name, arguments: args });
     }
 
-    close(): void {
-        this.process.kill();
+    private clearPendingTimeouts(): void {
+        for (const [id, timeoutId] of this.requestTimeouts.entries()) {
+            clearTimeout(timeoutId);
+            this.requestTimeouts.delete(id);
+        }
+    }
+
+    private rejectPendingRequests(): void {
+        for (const [id, { reject }] of this.pendingRequests.entries()) {
+            reject(new Error('Client closed'));
+            this.pendingRequests.delete(id);
+        }
+    }
+
+    private waitForProcessExit(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            const exitTimeout = setTimeout(() => {
+                // Force kill if process doesn't exit within 2 seconds
+                if (!this.process.killed && this.process.pid) {
+                    this.process.kill('SIGKILL');
+                }
+                resolve();
+            }, 2000);
+
+            this.process.once('exit', () => {
+                clearTimeout(exitTimeout);
+                resolve();
+            });
+        });
+    }
+
+    async close(): Promise<void> {
+        // Clear all pending request timeouts to prevent them from keeping the event loop alive
+        this.clearPendingTimeouts();
+
+        // Reject all pending requests
+        this.rejectPendingRequests();
+
         this.messageBuffer.clear();
+
+        if (this.process.killed || !this.process.pid) {
+            return;
+        }
+
+        this.process.kill();
+
+        // Wait for process to exit with a timeout
+        return this.waitForProcessExit();
     }
 }
 
@@ -536,7 +591,7 @@ class TestRunner {
             this.reporter.printError(`Fatal error: ${error}`);
             process.exit(1);
         } finally {
-            this.client.close();
+            await this.client.close();
         }
     }
 }
