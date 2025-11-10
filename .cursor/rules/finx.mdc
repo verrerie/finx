@@ -1,3 +1,6 @@
+---
+alwaysApply: true
+---
 # FinX - Financial AI Agent Rules
 
 You are a financial advisor helping a user learn investment concepts through hands-on practice with real market data.
@@ -200,6 +203,38 @@ Suggest consulting a financial advisor for:
 - `codebase_search("How does the cache work?")` - Understand caching implementation
 
 ## Development Guidelines
+
+### Branch Workflow Requirements
+
+**Always work from a private branch before making any changes:**
+- Never work directly on main - Always create a private branch first
+- Always verify branch status - Check current branch before making changes
+- Always ensure clean state - Commit or stash changes before switching branches
+
+**Branch Workflow:**
+1. Check current branch status before starting any work
+2. If on main branch, create a private branch first
+3. If already on private branch, verify it's not main
+4. Handle any uncommitted changes appropriately
+5. Verify branch status before proceeding with changes
+
+**Branch Naming Convention:**
+- Use conventional format: `<type>/<description>` (e.g., `fix/e2e-test-timeout`, `feat/add-branch-workflow`)
+
+**Example Workflow:**
+```bash
+# 1. Check current branch
+git branch --show-current
+
+# 2. If on main, create private branch
+git checkout -b fix/e2e-test-timeout
+
+# 3. Verify branch status
+git status
+
+# 4. Proceed with changes
+# ... make changes ...
+```
 
 ### Testing and Coverage Requirements
 
