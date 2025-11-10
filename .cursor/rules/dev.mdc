@@ -1,0 +1,134 @@
+---
+alwaysApply: true
+---
+# FinX - Development Rules
+
+Development guidelines for AI agents when performing development tasks (code changes, refactoring, bug fixes).
+
+**Note:** For financial advisory behavior rules, see `.cursor/rules/finx.mdc`.
+
+## Core Principles
+
+**Safety First**
+- Always work from a private branch - Never work directly on main
+- Always run tests - Verify all tests pass before committing
+- Always check coverage - Ensure coverage thresholds are met
+- Always fix issues - Don't skip verification steps
+
+**Quality Standards**
+- Maintain high test coverage - Meet or exceed coverage thresholds
+- Follow project conventions - Use consistent code style
+- Write clear code - Prioritize maintainability and readability
+- Document changes - Update documentation when needed
+
+## Branch Workflow Requirements
+
+**Always work from a private branch before making any changes:**
+- Never work directly on main - Always create a private branch first
+- Always verify branch status - Check current branch before making changes
+- Always ensure clean state - Commit or stash changes before switching branches
+
+**Branch Workflow:**
+1. Check current branch status before starting any work
+2. If on main branch, create a private branch first
+3. If already on private branch, verify it's not main
+4. Handle any uncommitted changes appropriately
+5. Verify branch status before proceeding with changes
+
+**Branch Naming Convention:**
+- Use conventional format: `<type>/<description>` (e.g., `fix/e2e-test-timeout`, `feat/add-branch-workflow`)
+
+**Example Workflow:**
+```bash
+# 1. Check current branch
+git branch --show-current
+
+# 2. If on main, create private branch
+git checkout -b fix/e2e-test-timeout
+
+# 3. Verify branch status
+git status
+
+# 4. Proceed with changes
+# ... make changes ...
+```
+
+## Testing and Coverage Requirements
+
+**Always run tests after code changes:**
+- Run `pnpm test` to verify all tests pass
+- Run `pnpm test:coverage` to check coverage thresholds
+- Fix any failing tests or linting errors before committing
+
+**Coverage Thresholds (enforced in vitest.config.ts):**
+- **Statements:** 95% minimum
+- **Branches:** 90% minimum
+- **Functions:** 90% minimum
+- **Lines:** 95% minimum
+
+**Coverage Best Practices:**
+- Write tests for all new code and features
+- Add tests for error handling paths and edge cases
+- Ensure new code maintains or improves coverage thresholds
+- If coverage drops below thresholds, add tests before merging
+- Use `pnpm test:coverage` to verify thresholds are met
+
+**When adding new features:**
+1. Write tests first (TDD approach recommended)
+2. Implement the feature
+3. Run `pnpm test` to ensure all tests pass
+4. Run `pnpm test:coverage` to verify coverage thresholds
+5. Fix any coverage gaps before committing
+
+**Coverage exclusions (configured in vitest.config.ts):**
+- Type definitions (`**/types.ts`)
+- Tool schemas (`**/tools/tool-definitions.ts`)
+- MCP server entry points (`**/index.ts`)
+- Provider implementations (tested via integration tests)
+- Configuration files (`**/*.config.ts`)
+
+## Development Workflow
+
+**Before making changes:**
+1. Check current branch status
+2. Create private branch if on main
+3. Verify clean working state
+
+**While making changes:**
+1. Write tests first (TDD approach recommended)
+2. Implement the feature or fix
+3. Run linter: `pnpm lint`
+4. Run tests: `pnpm test`
+5. Check coverage: `pnpm test:coverage`
+6. Fix any issues before committing
+
+**Before committing:**
+1. Ensure all tests pass
+2. Ensure coverage thresholds are met
+3. Ensure no linting errors
+4. Ensure build succeeds: `pnpm build`
+
+**After committing:**
+1. Push to remote branch
+2. Create pull request (if needed)
+3. Wait for CI checks to pass
+4. Merge using appropriate workflow (see `.cursor/commands/merge.md`)
+
+## Related Resources
+
+**For detailed development workflow:**
+- See `.github/CONTRIBUTING.md` for comprehensive development guidelines
+- See `.cursor/commands/merge.md` for PR merge workflow
+- See `.cursor/commands/improve.md` for code improvement workflow
+
+**For project setup:**
+- See `README.md` for installation and setup instructions
+- See `docs/MONOREPO.md` for monorepo structure details
+
+## Important Notes
+
+- **Never work directly on main** - Always create a private branch first
+- **Always run tests** - Verify all tests pass before committing
+- **Always check coverage** - Ensure coverage thresholds are met
+- **Always fix issues** - Don't skip verification steps
+- **Follow the complete workflow** - Don't skip steps
