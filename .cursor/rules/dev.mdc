@@ -7,6 +7,35 @@ Development guidelines for AI agents when performing development tasks (code cha
 
 **Note:** For financial advisory behavior rules, see `.cursor/rules/finx.mdc`.
 
+## Quick Reference
+
+**Essential Commands:**
+```bash
+# Branch workflow
+git branch --show-current          # Check current branch
+git checkout -b <type>/<name>      # Create new branch
+git status                          # Verify branch status
+
+# Testing and verification
+pnpm test                          # Run all tests
+pnpm test:coverage                # Check coverage thresholds
+pnpm lint                          # Run linter
+pnpm build                         # Build project
+
+# Git operations
+git add -A                         # Stage all changes
+git commit -m "<type>: <desc>"    # Commit changes
+git push                           # Push to remote
+```
+
+**Branch Types:**
+- `feat/` - New features
+- `fix/` - Bug fixes
+- `refactor/` - Code refactoring
+- `test/` - Test additions or changes
+- `docs/` - Documentation changes
+- `chore/` - Maintenance tasks
+
 ## Core Principles
 
 **Safety First**
@@ -38,19 +67,26 @@ Development guidelines for AI agents when performing development tasks (code cha
 **Branch Naming Convention:**
 - Use conventional format: `<type>/<description>` (e.g., `fix/e2e-test-timeout`, `feat/add-branch-workflow`)
 
-**Example Workflow:**
+**Example Workflows:**
 ```bash
-# 1. Check current branch
-git branch --show-current
+# Example 1: Creating a feature branch
+git branch --show-current          # Check current branch
+git checkout -b feat/add-cache     # Create feature branch
+git status                          # Verify branch status
 
-# 2. If on main, create private branch
+# Example 2: Creating a fix branch
 git checkout -b fix/e2e-test-timeout
-
-# 3. Verify branch status
 git status
 
-# 4. Proceed with changes
-# ... make changes ...
+# Example 3: Creating a refactor branch
+git checkout -b refactor/separate-dev-rules
+git status
+
+# Example 4: Handling uncommitted changes
+git status                          # Check for uncommitted changes
+git stash                           # Stash changes if needed
+git checkout -b feat/new-feature   # Create new branch
+git stash pop                       # Restore stashed changes (if needed)
 ```
 
 ## Testing and Coverage Requirements
@@ -80,6 +116,33 @@ git status
 4. Run `pnpm test:coverage` to verify coverage thresholds
 5. Fix any coverage gaps before committing
 
+**Example Scenarios:**
+```bash
+# Example 1: All tests pass
+pnpm test                          # ✅ All tests pass
+pnpm test:coverage                 # ✅ Coverage thresholds met
+# Proceed with commit
+
+# Example 2: Tests fail
+pnpm test                          # ❌ Some tests fail
+# Fix failing tests
+pnpm test                          # ✅ All tests pass
+# Proceed with commit
+
+# Example 3: Coverage below threshold
+pnpm test:coverage                 # ❌ Coverage: 88% (below 95% threshold)
+# Add tests to increase coverage
+pnpm test:coverage                 # ✅ Coverage: 96% (above threshold)
+# Proceed with commit
+
+# Example 4: Linting errors
+pnpm lint                          # ❌ Linting errors found
+# Fix linting errors
+pnpm lint                          # ✅ No linting errors
+pnpm test                          # ✅ All tests pass
+# Proceed with commit
+```
+
 **Coverage exclusions (configured in vitest.config.ts):**
 - Type definitions (`**/types.ts`)
 - Tool schemas (`**/tools/tool-definitions.ts`)
@@ -89,30 +152,53 @@ git status
 
 ## Development Workflow
 
-**Before making changes:**
-1. Check current branch status
-2. Create private branch if on main
-3. Verify clean working state
+**Complete workflow (see sections above for details):**
 
-**While making changes:**
-1. Write tests first (TDD approach recommended)
-2. Implement the feature or fix
-3. Run linter: `pnpm lint`
-4. Run tests: `pnpm test`
-5. Check coverage: `pnpm test:coverage`
-6. Fix any issues before committing
+1. **Before making changes:**
+   - Check current branch status (see Branch Workflow Requirements)
+   - Create private branch if on main (see Branch Workflow Requirements)
+   - Verify clean working state
 
-**Before committing:**
-1. Ensure all tests pass
-2. Ensure coverage thresholds are met
-3. Ensure no linting errors
-4. Ensure build succeeds: `pnpm build`
+2. **While making changes:**
+   - Write tests first (TDD approach recommended - see Testing and Coverage Requirements)
+   - Implement the feature or fix
+   - Run verification: `pnpm lint && pnpm test && pnpm test:coverage && pnpm build`
+   - Fix any issues before committing
 
-**After committing:**
-1. Push to remote branch
-2. Create pull request (if needed)
-3. Wait for CI checks to pass
-4. Merge using appropriate workflow (see `.cursor/commands/merge.md`)
+3. **Before committing:**
+   - Ensure all tests pass (see Testing and Coverage Requirements)
+   - Ensure coverage thresholds are met (see Testing and Coverage Requirements)
+   - Ensure no linting errors
+   - Ensure build succeeds: `pnpm build`
+
+4. **After committing:**
+   - Push to remote branch
+   - Create pull request (if needed)
+   - Wait for CI checks to pass
+   - Merge using appropriate workflow (see `.cursor/commands/merge.md`)
+
+**Example Complete Workflow:**
+```bash
+# 1. Before making changes
+git branch --show-current          # Check current branch
+git checkout -b feat/new-feature   # Create feature branch
+git status                          # Verify clean state
+
+# 2. While making changes
+# Write tests first, then implement feature
+pnpm lint                          # Check linting
+pnpm test                          # Run tests
+pnpm test:coverage                 # Check coverage
+pnpm build                         # Build project
+
+# 3. Before committing
+git add -A                         # Stage changes
+git commit -m "feat: add new feature"  # Commit changes
+
+# 4. After committing
+git push                           # Push to remote
+# Create PR and wait for CI checks
+```
 
 ## Related Resources
 
@@ -124,11 +210,3 @@ git status
 **For project setup:**
 - See `README.md` for installation and setup instructions
 - See `docs/MONOREPO.md` for monorepo structure details
-
-## Important Notes
-
-- **Never work directly on main** - Always create a private branch first
-- **Always run tests** - Verify all tests pass before committing
-- **Always check coverage** - Ensure coverage thresholds are met
-- **Always fix issues** - Don't skip verification steps
-- **Follow the complete workflow** - Don't skip steps
