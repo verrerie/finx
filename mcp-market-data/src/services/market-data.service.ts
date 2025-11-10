@@ -85,6 +85,23 @@ export class MarketDataService {
     }
 
     /**
+     * Helper method to create an execution function with rate limiting if available.
+     * Eliminates code duplication in rate limiter execution pattern.
+     * 
+     * @param rateLimiter - Optional rate limiter to use
+     * @param fn - Function to execute (with rate limiting if limiter is available)
+     * @returns Function that executes with rate limiting if available, or directly if not
+     */
+    private createRateLimitedFunction<T>(
+        rateLimiter: RateLimiter | null | undefined,
+        fn: () => Promise<T>
+    ): () => Promise<T> {
+        return rateLimiter
+            ? () => rateLimiter.execute(fn)
+            : fn;
+    }
+
+    /**
      * Generic helper method to fetch data with caching and provider fallback.
      * Eliminates code duplication between getQuote and getCompanyInfo.
      * Provider priority: Alpha Vantage → Yahoo Finance
@@ -207,9 +224,10 @@ export class MarketDataService {
     async searchSymbol(query: string): Promise<SearchSymbolResult> {
         // Alpha Vantage has better symbol search
         if (this.primaryProvider && supportsSymbolSearch(this.primaryProvider)) {
-            const executeFn = this.rateLimiters.primary
-                ? () => this.rateLimiters.primary!.execute(() => this.primaryProvider!.searchSymbol!(query))
-                : () => this.primaryProvider!.searchSymbol!(query);
+            const executeFn = this.createRateLimitedFunction(
+                this.rateLimiters.primary,
+                () => this.primaryProvider!.searchSymbol!(query)
+            );
 
             const results = await executeFn();
 
@@ -242,9 +260,10 @@ export class MarketDataService {
         // Try Alpha Vantage
         if (this.primaryProvider && supportsNews(this.primaryProvider)) {
             try {
-                const executeFn = this.rateLimiters.primary
-                    ? () => this.rateLimiters.primary!.execute(() => this.primaryProvider!.getNews!(symbol, topic))
-                    : () => this.primaryProvider!.getNews!(symbol, topic);
+                const executeFn = this.createRateLimitedFunction(
+                    this.rateLimiters.primary,
+                    () => this.primaryProvider!.getNews!(symbol, topic)
+                );
 
                 const news = await executeFn();
                 this.cache.set(cacheKey, news, config.CACHE_TTL.NEWS);
@@ -291,11 +310,10 @@ export class MarketDataService {
         // Try Financial Modeling Prep first
         if (this.financialModelingPrepProvider && supportsFinancialStatements(this.financialModelingPrepProvider)) {
             try {
-                const executeFn = this.rateLimiters.financialModelingPrep
-                    ? () => this.rateLimiters.financialModelingPrep!.execute(() =>
-                          this.financialModelingPrepProvider!.getFinancialStatements!(upperSymbol, statementType, period)
-                      )
-                    : () => this.financialModelingPrepProvider!.getFinancialStatements!(upperSymbol, statementType, period);
+                const executeFn = this.createRateLimitedFunction(
+                    this.rateLimiters.financialModelingPrep,
+                    () => this.financialModelingPrepProvider!.getFinancialStatements!(upperSymbol, statementType, period)
+                );
 
                 const statements = await executeFn();
                 this.cache.set(cacheKey, statements, config.CACHE_TTL_FINANCIAL_STATEMENTS);
@@ -337,11 +355,10 @@ export class MarketDataService {
         // Try FRED provider
         if (this.fredProvider && supportsEconomicIndicators(this.fredProvider)) {
             try {
-                const executeFn = this.rateLimiters.fred
-                    ? () => this.rateLimiters.fred!.execute(() =>
-                          this.fredProvider!.getEconomicIndicator!(seriesId, startDate, endDate)
-                      )
-                    : () => this.fredProvider!.getEconomicIndicator!(seriesId, startDate, endDate);
+                const executeFn = this.createRateLimitedFunction(
+                    this.rateLimiters.fred,
+                    () => this.fredProvider!.getEconomicIndicator!(seriesId, startDate, endDate)
+                );
 
                 const indicator = await executeFn();
                 this.cache.set(cacheKey, indicator, config.CACHE_TTL_ECONOMIC_DATA);

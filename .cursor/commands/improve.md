@@ -6,7 +6,7 @@ This command guides the AI agent through a systematic code review and improvemen
 
 **Important: Improve only one thing at a time**
 
-- **Priority: New changes first** - Always prioritize improvements to new changes compared to main branch
+- **Priority: New changes first** - Always prioritize improvements to new changes (including uncommitted, unpushed and pushed changes) compared to remote main branch
 - **General improvements only when no new changes** - Only proceed with general codebase improvements when there are no new changes compared to main
 - If multiple improvements are found, pick the **most important one**
 - If it's not clear which is most important, **ask for confirmation**
@@ -22,8 +22,7 @@ This command guides the AI agent through a systematic code review and improvemen
 
 1. **Check Current State:**
    - Check current branch and status
-   - Review recent changes
-   - Check for uncommitted changes
+   - Check for uncommitted and unpushed changes
    - Run tests to establish baseline
    - Run linter to check current state
 
