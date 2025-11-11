@@ -34,6 +34,25 @@ This command guides the AI agent through a comprehensive analysis of significant
 
 **Note:** Steps 2-4 are iterative - you may need to search again after quantifying, or verify after finding causes. Don't treat them as strictly sequential.
 
+### 0. Establish Current Date and Time
+
+**Action Required:**
+
+1. **Get Current Date/Time:**
+   - Use system date/time to establish the current moment
+   - Format: `YYYY-MM-DD (Day of Week)` or `YYYY-MM-DD HH:MM` if time is relevant
+   - Example: `2025-11-08 (Friday)` or `2025-11-08 14:30 EST`
+
+2. **Use for Context:**
+   - Interpret relative time references (e.g., "last week", "recently")
+   - Calculate time elapsed since events
+   - Include at the start of analysis output
+
+**Example:**
+```
+Current Date/Time: 2025-11-08 (Friday) 14:30 EST
+```
+
 ### 1. Identify the Market Movement or Event
 
 **Action Required:**
@@ -41,7 +60,7 @@ This command guides the AI agent through a comprehensive analysis of significant
 1. **Parse User Query:**
    - Extract key information from user's question:
      - Market movement type (drop, surge, volatility spike, etc.)
-     - Date range or specific date
+     - Date range or specific date (interpret relative to current date/time from Step 0)
      - Affected assets/sectors/companies
      - If information is missing, note what needs clarification
 
@@ -53,7 +72,8 @@ This command guides the AI agent through a comprehensive analysis of significant
    - **If user query is vague**, search broadly first:
      - Search: `web_search("[movement type] [date range] market")`
      - Example: If user asks "What happened to stocks last week?"
-       - Search: `web_search("stock market movement last week")`
+       - Calculate "last week" based on current date/time
+       - Search: `web_search("stock market movement [calculated date range]")`
    - **Goal**: Get initial understanding of what happened
 
 3. **Extract Key Details from Search Results:**
@@ -249,13 +269,14 @@ mcp_finx-market-data_get_quote("NVDA")
 **Action Required:**
 
 **Structure Your Response:**
-1. **Start with "What Happened"** - Clear, concise summary
-2. **Present "The Numbers"** - Quantified data in tables
-3. **Explain "Root Causes"** - With evidence and context
-4. **Provide "Why This Matters"** - Educational explanation
-5. **Add "Historical Context"** - Comparisons to past events
-6. **Present "Different Perspectives"** - Multiple viewpoints
-7. **End with "What to Watch Next"** - Follow-up items
+1. **Start with "Current Context"** - Current date/time
+2. **Present "What Happened"** - Clear, concise summary
+3. **Present "The Numbers"** - Quantified data in tables
+4. **Explain "Root Causes"** - With evidence and context
+5. **Provide "Why This Matters"** - Educational explanation
+6. **Add "Historical Context"** - Comparisons to past events
+7. **Present "Different Perspectives"** - Multiple viewpoints
+8. **End with "What to Watch Next"** - Follow-up items
 
 **When to Explain Concepts:**
 - Always explain technical terms (VIX, P/E ratio, etc.)
@@ -265,6 +286,9 @@ mcp_finx-market-data_get_quote("NVDA")
 
 **Example Structure:**
 ```markdown
+## Current Context
+**Analysis Date**: 2025-11-08 (Friday) 14:30 EST
+
 ## What Happened
 [Clear description of the movement]
 
@@ -321,6 +345,7 @@ After completing the analysis, offer to create a journal entry:
    # [Event Title] - [Date Range]
 
    ## Quick Summary
+   - **Analysis Date**: [Current date/time]
    - **Event**: [Brief description]
    - **Date Range**: [Start] to [End]
    - **Primary Impact**: [Sectors/assets affected]
@@ -399,7 +424,7 @@ Consider documenting insights beyond the journal entry:
 
 Use markdown formatting: tables for quantitative data, bullet points for lists, headers for sections, emphasis for key points.
 
-**Structure:** What Happened → The Numbers → Root Causes → Why This Matters → Historical Context → Different Perspectives → What to Watch Next
+**Structure:** Current Context → What Happened → The Numbers → Root Causes → Why This Matters → Historical Context → Different Perspectives → What to Watch Next
 
 ## Examples
 
@@ -408,6 +433,9 @@ Use markdown formatting: tables for quantitative data, bullet points for lists, 
 **User Query:** "Why did tech stocks drop significantly during November 1-8, 2025?"
 
 **Detailed Workflow:**
+
+0. **Establish Current Date/Time:**
+   - Get current date/time: 2025-11-08 (Friday) 14:30 EST
 
 1. **Identify:**
    - Parse query: movement=drop, sector=tech, date=Nov 1-8, 2025
@@ -461,6 +489,9 @@ Use markdown formatting: tables for quantitative data, bullet points for lists, 
 
 **Detailed Workflow:**
 
+0. **Establish Current Date/Time:**
+   - Get current date/time: 2025-11-08 (Friday) 14:30 EST
+
 1. **Identify:**
    - Parse query: movement=surge, sector=AI stocks, date=late October 2025
    - Query is clear, proceed with search
@@ -508,6 +539,9 @@ Use markdown formatting: tables for quantitative data, bullet points for lists, 
 **User Query:** "Why did market volatility spike on November 7, 2025?"
 
 **Detailed Workflow:**
+
+0. **Establish Current Date/Time:**
+   - Get current date/time: 2025-11-08 (Friday) 14:30 EST
 
 1. **Identify:**
    - Parse query: movement=volatility spike, date=November 7, 2025
@@ -591,6 +625,7 @@ Use markdown formatting: tables for quantitative data, bullet points for lists, 
 ## Verification Checklist
 
 Before presenting analysis, verify:
+- [ ] Current date/time is established and documented
 - [ ] All key numbers are accurate
 - [ ] Percentage changes are calculated correctly
 - [ ] Dates and timeframes are correct
