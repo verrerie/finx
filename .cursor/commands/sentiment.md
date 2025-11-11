@@ -40,51 +40,31 @@ This command guides the AI agent through a comprehensive analysis of significant
 
 1. **Get Current Date/Time:**
    - Use system date/time to establish the current moment
-   - Document: Current date, day of week, and time (if relevant)
    - Format: `YYYY-MM-DD (Day of Week)` or `YYYY-MM-DD HH:MM` if time is relevant
    - Example: `2025-11-08 (Friday)` or `2025-11-08 14:30 EST`
 
-2. **Purpose:**
-   - Establish timeline context for the analysis
-   - Understand what "current" means relative to the event
-   - Help interpret relative time references (e.g., "last week", "recently")
-   - Provide context for date comparisons and recency of events
-
-3. **Document in Analysis:**
-   - Include current date/time at the start of the analysis
-   - Reference it when discussing relative timeframes
-   - Use it to calculate time elapsed since events
-   - Note market hours status if relevant (pre-market, regular hours, after-hours)
-
-**Tool Usage:**
-- Use system date/time (available in the environment)
-- Format consistently throughout the analysis
-- Reference this date when interpreting relative time references in user queries
+2. **Use for Context:**
+   - Interpret relative time references (e.g., "last week", "recently")
+   - Calculate time elapsed since events
+   - Include at the start of analysis output
 
 **Example:**
 ```
 Current Date/Time: 2025-11-08 (Friday) 14:30 EST
-Market Status: Regular trading hours
 ```
 
 ### 1. Identify the Market Movement or Event
 
 **Action Required:**
 
-1. **Establish Timeline Context:**
-   - Reference the current date/time established in Step 0
-   - Interpret relative time references (e.g., "last week" = 7 days before current date)
-   - Calculate time elapsed if user provides specific dates
-   - Note market hours status if relevant
-
-2. **Parse User Query:**
+1. **Parse User Query:**
    - Extract key information from user's question:
      - Market movement type (drop, surge, volatility spike, etc.)
-     - Date range or specific date (interpret relative to current date/time)
+     - Date range or specific date (interpret relative to current date/time from Step 0)
      - Affected assets/sectors/companies
      - If information is missing, note what needs clarification
 
-3. **Initial Search (PRIMARY: Internet Search):**
+2. **Initial Search (PRIMARY: Internet Search):**
    - **If user query is clear**, immediately start searching:
      - Use the user's query keywords: `web_search("[user query keywords] [date]")`
      - Example: If user asks "Why did tech stocks drop November 1-8, 2025?"
@@ -96,16 +76,14 @@ Market Status: Regular trading hours
        - Search: `web_search("stock market movement [calculated date range]")`
    - **Goal**: Get initial understanding of what happened
 
-4. **Extract Key Details from Search Results:**
+3. **Extract Key Details from Search Results:**
    - Review search results for reported numbers, dates, and context
    - Extract: specific movement type, affected assets/sectors, time period, magnitude, companies/indices
-   - Cross-reference dates with current date/time to understand recency
    - Cross-reference multiple sources for accuracy
    - Document findings in organized format
 
-5. **If Information is Still Missing:**
+4. **If Information is Still Missing:**
    - Ask user for clarification: date range, companies/sectors, or what aspect to understand
-   - Reference current date/time when asking for clarification (e.g., "When you say 'last week', do you mean [calculated date range]?")
 
 **Tool Usage:**
 - Use `web_search()` (not bash command)
@@ -291,7 +269,7 @@ mcp_finx-market-data_get_quote("NVDA")
 **Action Required:**
 
 **Structure Your Response:**
-1. **Start with "Current Context"** - Current date/time and market status
+1. **Start with "Current Context"** - Current date/time
 2. **Present "What Happened"** - Clear, concise summary
 3. **Present "The Numbers"** - Quantified data in tables
 4. **Explain "Root Causes"** - With evidence and context
@@ -310,8 +288,6 @@ mcp_finx-market-data_get_quote("NVDA")
 ```markdown
 ## Current Context
 **Analysis Date**: 2025-11-08 (Friday) 14:30 EST
-**Market Status**: Regular trading hours
-**Time Since Event**: [X days/weeks since the event occurred]
 
 ## What Happened
 [Clear description of the movement]
@@ -372,7 +348,6 @@ After completing the analysis, offer to create a journal entry:
    - **Analysis Date**: [Current date/time]
    - **Event**: [Brief description]
    - **Date Range**: [Start] to [End]
-   - **Time Since Event**: [X days/weeks]
    - **Primary Impact**: [Sectors/assets affected]
    - **Magnitude**: [Key numbers]
 
@@ -461,13 +436,9 @@ Use markdown formatting: tables for quantitative data, bullet points for lists, 
 
 0. **Establish Current Date/Time:**
    - Get current date/time: 2025-11-08 (Friday) 14:30 EST
-   - Market status: Regular trading hours
-   - Time since event: Event occurred Nov 1-8, 2025 (0-7 days ago)
 
 1. **Identify:**
-   - Reference current date: 2025-11-08
    - Parse query: movement=drop, sector=tech, date=Nov 1-8, 2025
-   - Calculate: Event occurred 0-7 days ago (very recent)
    - Query is clear, proceed with search
    - Action: `web_search("tech stocks drop November 1-8 2025")`
    - Extract: Tech stock decline, Nov 1-8, 2025
@@ -520,13 +491,9 @@ Use markdown formatting: tables for quantitative data, bullet points for lists, 
 
 0. **Establish Current Date/Time:**
    - Get current date/time: 2025-11-08 (Friday) 14:30 EST
-   - Market status: Regular trading hours
-   - Time since event: Event occurred late October 2025 (approximately 1-2 weeks ago)
 
 1. **Identify:**
-   - Reference current date: 2025-11-08
    - Parse query: movement=surge, sector=AI stocks, date=late October 2025
-   - Calculate: Event occurred approximately 1-2 weeks ago
    - Query is clear, proceed with search
    - Action: `web_search("AI stock surge late October 2025")`
    - Extract: AI stock surge, late October 2025
@@ -575,13 +542,9 @@ Use markdown formatting: tables for quantitative data, bullet points for lists, 
 
 0. **Establish Current Date/Time:**
    - Get current date/time: 2025-11-08 (Friday) 14:30 EST
-   - Market status: Regular trading hours
-   - Time since event: Event occurred November 7, 2025 (1 day ago - very recent)
 
 1. **Identify:**
-   - Reference current date: 2025-11-08
    - Parse query: movement=volatility spike, date=November 7, 2025
-   - Calculate: Event occurred 1 day ago (yesterday)
    - Query is clear, proceed with search
    - Action: `web_search("market volatility spike November 7 2025")`
    - Extract: VIX spike, November 7, 2025
@@ -663,7 +626,6 @@ Use markdown formatting: tables for quantitative data, bullet points for lists, 
 
 Before presenting analysis, verify:
 - [ ] Current date/time is established and documented
-- [ ] Relative time references are correctly interpreted
 - [ ] All key numbers are accurate
 - [ ] Percentage changes are calculated correctly
 - [ ] Dates and timeframes are correct
