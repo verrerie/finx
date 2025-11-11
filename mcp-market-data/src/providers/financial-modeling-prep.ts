@@ -15,6 +15,7 @@ export class FinancialModelingPrepProvider implements IMarketDataProvider {
     readonly name = 'Financial Modeling Prep';
     private apiKey: string;
     private baseUrl = 'https://financialmodelingprep.com/api/v3';
+    private stableBaseUrl = 'https://financialmodelingprep.com/stable';
 
     constructor(apiKey?: string) {
         const key = apiKey || config.ENV.FMP_API_KEY;
@@ -56,8 +57,9 @@ export class FinancialModelingPrepProvider implements IMarketDataProvider {
 
     async getCompanyInfo(symbol: string): Promise<CompanyInfo> {
         try {
+            // Use stable profile endpoint for comprehensive company data
             const [profile, keyMetrics] = await Promise.all([
-                axios.get(`${this.baseUrl}/profile/${symbol}`, {
+                axios.get(`${this.stableBaseUrl}/profile/${symbol}`, {
                     params: { apikey: this.apiKey },
                 }).catch(() => null),
                 axios.get(`${this.baseUrl}/key-metrics-ttm/${symbol}`, {
@@ -81,34 +83,53 @@ export class FinancialModelingPrepProvider implements IMarketDataProvider {
                 description: company.description || 'No description available',
                 sector: company.sector || 'N/A',
                 industry: company.industry || 'N/A',
-                marketCap: company.mktCap || 0,
+                marketCap: company.mktCap || company.marketCap || 0,
 
                 // Valuation
-                peRatio: metrics?.peRatioTTM || company.peRatioTTM,
-                pbRatio: metrics?.pbRatioTTM,
-                dividendYield: company.lastDiv || metrics?.dividendYieldTTM,
+                peRatio: metrics?.peRatioTTM || company.peRatioTTM || company.peRatio,
+                pbRatio: metrics?.pbRatioTTM || company.pbRatio,
+                dividendYield: company.lastDiv || metrics?.dividendYieldTTM || company.dividendYield,
                 eps: metrics?.netIncomePerShareTTM || company.eps,
                 beta: company.beta,
 
                 // Profitability
-                profitMargin: metrics?.netProfitMarginTTM,
-                operatingMargin: metrics?.operatingProfitMarginTTM,
-                returnOnEquity: metrics?.roeTTM,
-                returnOnAssets: metrics?.roaTTM,
+                profitMargin: metrics?.netProfitMarginTTM || company.profitMargin,
+                operatingMargin: metrics?.operatingProfitMarginTTM || company.operatingMargin,
+                returnOnEquity: metrics?.roeTTM || company.returnOnEquity,
+                returnOnAssets: metrics?.roaTTM || company.returnOnAssets,
 
                 // Financial health
-                debtToEquity: metrics?.debtToEquityTTM,
-                currentRatio: metrics?.currentRatioTTM,
+                debtToEquity: metrics?.debtToEquityTTM || company.debtToEquity,
+                currentRatio: metrics?.currentRatioTTM || company.currentRatio,
 
                 // Growth
-                revenueGrowth: metrics?.revenueGrowthTTM,
-                earningsGrowth: metrics?.earningsGrowthTTM,
+                revenueGrowth: metrics?.revenueGrowthTTM || company.revenueGrowth,
+                earningsGrowth: metrics?.earningsGrowthTTM || company.earningsGrowth,
 
                 // Other
-                revenue: metrics?.revenuePerShareTTM ? metrics.revenuePerShareTTM * (metrics.sharesOutstandingTTM || 0) : undefined,
-                grossProfit: metrics?.grossProfitTTM,
-                weekHigh52: company.range?.split('-')?.[1] ? parseFloat(company.range.split('-')[1]) : undefined,
-                weekLow52: company.range?.split('-')?.[0] ? parseFloat(company.range.split('-')[0]) : undefined,
+                revenue: metrics?.revenuePerShareTTM ? metrics.revenuePerShareTTM * (metrics.sharesOutstandingTTM || 0) : company.revenue,
+                grossProfit: metrics?.grossProfitTTM || company.grossProfit,
+                weekHigh52: company.range?.split('-')?.[1] ? parseFloat(company.range.split('-')[1]) : company.weekHigh52 || company.yearHigh,
+                weekLow52: company.range?.split('-')?.[0] ? parseFloat(company.range.split('-')[0]) : company.weekLow52 || company.yearLow,
+
+                // Company profile details from stable profile API
+                ceo: company.ceo,
+                address: company.address,
+                city: company.city,
+                state: company.state,
+                zip: company.zip,
+                country: company.country,
+                phone: company.phone,
+                website: company.website,
+                exchange: company.exchange,
+                exchangeShortName: company.exchangeShortName,
+                ipoDate: company.ipoDate,
+                currency: company.currency,
+                fullTimeEmployees: company.fullTimeEmployees,
+                image: company.image,
+                isin: company.isin,
+                cusip: company.cusip,
+                cik: company.cik,
 
                 lastUpdated: new Date(),
             };

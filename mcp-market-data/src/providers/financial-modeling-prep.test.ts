@@ -85,6 +85,23 @@ describe('FinancialModelingPrepProvider', () => {
                 lastDiv: 0.005,
                 eps: 5.5,
                 range: '120.0-180.0',
+                ceo: 'Tim Cook',
+                address: 'One Apple Park Way',
+                city: 'Cupertino',
+                state: 'CA',
+                zip: '95014',
+                country: 'US',
+                phone: '408-996-1010',
+                website: 'https://www.apple.com',
+                exchange: 'NASDAQ',
+                exchangeShortName: 'NASDAQ',
+                ipoDate: '1980-12-12',
+                currency: 'USD',
+                fullTimeEmployees: 164000,
+                image: 'https://logo.clearbit.com/apple.com',
+                isin: 'US0378331005',
+                cusip: '037833100',
+                cik: '0000320193',
             }];
 
             const mockMetrics = [{
@@ -111,6 +128,12 @@ describe('FinancialModelingPrepProvider', () => {
 
             const result = await provider.getCompanyInfo('AAPL');
 
+            // Verify stable endpoint is called
+            expect(mockedAxios.get).toHaveBeenCalledWith(
+                'https://financialmodelingprep.com/stable/profile/AAPL',
+                { params: { apikey: apiKey } }
+            );
+
             expect(result.symbol).toBe('AAPL');
             expect(result.name).toBe('Apple Inc.');
             expect(result.description).toBe('Technology company');
@@ -120,6 +143,25 @@ describe('FinancialModelingPrepProvider', () => {
             expect(result.peRatio).toBe(28.5);
             expect(result.pbRatio).toBe(45.2);
             expect(result.dividendYield).toBe(0.005);
+
+            // Verify new profile fields
+            expect(result.ceo).toBe('Tim Cook');
+            expect(result.address).toBe('One Apple Park Way');
+            expect(result.city).toBe('Cupertino');
+            expect(result.state).toBe('CA');
+            expect(result.zip).toBe('95014');
+            expect(result.country).toBe('US');
+            expect(result.phone).toBe('408-996-1010');
+            expect(result.website).toBe('https://www.apple.com');
+            expect(result.exchange).toBe('NASDAQ');
+            expect(result.exchangeShortName).toBe('NASDAQ');
+            expect(result.ipoDate).toBe('1980-12-12');
+            expect(result.currency).toBe('USD');
+            expect(result.fullTimeEmployees).toBe(164000);
+            expect(result.image).toBe('https://logo.clearbit.com/apple.com');
+            expect(result.isin).toBe('US0378331005');
+            expect(result.cusip).toBe('037833100');
+            expect(result.cik).toBe('0000320193');
         });
 
         it('should handle partial data', async () => {

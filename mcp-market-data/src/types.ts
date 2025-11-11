@@ -66,6 +66,25 @@ export interface CompanyInfo {
     weekHigh52?: number;
     weekLow52?: number;
 
+    // Company profile details (from FMP stable profile API)
+    ceo?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+    country?: string;
+    phone?: string;
+    website?: string;
+    exchange?: string;
+    exchangeShortName?: string;
+    ipoDate?: string;
+    currency?: string;
+    fullTimeEmployees?: number;
+    image?: string;
+    isin?: string;
+    cusip?: string;
+    cik?: string;
+
     lastUpdated: Date;
 }
 
